@@ -316,6 +316,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ===================================
+    // Simple Map Responsiveness Fix
+    // ===================================
+    function simpleMapFix() {
+        const maps = document.querySelectorAll('.map-container iframe');
+        maps.forEach(map => {
+            map.style.width = '100%';
+            map.style.height = '100%';
+        });
+    }
+    
+    // Apply on load and resize
+    window.addEventListener('load', simpleMapFix);
+    window.addEventListener('resize', simpleMapFix);
+    
+    // ===================================
     // Console Welcome Message
     // ===================================
     console.log('%c Real Estate Website ', 'background: #0d6efd; color: white; font-size: 20px; padding: 10px;');

@@ -204,17 +204,16 @@
             <div class="card-body p-0">
                 {% if about_info and about_info.map_embed_code %}
                     <!-- User-provided Google Maps embed code -->
-                    {{ about_info.map_embed_code|safe }}
+                    <div class="map-container">
+                        {{ about_info.map_embed_code|safe }}
+                    </div>
                 {% elif about_info and about_info.map_latitude and about_info.map_longitude %}
                     <!-- Google Maps with user-provided coordinates -->
-                    <iframe 
-                        src="https://www.google.com/maps/embed/v1/view?key={% if about_info.google_maps_api_key %}{{ about_info.google_maps_api_key }}{% else %}AIzaSyD-9t7p9J9j9j9j9j9j9j9j9j9j9j9j9j9{% endif %}&center={{ about_info.map_latitude }},{{ about_info.map_longitude }}&zoom=15" 
-                        width="100%" 
-                        height="400" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy">
-                    </iframe>
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed/v1/view?key={% if about_info.google_maps_api_key %}{{ about_info.google_maps_api_key }}{% else %}AIzaSyD-9t7p9J9j9j9j9j9j9j9j9j9j9j9j9j9{% endif %}&center={{ about_info.map_latitude }},{{ about_info.map_longitude }}&zoom=15">
+                        </iframe>
+                    </div>
                 {% else %}
                     <!-- Default placeholder -->
                     <div class="map-placeholder bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 400px;">

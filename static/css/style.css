@@ -911,11 +911,55 @@ a {
     box-shadow: 0 15px 30px rgba(0,0,0,0.15);
 }
 
-/* Map Placeholder */
-.map-placeholder {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    border-radius: 15px;
+/* Map Container - Full Card Fill Solution */
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
     overflow: hidden;
+}
+
+.map-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+
+/* Fixed heights for different breakpoints */
+@media (min-width: 992px) {
+    .card-body .map-container {
+        height: 400px;
+    }
+}
+
+@media (max-width: 991px) and (min-width: 768px) {
+    .card-body .map-container {
+        height: 350px;
+    }
+}
+
+@media (max-width: 767px) and (min-width: 576px) {
+    .card-body .map-container {
+        height: 300px;
+    }
+}
+
+@media (max-width: 575px) {
+    .card-body .map-container {
+        height: 250px;
+    }
+}
+
+/* Prevent horizontal scrolling */
+body,
+.container,
+.card-body {
+    overflow-x: hidden;
 }
 
 /* Responsive Images */
