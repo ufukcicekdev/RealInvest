@@ -194,7 +194,6 @@ def robots_txt(request):
         "Allow: /",
         "Allow: /listings/",
         "Allow: /construction/",
-        "Allow: /about/",
         "Allow: /contact/",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")

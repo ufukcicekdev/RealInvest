@@ -1,5 +1,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
+from django.conf import settings
 from .models import Listing, Construction
 
 
@@ -16,6 +17,9 @@ class ListingSitemap(Sitemap):
     def lastmod(self, obj):
         return obj.updated_date
 
+    def location(self, obj):
+        return reverse('listing_detail', kwargs={'slug': obj.slug})
+
 
 class ConstructionSitemap(Sitemap):
     """
@@ -30,6 +34,9 @@ class ConstructionSitemap(Sitemap):
     def lastmod(self, obj):
         return obj.created_date
 
+    def location(self, obj):
+        return reverse('construction') + f'#{obj.slug}'
+
 
 class StaticViewSitemap(Sitemap):
     """
@@ -39,7 +46,8 @@ class StaticViewSitemap(Sitemap):
     changefreq = 'monthly'
 
     def items(self):
-        return ['home', 'listings', 'construction', 'about', 'contact']
+        # Removed 'about' since it's been consolidated to homepage
+        return ['home', 'listings', 'construction', 'contact']
 
     def location(self, item):
         return reverse(item)
