@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>Gayrimenkul İlanları</h1>
+                <p>Geniş gayrimenkul koleksiyonumuza göz atın</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters and Search -->
+<section class="filters-section py-5">
+    <div class="container">
+        <form method="get" class="row g-3" id="listings-filter-form">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Başlık veya konum ile ara..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <div class="dropdown-container">
+                    <div class="dropdown-selected">
+                        {% if selected_type == 'apartment' %}Daire
+                        {% elif selected_type == 'house' %}Ev
+                        {% elif selected_type == 'villa' %}Villa
+                        {% elif selected_type == 'land' %}Arsa
+                        {% elif selected_type == 'commercial' %}Ticari
+                        {% elif selected_type == 'office' %}Ofis
+                        {% else %}Tüm Gayrimenkul Tipleri{% endif %}
+                    </div>
+                    <ul class="dropdown-options">
+                        <li data-value="">Tüm Gayrimenkul Tipleri</li>
+                        <li data-value="apartment" {% if selected_type == 'apartment' %}data-selected="true"{% endif %}>Daire</li>
+                        <li data-value="house" {% if selected_type == 'house' %}data-selected="true"{% endif %}>Ev</li>
+                        <li data-value="villa" {% if selected_type == 'villa' %}data-selected="true"{% endif %}>Villa</li>
+                        <li data-value="land" {% if selected_type == 'land' %}data-selected="true"{% endif %}>Arsa</li>
+                        <li data-value="commercial" {% if selected_type == 'commercial' %}data-selected="true"{% endif %}>Ticari</li>
+                        <li data-value="office" {% if selected_type == 'office' %}data-selected="true"{% endif %}>Ofis</li>
+                    </ul>
+                    <input type="hidden" name="type" id="type" value="{{ selected_type }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dropdown-container">
+                    <div class="dropdown-selected">
+                        {% if selected_status == 'sale' %}Satılık
+                        {% elif selected_status == 'rent' %}Kiralık
+                        {% else %}Tüm Durumlar{% endif %}
+                    </div>
+                    <ul class="dropdown-options">
+                        <li data-value="">Tüm Durumlar</li>
+                        <li data-value="sale" {% if selected_status == 'sale' %}data-selected="true"{% endif %}>Satılık</li>
+                        <li data-value="rent" {% if selected_status == 'rent' %}data-selected="true"{% endif %}>Kiralık</li>
+                    </ul>
+                    <input type="hidden" name="status" id="status" value="{{ selected_status }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Ara
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Listings Grid -->
+<section class="listings-grid py-5">
+    <div class="container">
+        {% if page_obj.object_list %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <p class="text-muted">{{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ page_obj.paginator.count }} gayrimenkul gösteriliyor</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for listing in page_obj %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card property-card h-100">
+                    <div class="position-relative">
+                        {% if listing.main_image %}
+                        <img src="{{ listing.main_image.url }}" class="card-img-top" alt="{{ listing.image_alt_text }}">
+                        {% else %}
+                        <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="Property placeholder">
+                        {% endif %}
+                        <span class="badge bg-primary position-absolute top-0 start-0 m-3">{{ listing.get_status_display }}</span>
+                        <span class="badge bg-dark position-absolute top-0 end-0 m-3">{{ listing.get_property_type_display }}</span>
+                        {% if listing.is_featured %}
+                        <span class="badge bg-warning position-absolute bottom-0 start-0 m-3">
+                            <i class="bi bi-star-fill"></i> Öne Çıkan
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }}</h5>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-geo-alt"></i> {{ listing.location }}
+                        </p>
+                        <p class="card-text text-truncate">{{ listing.description|truncatewords:20 }}</p>
+                        
+                        <div class="property-features mb-3">
+                            <div class="row text-center g-2">
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="bi bi-house"></i><br>
+                                        {{ listing.bedrooms }} Oda
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="bi bi-droplet"></i><br>
+                                        {{ listing.bathrooms }} Banyo
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="bi bi-arrows-fullscreen"></i><br>
+                                        {{ listing.area }} m²
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="price mb-0">₺{{ listing.price|floatformat:0 }}</h4>
+                            <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-outline-primary btn-sm">
+                                Detaylar <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="row">
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-house-x fs-1 text-muted"></i>
+                <h3 class="mt-3">Gayrimenkul Bulunamadı</h3>
+                <p class="text-muted">Arama kriterlerinizi ayarlamayı deneyin</p>
+                <a href="{% url 'listings' %}" class="btn btn-primary">Filtreleri Temizle</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- JSON-LD Structured Data -->
+{% block structured_data %}
+{{ block.super }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {% for listing in page_obj %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "item": {
+        "@type": "RealEstateListing",
+        "name": "{{ listing.title }}",
+        "description": "{{ listing.description|truncatewords:30 }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'listing_detail' listing.slug %}"
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+{% endblock %}

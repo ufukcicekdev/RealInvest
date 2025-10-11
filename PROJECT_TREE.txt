@@ -1,0 +1,49 @@
+.
+├── DEPLOYMENT.md
+├── PROJECT_SUMMARY.md
+├── PROJECT_TREE.txt
+├── QUICKSTART.md
+├── README.md
+├── db.sqlite3
+├── manage.py
+├── media
+├── properties
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── migrations
+│   │   ├── 0001_initial.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── sitemaps.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── realestate_project
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── requirements.txt
+├── static
+│   ├── css
+│   │   └── style.css
+│   ├── images
+│   │   ├── hero-bg.jpg
+│   │   └── placeholder.jpg
+│   └── js
+│       └── script.js
+└── templates
+    ├── base.html
+    ├── properties
+    │   ├── about.html
+    │   ├── construction.html
+    │   ├── contact.html
+    │   ├── home.html
+    │   ├── listing_detail.html
+    │   └── listings.html
+    └── robots.txt
+
+11 directories, 36 files

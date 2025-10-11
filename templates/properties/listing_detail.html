@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ listing.meta_title }} | RealEstate{% endblock %}
+{% block meta_description %}{{ listing.meta_description }}{% endblock %}
+
+{% block og_title %}{{ listing.title }}{% endblock %}
+{% block og_description %}{{ listing.description|truncatewords:30 }}{% endblock %}
+{% block og_image %}{% if listing.main_image %}{{ request.scheme }}://{{ request.get_host }}{{ listing.main_image.url }}{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="bg-light py-3">
+    <div class="container">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Ana Sayfa</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'listings' %}">İlanlar</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ listing.title }}</li>
+        </ol>
+    </div>
+</nav>
+
+<!-- Property Detail Section -->
+<section class="property-detail py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Property Images -->
+                <div class="property-images mb-4">
+                    {% if listing.main_image %}
+                    <img src="{{ listing.main_image.url }}" class="img-fluid rounded shadow" alt="{{ listing.image_alt_text }}" style="width: 100%; height: 500px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <!-- Image Gallery -->
+                    {% if listing.images.all %}
+                    <div class="row g-2 mt-3">
+                        {% for image in listing.images.all %}
+                        <div class="col-md-3">
+                            <img src="{{ image.image.url }}" class="img-fluid rounded" alt="{{ image.alt_text }}" style="height: 150px; width: 100%; object-fit: cover; cursor: pointer;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Property Title and Price -->
+                <div class="property-header mb-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="fw-bold">{{ listing.title }}</h1>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-geo-alt-fill"></i> {{ listing.address|default:listing.location }}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="text-primary mb-0">${{ listing.price|floatformat:0 }}</h2>
+                            <span class="badge bg-primary">{{ listing.get_status_display }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Property Features -->
+                <div class="property-features card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Gayrimenkul Özellikleri</h5>
+                        <div class="row g-3">
+                            <div class="col-md-3 col-6">
+                                <div class="feature-box text-center p-3 bg-light rounded">
+                                    <i class="bi bi-house-door fs-3 text-primary"></i>
+                                    <p class="mb-0 mt-2"><strong>Tip</strong></p>
+                                    <p class="text-muted mb-0">{{ listing.get_property_type_display }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="feature-box text-center p-3 bg-light rounded">
+                                    <i class="bi bi-door-open fs-3 text-primary"></i>
+                                    <p class="mb-0 mt-2"><strong>Yatak Odaları</strong></p>
+                                    <p class="text-muted mb-0">{{ listing.bedrooms }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="feature-box text-center p-3 bg-light rounded">
+                                    <i class="bi bi-droplet fs-3 text-primary"></i>
+                                    <p class="mb-0 mt-2"><strong>Banyolar</strong></p>
+                                    <p class="text-muted mb-0">{{ listing.bathrooms }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="feature-box text-center p-3 bg-light rounded">
+                                    <i class="bi bi-arrows-fullscreen fs-3 text-primary"></i>
+                                    <p class="mb-0 mt-2"><strong>Alan</strong></p>
+                                    <p class="text-muted mb-0">{{ listing.area }} m²</p>
+                                </div>
+                            </div>
+                            {% if listing.floor %}
+                            <div class="col-md-3 col-6">
+                                <div class="feature-box text-center p-3 bg-light rounded">
+                                    <i class="bi bi-building fs-3 text-primary"></i>
+                                    <p class="mb-0 mt-2"><strong>Kat</strong></p>
+                                    <p class="text-muted mb-0">{{ listing.floor }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if listing.building_age %}
+                            <div class="col-md-3 col-6">
+                                <div class="feature-box text-center p-3 bg-light rounded">
+                                    <i class="bi bi-calendar fs-3 text-primary"></i>
+                                    <p class="mb-0 mt-2"><strong>Bina Yaşı</strong></p>
+                                    <p class="text-muted mb-0">{{ listing.building_age }} yıl</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Property Description -->
+                <div class="property-description card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Açıklama</h5>
+                        <p class="text-muted">{{ listing.description|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Contact Card -->
+                <div class="card shadow-sm mb-4 sticky-top" style="top: 100px;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Danışmanla İletişime Geçin</h5>
+                        <form action="{% url 'contact' %}" method="get">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Adınız" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="E-posta Adresiniz" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="tel" class="form-control" placeholder="Telefon Numaranız" required>
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control" rows="3" placeholder="Bu gayrimenkul hakkında mesaj...">{{ listing.title }} ile ilgileniyorum</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-envelope"></i> Sorgunuzu Gönderin
+                            </button>
+                        </form>
+                        <hr>
+                        <div class="contact-info">
+                            <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> +1 234 567 8900</p>
+                            <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> info@realestate.com</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Property Info -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Gayrimenkul Bilgileri</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <strong>Gayrimenkul ID:</strong> #{{ listing.id }}
+                            </li>
+                            <li class="mb-2">
+                                <strong>Konum:</strong> {{ listing.location }}
+                            </li>
+                            <li class="mb-2">
+                                <strong>Durum:</strong> 
+                                <span class="badge bg-primary">{{ listing.get_status_display }}</span>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Tip:</strong> {{ listing.get_property_type_display }}
+                            </li>
+                            <li class="mb-2">
+                                <strong>Yayınlanma:</strong> {{ listing.created_date|date:"d M Y" }}
+                            </li>
+                        </ul>
+                        
+                        <!-- Paylaş Butonları -->
+                        <hr>
+                        <h6 class="mb-2">Bu gayrimenkulü paylaşın:</h6>
+                        <div class="share-buttons">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ listing.title }}" target="_blank" class="btn btn-sm btn-outline-info me-2">
+                                <i class="bi bi-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Properties -->
+        {% if related_listings %}
+        <section class="related-properties mt-5">
+            <h3 class="fw-bold mb-4">{{ listing.location }} Bölgesindeki Benzer Gayrimenkuller</h3>
+            <div class="row g-4">
+                {% for related in related_listings %}
+                <div class="col-md-4">
+                    <div class="card property-card h-100 shadow-sm">
+                        <div class="position-relative">
+                            {% if related.main_image %}
+                            <img src="{{ related.main_image.url }}" class="card-img-top" alt="{{ related.image_alt_text }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <span class="badge bg-primary position-absolute top-0 start-0 m-2">{{ related.get_status_display }}</span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">{{ related.title|truncatewords:8 }}</h6>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-geo-alt"></i> {{ related.location }}
+                            </p>
+                            <h5 class="text-primary mb-2">₺{{ related.price|floatformat:0 }}</h5>
+                            <a href="{% url 'listing_detail' related.slug %}" class="btn btn-sm btn-outline-primary w-100">Detayları Gör</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</section>
+
+<!-- JSON-LD Structured Data for Property -->
+{% block structured_data %}
+{{ block.super }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateListing",
+  "name": "{{ listing.title }}",
+  "description": "{{ listing.description|truncatewords:50 }}",
+  "url": "{{ request.build_absolute_uri }}",
+  "image": "{% if listing.main_image %}{{ request.scheme }}://{{ request.get_host }}{{ listing.main_image.url }}{% endif %}",
+  "price": "{{ listing.price }}",
+  "priceCurrency": "USD",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "{{ listing.location }}"
+  },
+  "numberOfRooms": "{{ listing.bedrooms }}",
+  "floorSize": {
+    "@type": "QuantitativeValue",
+    "value": "{{ listing.area }}",
+    "unitCode": "MTK"
+  }
+}
+</script>
+{% endblock %}
+
+{% endblock %}

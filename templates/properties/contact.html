@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>İletişim</h1>
+                <p>Gayrimenkullerimiz hakkında herhangi bir sorunuz için bize ulaşın</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact-section py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Contact Form -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="fw-bold mb-4">Bize Mesaj Gönderin</h3>
+                        
+                        <!-- Messages are displayed in the base template, so we don't need to repeat them here -->
+                        <form method="post" action="{% url 'contact' %}">
+                            {% csrf_token %}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="id_name" class="form-label">Adınız *</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="id_email" class="form-label">E-posta Adresiniz *</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="id_phone" class="form-label">Telefon Numaranız</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="id_subject" class="form-label">Konu</label>
+                                    {{ form.subject }}
+                                    {% if form.subject.errors %}
+                                        <div class="text-danger small">{{ form.subject.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label for="id_message" class="form-label">Mesajınız *</label>
+                                    {{ form.message }}
+                                    {% if form.message.errors %}
+                                        <div class="text-danger small">{{ form.message.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-send"></i> Mesaj Gönder
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="col-lg-5">
+                <div class="contact-info">
+                    <h3 class="fw-bold mb-4">İletişime Geçin</h3>
+                    <p class="text-muted mb-4">
+                        Gayrimenkullerimiz hakkında herhangi bir soru veya bilgi almak için bize ulaşmaktan çekinmeyin. 
+                        Hayalinizdeki evi bulmanıza yardımcı olmak için buradayız.
+                    </p>
+                    
+                    <!-- Contact Cards -->
+                    <div class="contact-cards">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-geo-alt-fill fs-4 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Adres</h6>
+                                    <p class="text-muted mb-0">
+                                        {% if about_info and about_info.address %}
+                                            {{ about_info.address }}
+                                        {% else %}
+                                            Örnek Mahallesi, Emlak Cad. No:123
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-telephone-fill fs-4 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Telefon</h6>
+                                    <p class="text-muted mb-0">
+                                        {% if about_info and about_info.phone %}
+                                            {{ about_info.phone }}
+                                        {% else %}
+                                            +90 212 123 45 67
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-envelope-fill fs-4 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">E-posta</h6>
+                                    <p class="text-muted mb-0">
+                                        {% if about_info and about_info.email %}
+                                            {{ about_info.email }}
+                                        {% else %}
+                                            info@emlak.com
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-clock-fill fs-4 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Çalışma Saatleri</h6>
+                                    <p class="text-muted mb-0">Pzt - Cuma: 09:00 - 18:00</p>
+                                    <p class="text-muted mb-0">Cmt: 10:00 - 16:00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    {% if about_info %}
+                    <div class="social-media mt-4">
+                        <h6 class="fw-bold mb-3">Bizi Takip Edin</h6>
+                        <div class="social-links">
+                            {% if about_info.facebook_url %}
+                            <a href="{{ about_info.facebook_url }}" target="_blank" class="btn btn-outline-primary rounded-circle me-2" aria-label="Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            {% endif %}
+                            {% if about_info.instagram_url %}
+                            <a href="{{ about_info.instagram_url }}" target="_blank" class="btn btn-outline-primary rounded-circle me-2" aria-label="Instagram">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            {% endif %}
+                            {% if about_info.twitter_url %}
+                            <a href="{{ about_info.twitter_url }}" target="_blank" class="btn btn-outline-primary rounded-circle me-2" aria-label="Twitter">
+                                <i class="bi bi-twitter"></i>
+                            </a>
+                            {% endif %}
+                            {% if about_info.linkedin_url %}
+                            <a href="{{ about_info.linkedin_url }}" target="_blank" class="btn btn-outline-primary rounded-circle" aria-label="LinkedIn">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section (Optional - Placeholder) -->
+<section class="map-section py-5 bg-light">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <!-- You can replace this with an actual Google Maps embed -->
+                <div class="map-placeholder bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <div class="text-center">
+                        <i class="bi bi-map fs-1 text-muted mb-3"></i>
+                        <p class="text-muted">Map Location</p>
+                        <small class="text-muted">Add Google Maps embed code here</small>
+                    </div>
+                </div>
+                <!-- Example Google Maps Embed (uncomment and replace with your location):
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=YOUR_EMBED_CODE" 
+                    width="100%" 
+                    height="400" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy">
+                </iframe>
+                -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5">
+    <div class="container">
+        <div class="section-heading text-center">
+            <h2>Sık Sorulan Sorular</h2>
+            <p>Hizmetlerimiz hakkında sıkça sorulan sorular</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                Gayrimenkulleri nasıl arayabilirim?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                İlanlar sayfamıza göz atabilir ve konum, tip ve fiyat aralığına göre gayrimenkul bulmak için arama filtrelerini kullanabilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                Gayrimenkul görüşmesi planlayabilir miyim?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Evet! Size uygun bir zamanda görüşme ayarlamak için yukarıdaki form aracılığıyla bize ulaşabilir veya doğrudan arayabilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                Gayrimenkul kiralamak veya satın almak için hangi belgelere ihtiyacım var?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Gerekli belgeler gayrimenkul tipine göre değişir. İlgilendiğiniz gayrimenkul için özel gereksinimleri öğrenmek için bize ulaşın.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JSON-LD Structured Data -->
+{% block structured_data %}
+{{ block.super }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Us",
+  "description": "Get in touch with our real estate team",
+  "url": "{{ request.build_absolute_uri }}"
+}
+</script>
+{% endblock %}
+
+{% endblock %}

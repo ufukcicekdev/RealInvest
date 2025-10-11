@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
+
+# Disallow admin area
+Disallow: /admin/
+
+# Disallow media upload paths (optional)
+# Disallow: /media/
+
+# Allow all other pages
+Allow: /
+Allow: /listings/
+Allow: /construction/
+# About page removed, content moved to homepage
+Allow: /contact/
+
+# Crawl-delay
+Crawl-delay: 10

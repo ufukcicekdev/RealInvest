@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Test Dropdowns{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>Dropdown Test Page</h1>
+    
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h3>Test Form with Custom Dropdowns</h3>
+            <form method="get" action="{% url 'construction' %}" class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Property Type</label>
+                    <div class="dropdown-container">
+                        <div class="dropdown-selected">Select Property Type</div>
+                        <ul class="dropdown-options">
+                            <li data-value="">All Types</li>
+                            <li data-value="planning">Planning</li>
+                            <li data-value="ongoing">Ongoing</li>
+                            <li data-value="completed">Completed</li>
+                        </ul>
+                        <input type="hidden" name="status" value="">
+                    </div>
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.dropdown-container');
+    
+    dropdowns.forEach((dropdown) => {
+        const selected = dropdown.querySelector('.dropdown-selected');
+        const options = dropdown.querySelectorAll('.dropdown-options li');
+        const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+        
+        selected.addEventListener('click', () => {
+            // Close all other dropdowns
+            dropdowns.forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.remove('active');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle('active');
+        });
+        
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                selected.textContent = option.textContent;
+                hiddenInput.value = option.getAttribute('data-value');
+                dropdown.classList.remove('active');
+            });
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown-container')) {
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        }
+    });
+});
+</script>
+
+<style>
+.dropdown-container {
+    position: relative;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 1rem;
+}
+
+.dropdown-selected {
+    background: #fff;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-selected:hover {
+    border-color: #ced4da;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-selected::after {
+    content: "▼";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.dropdown-options {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0;
+    background: #fff;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: none;
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-options li {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-options li:last-child {
+    border-bottom: none;
+}
+
+.dropdown-options li:hover {
+    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    color: white;
+}
+
+.dropdown-container.active .dropdown-options {
+    display: block;
+}
+</style>
+{% endblock %}

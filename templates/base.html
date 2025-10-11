@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Etiketleri -->
+    <title>{% block title %}{{ page_title }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ meta_description }}{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}emlak, gayrimenkul, satılık, kiralık, ev, daire, villa, arsa{% endblock %}">
+    <meta name="author" content="Emlak Şirketi">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}{{ page_title }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ meta_description }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% load static %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.jpg' %}{% endblock %}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="{{ page_title }}">
+    <meta property="twitter:description" content="{{ meta_description }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% load static %}{% static 'images/favicon.ico' %}">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- JSON-LD Structured Data -->
+    {% block structured_data %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "Real Estate Company",
+      "description": "Modern real estate agency offering properties for sale and rent",
+      "url": "{{ request.scheme }}://{{ request.get_host }}"
+    }
+    </script>
+    {% endblock %}
+</head>
+<body>
+    <!-- Header / Navigation -->
+    <header class="header-section">
+        <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'home' %}">
+                    <i class="bi bi-buildings"></i> Emlak
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Ana Sayfa</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'listings' %}active{% endif %}" href="{% url 'listings' %}">İlanlar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'construction' %}active{% endif %}" href="{% url 'construction' %}">İnşaatlar</a>
+                        </li>
+                        <!-- Hakkımızda linki kaldırıldı, içerik ana sayfada -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">İletişim</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="container">
+            <div class="row">
+                <!-- Şirket Bilgisi -->
+                <div class="col-md-4 mb-4">
+                    <h5><i class="bi bi-buildings"></i> Emlak</h5>
+                    <p>Mükemmel gayrimenkul bulmak için güvenilir ortağınız. Her ihtiyacınız için geniş emlak çözümleri sunuyoruz.</p>
+                    <!-- Social Media -->
+                    {% if global_about_info %}
+                    <div class="social-links mt-3">
+                        {% if global_about_info.facebook_url %}
+                        <a href="{{ global_about_info.facebook_url }}" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        {% endif %}
+                        {% if global_about_info.instagram_url %}
+                        <a href="{{ global_about_info.instagram_url }}" target="_blank" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        {% endif %}
+                        {% if global_about_info.twitter_url %}
+                        <a href="{{ global_about_info.twitter_url }}" target="_blank" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                        {% endif %}
+                        {% if global_about_info.linkedin_url %}
+                        <a href="{{ global_about_info.linkedin_url }}" target="_blank" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Hızlı Linkler -->
+                <div class="col-md-4 mb-4">
+                    <h5>Hızlı Linkler</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}"><i class="bi bi-chevron-right"></i> Ana Sayfa</a></li>
+                        <li><a href="{% url 'listings' %}"><i class="bi bi-chevron-right"></i> İlanlar</a></li>
+                        <li><a href="{% url 'construction' %}"><i class="bi bi-chevron-right"></i> İnşaatlar</a></li>
+                        <!-- Hakkımızda linki kaldırıldı -->
+                        <li><a href="{% url 'contact' %}"><i class="bi bi-chevron-right"></i> İletişim</a></li>
+                    </ul>
+                </div>
+                
+                <!-- İletişim Bilgileri -->
+                <div class="col-md-4 mb-4">
+                    <h5>İletişim Bilgileri</h5>
+                    <ul class="list-unstyled">
+                        {% if global_about_info and global_about_info.address %}
+                        <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i> {{ global_about_info.address }}</li>
+                        {% else %}
+                        <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i> Örnek Mahallesi, Emlak Cad. No:123</li>
+                        {% endif %}
+                        
+                        {% if global_about_info and global_about_info.phone %}
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2"></i> {{ global_about_info.phone }}</li>
+                        {% else %}
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2"></i> +90 212 123 45 67</li>
+                        {% endif %}
+                        
+                        {% if global_about_info and global_about_info.email %}
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i> {{ global_about_info.email }}</li>
+                        {% else %}
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i> info@emlak.com</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="mb-0">&copy; {% now "Y" %} Emlak. Tüm hakları saklıdır.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/script.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

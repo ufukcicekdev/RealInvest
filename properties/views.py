@@ -1,0 +1,194 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.contrib import messages
+from django.http import HttpResponse
+from .models import Listing, Construction, About, ContactMessage
+from .forms import ContactForm
+
+# Create your views here.
+
+def home(request):
+    """
+    Home page view displaying featured listings, hero section, and about info
+    """
+    featured_listings = Listing.objects.filter(is_active=True, is_featured=True)[:6]
+    recent_listings = Listing.objects.filter(is_active=True)[:8]
+    
+    # Get about content for homepage
+    try:
+        about_content = About.objects.first()
+    except About.DoesNotExist:
+        about_content = None
+    
+    context = {
+        'featured_listings': featured_listings,
+        'recent_listings': recent_listings,
+        'about': about_content,
+        'page_title': 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun',
+        'meta_description': 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.',
+    }
+    return render(request, 'properties/home.html', context)
+
+
+def listings(request):
+    """
+    Listings page with search, filter, and pagination
+    """
+    listings_list = Listing.objects.filter(is_active=True)
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        listings_list = listings_list.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(location__icontains=search_query)
+        )
+    
+    # Filter by property type
+    property_type = request.GET.get('type', '')
+    if property_type:
+        listings_list = listings_list.filter(property_type=property_type)
+    
+    # Filter by status (sale/rent)
+    status = request.GET.get('status', '')
+    if status:
+        listings_list = listings_list.filter(status=status)
+    
+    # Pagination
+    paginator = Paginator(listings_list, 9)  # 9 listings per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'selected_type': property_type,
+        'selected_status': status,
+        'page_title': 'Gayrimenkul İlanları | Tüm Gayrimenkullere Göz Atın',
+        'meta_description': 'Kapsamlı gayrimenkul ilanlarımıza göz atın. Satılık veya kiralık daire, ev, villa ve ticari gayrimenkuller bulun.',
+    }
+    return render(request, 'properties/listings.html', context)
+
+
+def listing_detail(request, slug):
+    """
+    Individual listing detail page
+    """
+    listing = get_object_or_404(Listing, slug=slug, is_active=True)
+    related_listings = Listing.objects.filter(
+        is_active=True,
+        location=listing.location
+    ).exclude(id=listing.id)[:3]
+    
+    context = {
+        'listing': listing,
+        'related_listings': related_listings,
+        'page_title': listing.meta_title or listing.title,
+        'meta_description': listing.meta_description,
+    }
+    return render(request, 'properties/listing_detail.html', context)
+
+
+def construction(request):
+    """
+    Construction projects page with gallery layout
+    """
+    projects = Construction.objects.filter(is_active=True)
+    
+    # Filter by status
+    status = request.GET.get('status', '')
+    if status:
+        projects = projects.filter(status=status)
+    
+    context = {
+        'projects': projects,
+        'selected_status': status,
+        'page_title': 'İnşaat Projeleri | Devam Eden ve Tamamlananlar',
+        'meta_description': 'İnşaat projelerimizi keşfedin. Devam eden ve tamamlanmış emlak gelişim ve inşaat projelerini görüntüleyin.',
+    }
+    return render(request, 'properties/construction.html', context)
+
+
+def about(request):
+    """
+    About page view
+    """
+    try:
+        about_content = About.objects.first()
+    except About.DoesNotExist:
+        about_content = None
+    
+    context = {
+        'about': about_content,
+        'page_title': about_content.meta_title if about_content else 'Hakkımızda',
+        'meta_description': about_content.meta_description if about_content else 'Emlak şirketimiz, misyonumuz ve ekibimiz hakkında daha fazla bilgi edinin.',
+    }
+    return render(request, 'properties/about.html', context)
+
+
+def contact(request):
+    """
+    Contact page with form submission
+    """
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Save the contact message
+            contact_message = ContactMessage(
+                name=form.cleaned_data['name'],
+                email=form.cleaned_data['email'],
+                phone=form.cleaned_data.get('phone', ''),
+                subject=form.cleaned_data.get('subject', ''),
+                message=form.cleaned_data['message']
+            )
+            contact_message.save()
+            
+            messages.success(request, 'Bizimle iletişime geçtiğiniz için teşekkür ederiz! En kısa sürede size dönüş yapacağız.')
+            return redirect('contact')
+    else:
+        form = ContactForm()
+    
+    # Get company info from About model
+    try:
+        about_info = About.objects.first()
+    except About.DoesNotExist:
+        about_info = None
+    
+    context = {
+        'form': form,
+        'about_info': about_info,
+        'page_title': 'İletişim | Bize Ulaşın',
+        'meta_description': 'Gayrimenkullerimiz hakkında herhangi bir sorunuz için bize ulaşın. Hayalinizdeki evi bulmanıza yardımcı olmak için buradayız.',
+    }
+    return render(request, 'properties/contact.html', context)
+
+
+def robots_txt(request):
+    """
+    Serve robots.txt file
+    """
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "# Sitemaps",
+        f"Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml",
+        "",
+        "# Disallow admin area",
+        "Disallow: /admin/",
+        "",
+        "# Allow all other pages",
+        "Allow: /",
+        "Allow: /listings/",
+        "Allow: /construction/",
+        "Allow: /about/",
+        "Allow: /contact/",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+def test_dropdowns(request):
+    """Test view for dropdown styling"""
+    return render(request, 'test_dropdowns.html')

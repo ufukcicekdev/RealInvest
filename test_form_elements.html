@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Elements Test</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Form Elements Test</h1>
+        
+        <!-- Search Section Style -->
+        <div class="search-section mb-5">
+            <form class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Text input field">
+                </div>
+                <div class="col-md-3">
+                    <div class="dropdown-container">
+                        <div class="dropdown-selected">Custom Dropdown 1</div>
+                        <ul class="dropdown-options">
+                            <li data-value="">Option 1</li>
+                            <li data-value="2">Option 2</li>
+                            <li data-value="3">Option 3</li>
+                        </ul>
+                        <input type="hidden" name="dropdown1">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dropdown-container">
+                        <div class="dropdown-selected">Custom Dropdown 2</div>
+                        <ul class="dropdown-options">
+                            <li data-value="">Option A</li>
+                            <li data-value="b">Option B</li>
+                            <li data-value="c">Option C</li>
+                        </ul>
+                        <input type="hidden" name="dropdown2">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Button</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Filters Section Style -->
+        <div class="filters-section p-4 mb-5">
+            <form class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Text input field">
+                </div>
+                <div class="col-md-3">
+                    <div class="dropdown-container">
+                        <div class="dropdown-selected">Custom Dropdown 1</div>
+                        <ul class="dropdown-options">
+                            <li data-value="">Option 1</li>
+                            <li data-value="2">Option 2</li>
+                            <li data-value="3">Option 3</li>
+                        </ul>
+                        <input type="hidden" name="dropdown1">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dropdown-container">
+                        <div class="dropdown-selected">Custom Dropdown 2</div>
+                        <ul class="dropdown-options">
+                            <li data-value="">Option A</li>
+                            <li data-value="b">Option B</li>
+                            <li data-value="c">Option C</li>
+                        </ul>
+                        <input type="hidden" name="dropdown2">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Button</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown-container');
+            
+            dropdowns.forEach(dropdown => {
+                const selected = dropdown.querySelector('.dropdown-selected');
+                const options = dropdown.querySelectorAll('.dropdown-options li');
+                const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+                
+                selected.addEventListener('click', () => {
+                    // Close all other dropdowns
+                    dropdowns.forEach(d => {
+                        if (d !== dropdown) {
+                            d.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    dropdown.classList.toggle('active');
+                });
+                
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        selected.textContent = option.textContent;
+                        hiddenInput.value = option.getAttribute('data-value');
+                        dropdown.classList.remove('active');
+                    });
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown-container')) {
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
