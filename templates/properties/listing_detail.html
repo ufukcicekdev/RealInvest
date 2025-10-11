@@ -28,19 +28,59 @@
             <div class="col-lg-8">
                 <!-- Property Images -->
                 <div class="property-images mb-4">
-                    {% if listing.main_image %}
-                    <img src="{{ listing.main_image.url }}" class="img-fluid rounded shadow" alt="{{ listing.image_alt_text }}" style="width: 100%; height: 500px; object-fit: cover;">
-                    {% endif %}
-                    
-                    <!-- Image Gallery -->
                     {% if listing.images.all %}
-                    <div class="row g-2 mt-3">
-                        {% for image in listing.images.all %}
-                        <div class="col-md-3">
-                            <img src="{{ image.image.url }}" class="img-fluid rounded" alt="{{ image.alt_text }}" style="height: 150px; width: 100%; object-fit: cover; cursor: pointer;">
+                        <!-- Bootstrap Carousel -->
+                        <div id="propertyImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                {% for image in listing.images.all %}
+                                    <button type="button" data-bs-target="#propertyImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                                        class="{% if forloop.first %}active{% endif %}" 
+                                        aria-current="{% if forloop.first %}true{% endif %}" 
+                                        aria-label="Slide {{ forloop.counter }}"></button>
+                                {% endfor %}
+                            </div>
+                            <div class="carousel-inner rounded shadow">
+                                {% for image in listing.images.all %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <img src="{{ image.image.url }}" 
+                                             class="d-block w-100 property-image" 
+                                             alt="{{ image.alt_text|default:listing.title }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#propertyImageCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#propertyImageCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
                         </div>
-                        {% endfor %}
-                    </div>
+                        
+                        <!-- Thumbnail Gallery -->
+                        <div class="row g-2 mt-3">
+                            {% for image in listing.images.all %}
+                                <div class="col-md-3 col-6">
+                                    <img src="{{ image.image.url }}" 
+                                         class="img-fluid rounded thumbnail-img" 
+                                         alt="{{ image.alt_text|default:listing.title }}" 
+                                         data-bs-target="#propertyImageCarousel" 
+                                         data-bs-slide-to="{{ forloop.counter0 }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% elif listing.main_image %}
+                        <!-- Fallback to single main image if no gallery images -->
+                        <img src="{{ listing.main_image.url }}" 
+                             class="img-fluid rounded shadow property-image" 
+                             alt="{{ listing.image_alt_text|default:listing.title }}">
+                    {% else %}
+                        <!-- Placeholder if no images -->
+                        <div class="bg-light rounded shadow d-flex align-items-center justify-content-center property-image-placeholder" 
+                             style="width: 100%;">
+                            <i class="bi bi-house-door fs-1 text-muted"></i>
+                        </div>
                     {% endif %}
                 </div>
                 
@@ -126,46 +166,8 @@
             
             <!-- Sidebar -->
             <div class="col-lg-4">
-                <!-- Contact Card -->
-                <div class="card shadow-sm mb-4 sticky-top" style="top: 100px;">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Danışmanla İletişime Geçin</h5>
-                        <form action="{% url 'contact' %}" method="get">
-                            <div class="mb-3">
-                                <input type="text" class="form-control" name="name" placeholder="Adınız" required>
-                            </div>
-                            <div class="mb-3">
-                                <input type="email" class="form-control" name="email" placeholder="E-posta Adresiniz" required>
-                            </div>
-                            <div class="mb-3">
-                                <input type="tel" class="form-control" name="phone" placeholder="Telefon Numaranız" required>
-                            </div>
-                            <div class="mb-3">
-                                <textarea class="form-control" name="message" rows="3" placeholder="Bu gayrimenkul hakkında mesaj...">{{ listing.title }} ile ilgileniyorum</textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-envelope"></i> Sorgunuzu Gönderin
-                            </button>
-                        </form>
-                        <hr>
-                        <div class="contact-info">
-                            {% if global_about_info %}
-                                {% if global_about_info.phone %}
-                                <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> {{ global_about_info.phone }}</p>
-                                {% endif %}
-                                {% if global_about_info.email %}
-                                <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> {{ global_about_info.email }}</p>
-                                {% endif %}
-                            {% else %}
-                            <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> +1 234 567 8900</p>
-                            <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> info@realestate.com</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Property Info -->
-                <div class="card shadow-sm mb-4">
+                <div class="card shadow-sm mb-4 property-info-card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Gayrimenkul Bilgileri</h5>
                         <ul class="list-unstyled">
@@ -200,6 +202,44 @@
                             <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-linkedin"></i>
                             </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Card -->
+                <div class="card shadow-sm mb-4 sticky-top" id="contactCard">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Danışmanla İletişime Geçin</h5>
+                        <form action="{% url 'contact' %}" method="get">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="name" placeholder="Adınız" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" name="email" placeholder="E-posta Adresiniz" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="tel" class="form-control" name="phone" placeholder="Telefon Numaranız" required>
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control" name="message" rows="3" placeholder="Bu gayrimenkul hakkında mesaj...">{{ listing.title }} ile ilgileniyorum</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-envelope"></i> Sorgunuzu Gönderin
+                            </button>
+                        </form>
+                        <hr>
+                        <div class="contact-info">
+                            {% if global_about_info %}
+                                {% if global_about_info.phone %}
+                                <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> {{ global_about_info.phone }}</p>
+                                {% endif %}
+                                {% if global_about_info.email %}
+                                <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> {{ global_about_info.email }}</p>
+                                {% endif %}
+                            {% else %}
+                            <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> +1 234 567 8900</p>
+                            <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> info@realestate.com</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -261,6 +301,27 @@
     "unitCode": "MTK"
   }
 }
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click functionality to thumbnails
+    const thumbnails = document.querySelectorAll('.thumbnail-img');
+    const carousel = document.getElementById('propertyImageCarousel');
+    
+    if (thumbnails && carousel) {
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener('click', function() {
+                // Remove active class from all thumbnails
+                thumbnails.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked thumbnail
+                this.classList.add('active');
+            });
+        });
+    }
+});
 </script>
 {% endblock %}
 
