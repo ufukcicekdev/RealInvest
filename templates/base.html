@@ -3,29 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}Emlak{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Profesyonel emlak hizmetleri. Daire, villa, arsa ve diğer gayrimenkuller için en iyi fiyatlar.{% endblock %}">
     
-    <!-- SEO Meta Etiketleri -->
-    <title>{% block title %}{{ page_title }}{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}{{ meta_description }}{% endblock %}">
-    <meta name="keywords" content="{% block keywords %}emlak, gayrimenkul, satılık, kiralık, ev, daire, villa, arsa{% endblock %}">
-    <meta name="author" content="Emlak Şirketi">
+    <!-- Google Search Console Verification -->
+    {% if global_about_info and global_about_info.google_search_console_verification %}
+    {{ global_about_info.google_search_console_verification|safe }}
+    {% endif %}
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% block og_title %}{{ page_title }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{{ meta_description }}{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{% load static %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.jpg' %}{% endblock %}">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta property="twitter:title" content="{{ page_title }}">
-    <meta property="twitter:description" content="{{ meta_description }}">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% load static %}{% static 'images/favicon.ico' %}">
+    <!-- Google Analytics -->
+    {% if global_about_info and global_about_info.google_analytics_id %}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ global_about_info.google_analytics_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ global_about_info.google_analytics_id }}');
+    </script>
+    {% endif %}
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -33,21 +29,34 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Custom CSS -->
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
     
-    <!-- JSON-LD Structured Data -->
+    <!-- Structured Data -->
     {% block structured_data %}
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "RealEstateAgent",
-      "name": "Real Estate Company",
-      "description": "Modern real estate agency offering properties for sale and rent",
-      "url": "{{ request.scheme }}://{{ request.get_host }}"
+      "name": "Emlak",
+      "url": "{{ request.scheme }}://{{ request.get_host }}/",
+      "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{% if global_about_info %}{{ global_about_info.address }}{% endif %}",
+        "addressLocality": "İstanbul",
+        "addressCountry": "TR"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "{% if global_about_info %}{{ global_about_info.phone }}{% endif %}",
+        "contactType": "customer service"
+      }
     }
     </script>
     {% endblock %}

@@ -212,9 +212,23 @@ class About(models.Model):
     twitter_url = models.URLField(blank=True, verbose_name="Twitter URL")
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
     
-    # SEO
+    # SEO fields
     meta_title = models.CharField(max_length=60, blank=True, verbose_name="Meta Başlık")
     meta_description = models.CharField(max_length=160, blank=True, verbose_name="Meta Açıklama")
+    
+    # Google Search Console and Analytics
+    google_search_console_verification = models.CharField(
+        max_length=500, 
+        blank=True, 
+        verbose_name="Google Search Console Doğrulama Kodu",
+        help_text="Google Search Console için meta tag veya HTML doğrulama kodu"
+    )
+    google_analytics_id = models.CharField(
+        max_length=50, 
+        blank=True, 
+        verbose_name="Google Analytics ID",
+        help_text="Google Analytics için izleme ID (örn: UA-XXXXXXXX-X veya G-XXXXXXXXXX)"
+    )
     
     updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
     

@@ -144,6 +144,10 @@ class AboutAdmin(admin.ModelAdmin):
             'fields': ('facebook_url', 'instagram_url', 'twitter_url', 'linkedin_url'),
             'description': 'Sosyal medya hesaplarınızı buraya ekleyin. Boş bırakılan alanlar web sitesinde gösterilmeyecektir.'
         }),
+        ('Google Araçları', {
+            'fields': ('google_search_console_verification', 'google_analytics_id'),
+            'description': 'Google Search Console ve Google Analytics ayarlarını buraya ekleyin. Bu alanlar SEO ve analiz için önemlidir.'
+        }),
         ('SEO', {
             'fields': ('meta_title', 'meta_description'),
             'classes': ('collapse',)
