@@ -148,7 +148,18 @@ def contact(request):
             messages.success(request, 'Bizimle iletişime geçtiğiniz için teşekkür ederiz! En kısa sürede size dönüş yapacağız.')
             return redirect('contact')
     else:
-        form = ContactForm()
+        # Pre-fill form with query parameters if available
+        initial_data = {}
+        if 'name' in request.GET:
+            initial_data['name'] = request.GET['name']
+        if 'email' in request.GET:
+            initial_data['email'] = request.GET['email']
+        if 'phone' in request.GET:
+            initial_data['phone'] = request.GET['phone']
+        if 'message' in request.GET:
+            initial_data['message'] = request.GET['message']
+        
+        form = ContactForm(initial=initial_data)
     
     # Get company info from About model
     try:
