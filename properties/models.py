@@ -206,6 +206,31 @@ class About(models.Model):
     email = models.EmailField(blank=True, verbose_name="E-posta")
     address = models.CharField(max_length=500, blank=True, verbose_name="Adres")
     
+    # Map location
+    map_embed_code = models.TextField(
+        blank=True, 
+        verbose_name="Harita Embed Kodu",
+        help_text="Google Maps embed kodunu buraya yapıştırın"
+    )
+    map_latitude = models.CharField(
+        max_length=20, 
+        blank=True, 
+        verbose_name="Enlem (Latitude)",
+        help_text="Harita konumunun enlem değeri"
+    )
+    map_longitude = models.CharField(
+        max_length=20, 
+        blank=True, 
+        verbose_name="Boylam (Longitude)",
+        help_text="Harita konumunun boylam değeri"
+    )
+    google_maps_api_key = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Google Maps API Anahtarı",
+        help_text="Google Maps API anahtarınızı buraya ekleyin"
+    )
+    
     # Social media
     facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
     instagram_url = models.URLField(blank=True, verbose_name="Instagram URL")

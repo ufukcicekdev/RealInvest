@@ -140,6 +140,10 @@ class AboutAdmin(admin.ModelAdmin):
             'fields': ('phone', 'email', 'address'),
             'description': 'Şirketinizin iletişim bilgilerini buraya girin. Bu bilgiler web sitenizin farklı bölümlerinde gösterilecektir.'
         }),
+        ('Harita Konumu', {
+            'fields': ('map_embed_code', 'map_latitude', 'map_longitude', 'google_maps_api_key'),
+            'description': 'Google Maps konumunuzu buraya ekleyin. Embed kodu veya enlem/boylam koordinatlarını girebilirsiniz.'
+        }),
         ('Sosyal Medya', {
             'fields': ('facebook_url', 'instagram_url', 'twitter_url', 'linkedin_url'),
             'description': 'Sosyal medya hesaplarınızı buraya ekleyin. Boş bırakılan alanlar web sitesinde gösterilmeyecektir.'

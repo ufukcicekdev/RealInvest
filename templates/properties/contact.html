@@ -193,29 +193,38 @@
     </div>
 </section>
 
-<!-- Map Section (Optional - Placeholder) -->
+<!-- Map Section -->
 <section class="map-section py-5 bg-light">
     <div class="container">
+        <div class="section-heading text-center mb-4">
+            <h2>Bulunduğumuz Konum</h2>
+            <p>Bize aşağıdaki adresten ulaşabilirsiniz</p>
+        </div>
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
-                <!-- You can replace this with an actual Google Maps embed -->
-                <div class="map-placeholder bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 400px;">
-                    <div class="text-center">
-                        <i class="bi bi-map fs-1 text-muted mb-3"></i>
-                        <p class="text-muted">Map Location</p>
-                        <small class="text-muted">Add Google Maps embed code here</small>
+                {% if about_info and about_info.map_embed_code %}
+                    <!-- User-provided Google Maps embed code -->
+                    {{ about_info.map_embed_code|safe }}
+                {% elif about_info and about_info.map_latitude and about_info.map_longitude %}
+                    <!-- Google Maps with user-provided coordinates -->
+                    <iframe 
+                        src="https://www.google.com/maps/embed/v1/view?key={% if about_info.google_maps_api_key %}{{ about_info.google_maps_api_key }}{% else %}AIzaSyD-9t7p9J9j9j9j9j9j9j9j9j9j9j9j9j9{% endif %}&center={{ about_info.map_latitude }},{{ about_info.map_longitude }}&zoom=15" 
+                        width="100%" 
+                        height="400" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                {% else %}
+                    <!-- Default placeholder -->
+                    <div class="map-placeholder bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <div class="text-center">
+                            <i class="bi bi-map fs-1 text-muted mb-3"></i>
+                            <p class="text-muted">Harita Konumu</p>
+                            <small class="text-muted">Yönetici panelinden harita konumu ekleyin</small>
+                        </div>
                     </div>
-                </div>
-                <!-- Example Google Maps Embed (uncomment and replace with your location):
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=YOUR_EMBED_CODE" 
-                    width="100%" 
-                    height="400" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy">
-                </iframe>
-                -->
+                {% endif %}
             </div>
         </div>
     </div>
