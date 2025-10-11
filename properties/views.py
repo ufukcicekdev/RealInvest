@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Listing, Construction, About, ContactMessage
+from .models import Listing, Construction, About, ContactMessage, SiteSettings, CustomSection
 from .forms import ContactForm
 
 # Create your views here.
@@ -18,13 +18,31 @@ def home(request):
     # Get about content for homepage
     try:
         about_content = About.objects.first()
+        # Get visible custom sections if about_content exists
+        if about_content:
+            custom_sections = about_content.visible_custom_sections.filter(is_active=True).order_by('order')
+        else:
+            custom_sections = CustomSection.objects.none()
     except About.DoesNotExist:
         about_content = None
+        custom_sections = CustomSection.objects.none()
+    
+    # Get site settings
+    try:
+        site_settings = SiteSettings.objects.first()
+    except SiteSettings.DoesNotExist:
+        site_settings = None
+    
+    # If no about_content exists, get all active custom sections
+    if not about_content:
+        custom_sections = CustomSection.objects.filter(is_active=True).order_by('order')
     
     context = {
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,
         'about': about_content,
+        'site_settings': site_settings,
+        'custom_sections': custom_sections,
         'page_title': 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun',
         'meta_description': 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.',
     }
@@ -111,23 +129,6 @@ def construction(request):
     return render(request, 'properties/construction.html', context)
 
 
-def about(request):
-    """
-    About page view
-    """
-    try:
-        about_content = About.objects.first()
-    except About.DoesNotExist:
-        about_content = None
-    
-    context = {
-        'about': about_content,
-        'page_title': about_content.meta_title if about_content else 'Hakkımızda',
-        'meta_description': about_content.meta_description if about_content else 'Emlak şirketimiz, misyonumuz ve ekibimiz hakkında daha fazla bilgi edinin.',
-    }
-    return render(request, 'properties/about.html', context)
-
-
 def contact(request):
     """
     Contact page with form submission
@@ -159,17 +160,17 @@ def contact(request):
         if 'message' in request.GET:
             initial_data['message'] = request.GET['message']
         
-        form = ContactForm(initial=initial_data)
+        form = ContactForm(initial_data)
     
-    # Get company info from About model
+    # Get company info from SiteSettings model
     try:
-        about_info = About.objects.first()
-    except About.DoesNotExist:
-        about_info = None
+        site_settings = SiteSettings.objects.first()
+    except SiteSettings.DoesNotExist:
+        site_settings = None
     
     context = {
         'form': form,
-        'about_info': about_info,
+        'about_info': site_settings,
         'page_title': 'İletişim | Bize Ulaşın',
         'meta_description': 'Gayrimenkullerimiz hakkında herhangi bir sorunuz için bize ulaşın. Hayalinizdeki evi bulmanıza yardımcı olmak için buradayız.',
     }

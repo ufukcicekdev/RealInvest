@@ -187,21 +187,25 @@ class ContactMessage(models.Model):
         return f"{self.name} mesajı - {self.created_date.strftime('%Y-%m-%d')}"
 
 
-class About(models.Model):
+class SiteSettings(models.Model):
     """
-    Hakkımızda sayfa içeriği (tekil model - sadece bir örnek)
+    Global site settings (singleton model - only one instance)
     """
-    title = models.CharField(max_length=255, default="Hakkımızda", verbose_name="Başlık")
-    subtitle = models.CharField(max_length=255, blank=True, verbose_name="Alt Başlık")
-    content = models.TextField(verbose_name="İçerik", help_text="Ana hakkımızda sayfa içeriği")
-    mission = models.TextField(blank=True, verbose_name="Misyon", help_text="Şirket misyon beyanı")
-    vision = models.TextField(blank=True, verbose_name="Vizyon", help_text="Şirket vizyonu")
+    # Branding
+    logo = models.ImageField(
+        upload_to='site/', 
+        blank=True, 
+        verbose_name="Site Logosu",
+        help_text="Sitenizin logosunu yükleyin"
+    )
+    favicon = models.ImageField(
+        upload_to='site/', 
+        blank=True, 
+        verbose_name="Favicon",
+        help_text="Tarayıcı sekmesinde görünen favicon (genellikle 32x32 piksel)"
+    )
     
-    # Images
-    main_image = models.ImageField(upload_to='about/', verbose_name="Ana Resim", help_text="Ana hakkımızda sayfa resmi")
-    image_alt_text = models.CharField(max_length=255, blank=True, verbose_name="Resim Alt Yazısı")
-    
-    # Contact details
+    # Contact information
     phone = models.CharField(max_length=20, blank=True, verbose_name="Telefon")
     email = models.EmailField(blank=True, verbose_name="E-posta")
     address = models.CharField(max_length=500, blank=True, verbose_name="Adres")
@@ -237,11 +241,7 @@ class About(models.Model):
     twitter_url = models.URLField(blank=True, verbose_name="Twitter URL")
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
     
-    # SEO fields
-    meta_title = models.CharField(max_length=60, blank=True, verbose_name="Meta Başlık")
-    meta_description = models.CharField(max_length=160, blank=True, verbose_name="Meta Açıklama")
-    
-    # Google Search Console and Analytics
+    # Google tools
     google_search_console_verification = models.CharField(
         max_length=500, 
         blank=True, 
@@ -258,20 +258,143 @@ class About(models.Model):
     updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
     
     class Meta:
-        verbose_name = 'Hakkımızda Sayfası'
-        verbose_name_plural = 'Hakkımızda Sayfası'
+        verbose_name = 'Site Ayarları'
+        verbose_name_plural = 'Site Ayarları'
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        if not self.pk and SiteSettings.objects.exists():
+            raise ValueError('Only one SiteSettings instance is allowed')
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return "Site Ayarları"
+
+
+class About(models.Model):
+    """
+    Homepage settings and content (singleton model - only one instance)
+    """
+    HOMEPAGE_TEMPLATES = (
+        ('template1', 'Template 1 - Large Banner'),
+        ('template2', 'Template 2 - Minimal'),
+        ('template3', 'Template 3 - Featured Focus'),
+        ('template4', 'Template 4 - Content Rich'),
+    )
+    
+    # Template selection
+    homepage_template = models.CharField(
+        max_length=20, 
+        choices=HOMEPAGE_TEMPLATES, 
+        default='template1',
+        verbose_name="Anasayfa Şablonu",
+        help_text="Anasayfa için kullanılacak şablonu seçin"
+    )
+    
+    # General section visibility options (not tied to specific content)
+    show_search_bar = models.BooleanField(default=True, verbose_name="Arama Çubuğunu Göster")
+    show_stats_section = models.BooleanField(default=True, verbose_name="İstatistikleri Göster")
+    show_featured_listings = models.BooleanField(default=True, verbose_name="Öne Çıkan İlanları Göster")
+    show_features_section = models.BooleanField(default=True, verbose_name="Özellikler Bölümünü Göster")
+    show_testimonials = models.BooleanField(default=True, verbose_name="Müşteri Yorumlarını Göster")
+    show_recent_listings = models.BooleanField(default=True, verbose_name="Son İlanları Göster")
+    show_contact_info = models.BooleanField(default=True, verbose_name="İletişim Bilgilerini Göster")
+    show_social_media = models.BooleanField(default=True, verbose_name="Sosyal Medya Bağlantılarını Göster")
+    
+    # Custom sections visibility
+    visible_custom_sections = models.ManyToManyField(
+        'CustomSection',
+        blank=True,
+        verbose_name="Görünür Özel Bölümler",
+        help_text="Anasayfada gösterilmesini istediğiniz özel bölümleri seçin"
+    )
+    
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        verbose_name = 'Ana Sayfa Ayarları'
+        verbose_name_plural = 'Ana Sayfa Ayarları'
     
     def save(self, *args, **kwargs):
         if not self.pk and About.objects.exists():
             # Ensure only one instance exists
             raise ValueError('Only one About instance is allowed')
-        if not self.image_alt_text:
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return "Ana Sayfa Ayarları"
+
+
+class CustomSection(models.Model):
+    """
+    Custom content sections for homepage and other pages
+    """
+    LAYOUT_CHOICES = (
+        ('text_only', 'Sadece Metin'),
+        ('image_left', 'Resim Solda'),
+        ('image_right', 'Resim Sağda'),
+        ('image_center', 'Resim Ortada'),
+        ('cards', 'Kartlar'),
+        ('about_section', 'Hakkımızda Bölümü'),  # Added new layout for About section
+        ('services', 'Hizmetler'),  # Added new layout for Services section
+    )
+    
+    ALIGNMENT_CHOICES = (
+        ('left', 'Sol'),
+        ('center', 'Orta'),
+        ('right', 'Sağ'),
+    )
+    
+    title = models.CharField(max_length=255, verbose_name="Başlık")
+    subtitle = models.CharField(max_length=255, blank=True, verbose_name="Alt Başlık")
+    content = models.TextField(blank=True, verbose_name="İçerik")
+    layout = models.CharField(max_length=20, choices=LAYOUT_CHOICES, default='text_only', verbose_name="Düzen")
+    text_alignment = models.CharField(max_length=10, choices=ALIGNMENT_CHOICES, default='left', verbose_name="Metin Hizalama")
+    
+    # Images
+    main_image = models.ImageField(upload_to='custom_sections/', blank=True, null=True, verbose_name="Ana Resim")
+    image_alt_text = models.CharField(max_length=255, blank=True, verbose_name="Resim Alt Yazısı")
+    
+    # Cards (for card layout)
+    card_title_1 = models.CharField(max_length=100, blank=True, verbose_name="Kart 1 Başlık")
+    card_content_1 = models.TextField(blank=True, verbose_name="Kart 1 İçerik")
+    card_image_1 = models.ImageField(upload_to='custom_sections/cards/', blank=True, null=True, verbose_name="Kart 1 Resim")
+    
+    card_title_2 = models.CharField(max_length=100, blank=True, verbose_name="Kart 2 Başlık")
+    card_content_2 = models.TextField(blank=True, verbose_name="Kart 2 İçerik")
+    card_image_2 = models.ImageField(upload_to='custom_sections/cards/', blank=True, null=True, verbose_name="Kart 2 Resim")
+    
+    card_title_3 = models.CharField(max_length=100, blank=True, verbose_name="Kart 3 Başlık")
+    card_content_3 = models.TextField(blank=True, verbose_name="Kart 3 İçerik")
+    card_image_3 = models.ImageField(upload_to='custom_sections/cards/', blank=True, null=True, verbose_name="Kart 3 Resim")
+    
+    # Display options
+    background_color = models.CharField(max_length=20, blank=True, verbose_name="Arka Plan Rengi", help_text="HEX renk kodu (örn: #ffffff)")
+    text_color = models.CharField(max_length=20, blank=True, verbose_name="Metin Rengi", help_text="HEX renk kodu (örn: #000000)")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif")
+    order = models.IntegerField(default=0, verbose_name="Sıra")
+    
+    # SEO
+    meta_title = models.CharField(max_length=60, blank=True, verbose_name="Meta Başlık")
+    meta_description = models.CharField(max_length=160, blank=True, verbose_name="Meta Açıklama")
+    
+    created_date = models.DateTimeField(default=timezone.now, verbose_name="Oluşturma Tarihi")
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Özel Bölüm'
+        verbose_name_plural = 'Özel Bölümler'
+    
+    def save(self, *args, **kwargs):
+        if not self.image_alt_text and self.title:
             self.image_alt_text = self.title
-        if not self.meta_title:
-            self.meta_title = self.title
-        if not self.meta_description:
+        if not self.meta_title and self.title:
+            self.meta_title = self.title[:60]
+        if not self.meta_description and self.content:
             self.meta_description = self.content[:160]
         super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
+

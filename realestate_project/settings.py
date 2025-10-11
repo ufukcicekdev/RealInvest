@@ -135,58 +135,75 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-        "OPTIONS": {
-            "bucket_name": os.getenv('AWS_STORAGE_BUCKET_NAME'),
-            "region_name": os.getenv('AWS_S3_REGION_NAME'),
-            "endpoint_url": os.getenv('AWS_S3_ENDPOINT_URL'),
-            "custom_domain": f"{os.getenv('AWS_STORAGE_BUCKET_NAME')}.{os.getenv('AWS_S3_REGION_NAME')}.cdn.digitaloceanspaces.com",
-            "file_overwrite": False,
-            "default_acl": "public-read",
-            "querystring_auth": False,
-            "location": "realInvest/media",
-        }
-    },
-    "staticfiles": {
-        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
-        "OPTIONS": {
-            "bucket_name": os.getenv('AWS_STORAGE_BUCKET_NAME'),
-            "region_name": os.getenv('AWS_S3_REGION_NAME'),
-            "endpoint_url": os.getenv('AWS_S3_ENDPOINT_URL'),
-            "custom_domain": f"{os.getenv('AWS_STORAGE_BUCKET_NAME')}.{os.getenv('AWS_S3_REGION_NAME')}.cdn.digitaloceanspaces.com",
-            "file_overwrite": False,
-            "default_acl": "public-read",
-            "querystring_auth": False,
-            "location": "realInvest/static",
+if DEBUG:
+    # Local development storage settings
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         }
     }
-}
+else:
+    # Production storage settings (AWS S3)
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "bucket_name": os.getenv('AWS_STORAGE_BUCKET_NAME'),
+                "region_name": os.getenv('AWS_S3_REGION_NAME'),
+                "endpoint_url": os.getenv('AWS_S3_ENDPOINT_URL'),
+                "custom_domain": f"{os.getenv('AWS_STORAGE_BUCKET_NAME')}.{os.getenv('AWS_S3_REGION_NAME')}.cdn.digitaloceanspaces.com",
+                "file_overwrite": False,
+                "default_acl": "public-read",
+                "querystring_auth": False,
+                "location": "realInvest/media",
+            }
+        },
+        "staticfiles": {
+            "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+            "OPTIONS": {
+                "bucket_name": os.getenv('AWS_STORAGE_BUCKET_NAME'),
+                "region_name": os.getenv('AWS_S3_REGION_NAME'),
+                "endpoint_url": os.getenv('AWS_S3_ENDPOINT_URL'),
+                "custom_domain": f"{os.getenv('AWS_STORAGE_BUCKET_NAME')}.{os.getenv('AWS_S3_REGION_NAME')}.cdn.digitaloceanspaces.com",
+                "file_overwrite": False,
+                "default_acl": "public-read",
+                "querystring_auth": False,
+                "location": "realInvest/static",
+            }
+        }
+    }
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 # AWS/DigitalOcean Spaces ayarları
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
-AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_REGION_NAME}.cdn.digitaloceanspaces.com"
-
 
 # Static ve Media dosya ayarları
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/realInvest/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/realInvest/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if DEBUG:
+    # Local development settings
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    # Production settings (AWS S3)
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_REGION_NAME}.cdn.digitaloceanspaces.com"
+    
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/realInvest/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/realInvest/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # WhiteNoise settings for static files (only in production)
 # Commented out because we're using S3 for static files in production

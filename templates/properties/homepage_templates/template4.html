@@ -1,0 +1,371 @@
+{% load static %}
+<!-- Template 4: Content Rich -->
+<div class="homepage-template template4">
+  <!-- Content-rich Hero Section -->
+  <section class="hero-section content-rich">
+      <div class="hero-image"></div>
+      <div class="hero-content">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-8">
+                      <h1>Gayrimenkulde Yeni Standart</h1>
+                      <p class="lead">Profesyonel danışmanlık ve kapsamlı hizmet</p>
+                      <a href="{% url 'listings' %}" class="btn btn-hero">Hemen Başlayın</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  {% if about.show_search_bar %}
+  <!-- Full-width Search Bar -->
+  <section class="search-section full-width">
+      <div class="container-fluid">
+          <form method="get" action="{% url 'listings' %}" class="row g-3 justify-content-center">
+              <div class="col-xl-2 col-lg-3 col-md-6">
+                  <input type="text" name="search" class="form-control" placeholder="Konum veya başlık">
+              </div>
+              <div class="col-xl-2 col-lg-2 col-md-6">
+                  <div class="dropdown-container">
+                      <div class="dropdown-selected">Tüm Tipler</div>
+                      <ul class="dropdown-options">
+                          <li data-value="">Tüm Tipler</li>
+                          <li data-value="apartment">Daire</li>
+                          <li data-value="house">Ev</li>
+                          <li data-value="villa">Villa</li>
+                          <li data-value="land">Arsa</li>
+                          <li data-value="commercial">Ticari</li>
+                      </ul>
+                      <input type="hidden" name="type" id="type">
+                  </div>
+              </div>
+              <div class="col-xl-2 col-lg-2 col-md-6">
+                  <div class="dropdown-container">
+                      <div class="dropdown-selected">Durum</div>
+                      <ul class="dropdown-options">
+                          <li data-value="">Tümü</li>
+                          <li data-value="sale">Satılık</li>
+                          <li data-value="rent">Kiralık</li>
+                      </ul>
+                      <input type="hidden" name="status" id="status">
+                  </div>
+              </div>
+              <div class="col-xl-1 col-lg-2 col-md-6">
+                  <input type="number" name="min_price" class="form-control" placeholder="Min ₺">
+              </div>
+              <div class="col-xl-1 col-lg-2 col-md-6">
+                  <input type="number" name="max_price" class="form-control" placeholder="Max ₺">
+              </div>
+              <div class="col-xl-1 col-lg-2 col-md-6">
+                  <button type="submit" class="btn btn-primary w-100">
+                      <i class="bi bi-search"></i>
+                  </button>
+              </div>
+          </form>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_featured_listings and featured_listings %}
+  <!-- Featured Listings with More Details -->
+  <section class="featured-section py-5">
+      <div class="container">
+          <div class="section-heading">
+              <h2>Öne Çıkan Gayrimenkuller</h2>
+              <p>Yatırımlık en iyi seçenekler</p>
+          </div>
+          <div class="row g-4">
+              {% for listing in featured_listings %}
+              <div class="col-lg-4 col-md-6">
+                  <div class="card property-card h-100">
+                      <div class="position-relative">
+                          {% if listing.main_image %}
+                          <img src="{{ listing.main_image.url }}" class="card-img-top" alt="{{ listing.image_alt_text }}">
+                          {% else %}
+                          <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="Property placeholder">
+                          {% endif %}
+                          <span class="badge bg-primary position-absolute top-0 start-0 m-3">{{ listing.get_status_display }}</span>
+                          <span class="badge bg-dark position-absolute top-0 end-0 m-3">{{ listing.get_property_type_display }}</span>
+                      </div>
+                      <div class="card-body">
+                          <h5 class="card-title">{{ listing.title }}</h5>
+                          <p class="text-muted mb-2">
+                              <i class="bi bi-geo-alt"></i> {{ listing.location }}
+                          </p>
+                          <p class="card-text">{{ listing.description|truncatewords:20 }}</p>
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                              <span class="text-muted"><i class="bi bi-house"></i> {{ listing.bedrooms }} oda</span>
+                              <span class="text-muted"><i class="bi bi-droplet"></i> {{ listing.bathrooms }} banyo</span>
+                              <span class="text-muted"><i class="bi bi-arrows-fullscreen"></i> {{ listing.area }} m²</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center">
+                              <h4 class="price mb-0">₺{{ listing.price|floatformat:0 }}</h4>
+                              <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-outline-primary btn-sm">Detayları Gör</a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  <!-- Hakkımızda section has been removed from here and will be handled as a custom section -->
+
+  {% if about.show_mission_vision %}
+  <!-- Mission and Vision -->
+  <section class="mission-vision-section py-5">
+      <div class="container">
+          <div class="row g-4">
+              <div class="col-md-6">
+                  <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body p-4">
+                          <div class="icon-box mb-3">
+                              <i class="bi bi-bullseye fs-1 text-primary"></i>
+                          </div>
+                          <h3 class="fw-bold mb-3">Misyonumuz</h3>
+                          <p class="text-muted">Müşterilerimize en iyi gayrimenkul hizmetlerini sunmak.</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body p-4">
+                          <div class="icon-box mb-3">
+                              <i class="bi bi-eye fs-1 text-primary"></i>
+                          </div>
+                          <h3 class="fw-bold mb-3">Vizyonumuz</h3>
+                          <p class="text-muted">Gayrimenkul sektöründe lider olmak.</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_stats_section %}
+  <!-- Detailed Stats Section -->
+  <section class="stats-section py-5">
+      <div class="container">
+          <div class="row g-4">
+              <div class="col-md-3 col-6">
+                  <div class="stat-item text-center">
+                      <i class="bi bi-house-door fs-1 text-primary mb-3"></i>
+                      <span class="number">500+</span>
+                      <span class="label">Gayrimenkul</span>
+                  </div>
+              </div>
+              <div class="col-md-3 col-6">
+                  <div class="stat-item text-center">
+                      <i class="bi bi-emoji-smile fs-1 text-primary mb-3"></i>
+                      <span class="number">50+</span>
+                      <span class="label">Memnun Müşteri</span>
+                  </div>
+              </div>
+              <div class="col-md-3 col-6">
+                  <div class="stat-item text-center">
+                      <i class="bi bi-calendar fs-1 text-primary mb-3"></i>
+                      <span class="number">15+</span>
+                      <span class="label">Yıllık Tecrübe</span>
+                  </div>
+              </div>
+              <div class="col-md-3 col-6">
+                  <div class="stat-item text-center">
+                      <i class="bi bi-headset fs-1 text-primary mb-3"></i>
+                      <span class="number">24/7</span>
+                      <span class="label">Destek</span>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_features_section %}
+  <!-- Comprehensive Features Section -->
+  <section class="features-section py-5">
+      <div class="container">
+          <div class="section-heading text-center">
+              <h2>Hizmetlerimiz</h2>
+              <p>Size sunduğumuz kapsamlı hizmetler</p>
+          </div>
+          <div class="row g-4">
+              <div class="col-md-4">
+                  <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body text-center p-4">
+                          <div class="feature-icon mb-3">
+                              <i class="bi bi-house-check fs-1 text-primary"></i>
+                          </div>
+                          <h5>Gayrimenkul Danışmanlığı</h5>
+                          <p class="text-muted">Yatırım ve satın alma konularında uzman danışmanlık</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body text-center p-4">
+                          <div class="feature-icon mb-3">
+                              <i class="bi bi-shield-check fs-1 text-primary"></i>
+                          </div>
+                          <h5>Hukuki Destek</h5>
+                          <p class="text-muted">Tapu ve kontrat işlemlerinde hukuki destek</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body text-center p-4">
+                          <div class="feature-icon mb-3">
+                              <i class="bi bi-headset fs-1 text-primary"></i>
+                          </div>
+                          <h5>7/24 Müşteri Hizmetleri</h5>
+                          <p class="text-muted">Her zaman ulaşabileceğiniz destek hattı</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_testimonials %}
+  <!-- Extended Testimonials Section -->
+  <section class="testimonials-section py-5">
+      <div class="container">
+          <div class="section-heading text-center text-white">
+              <h2>Müşteri Geri Bildirimleri</h2>
+              <p>Memnuniyetiniz bizim için önemli</p>
+          </div>
+          <div class="row g-4">
+              <div class="col-md-6">
+                  <div class="testimonial-card">
+                      <p class="quote">
+                          "Emlak ekibi sayesinde hayalimdeki eve kavuldum. Profesyonel yaklaşımı ve detaylı danışmanlığı gerçekten takdire şayan."
+                      </p>
+                      <div class="client">
+                          <img src="{% static 'images/placeholder.jpg' %}" alt="Müşteri">
+                          <div class="client-info">
+                              <h6>Ahmet Yılmaz</h6>
+                              <p>İstanbul</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="testimonial-card">
+                      <p class="quote">
+                          "Yatırım amaçlı aradığım gayrimenkulu çok hızlı ve uygun fiyata buldum. Her zaman için güvenilir ve profesyonel bir hizmet."
+                      </p>
+                      <div class="client">
+                          <img src="{% static 'images/placeholder.jpg' %}" alt="Müşteri">
+                          <div class="client-info">
+                              <h6>Mehmet Demir</h6>
+                              <p>Ankara</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_recent_listings %}
+  <!-- Recent Listings -->
+  <section class="recent-section py-5 bg-light">
+      <div class="container">
+          <div class="section-heading">
+              <h2>Son Eklenenler</h2>
+              <p>Fresh from our collection</p>
+          </div>
+          <div class="row g-4">
+              {% for listing in recent_listings %}
+              <div class="col-lg-3 col-md-6">
+                  <div class="card property-card h-100">
+                      <div class="position-relative">
+                          {% if listing.main_image %}
+                          <img src="{{ listing.main_image.url }}" class="card-img-top" alt="{{ listing.image_alt_text }}">
+                          {% else %}
+                          <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="Property placeholder">
+                          {% endif %}
+                          <span class="badge bg-primary position-absolute top-0 start-0 m-2">{{ listing.get_status_display }}</span>
+                      </div>
+                      <div class="card-body">
+                          <h6 class="card-title">{{ listing.title|truncatewords:5 }}</h6>
+                          <p class="text-muted small mb-2">
+                              <i class="bi bi-geo-alt"></i> {{ listing.location }}
+                          </p>
+                          <h5 class="price mb-2">₺{{ listing.price|floatformat:0 }}</h5>
+                          <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-sm btn-outline-primary w-100">İncele</a>
+                      </div>
+                  </div>
+              </div>
+              {% empty %}
+              <div class="col-12 text-center">
+                  <p class="text-muted">Şu anda müsait gayrimenkul bulunmamaktadır.</p>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_contact_info %}
+  <!-- Contact Info Section -->
+  <section class="contact-info-section py-5">
+      <div class="container">
+          <div class="row text-center g-4">
+              <div class="col-md-4">
+                  <div class="info-box">
+                      <i class="bi bi-telephone-fill"></i>
+                      <h5>Bizi Arayın</h5>
+                      <p class="mb-0">+90 212 123 45 67</p>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="info-box">
+                      <i class="bi bi-envelope-fill"></i>
+                      <h5>E-posta Gönderin</h5>
+                      <p class="mb-0">info@emlak.com</p>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="info-box">
+                      <i class="bi bi-geo-alt-fill"></i>
+                      <h5>Bizi Ziyaret Edin</h5>
+                      <p class="mb-0">Örnek Mahallesi, Emlak Cad. No:123</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  {% endif %}
+
+  {% if about.show_social_media %}
+  <!-- Social Media -->
+  <section class="social-section py-5">
+      <div class="container text-center">
+          <div class="section-heading">
+              <h2>Bizi Takip Edin</h2>
+              <p>Sosyal medya hesaplarımızdan güncel ilanlardan haberdar olun</p>
+          </div>
+          <div class="social-links">
+              <a href="#" target="_blank" aria-label="Facebook">
+                  <i class="bi bi-facebook"></i>
+              </a>
+              <a href="#" target="_blank" aria-label="Instagram">
+                  <i class="bi bi-instagram"></i>
+              </a>
+              <a href="#" target="_blank" aria-label="Twitter">
+                  <i class="bi bi-twitter"></i>
+              </a>
+              <a href="#" target="_blank" aria-label="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+              </a>
+          </div>
+      </div>
+  </section>
+  {% endif %}
+</div>

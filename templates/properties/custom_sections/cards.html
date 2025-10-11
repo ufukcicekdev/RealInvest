@@ -1,0 +1,80 @@
+{% load static %}
+<!-- Cards Layout -->
+<section class="custom-section cards py-5" 
+         {% if section.background_color %}style="background-color: {{ section.background_color }};"{% endif %}>
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-3">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                <h5 class="mb-4 text-primary">{{ section.subtitle }}</h5>
+                {% endif %}
+                <div class="content text-{{ section.text_alignment }}" 
+                     {% if section.text_color %}style="color: {{ section.text_color }};"{% endif %}>
+                    {{ section.content|linebreaks }}
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% if section.card_title_1 or section.card_content_1 %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if section.card_image_1 %}
+                    <img src="{{ section.card_image_1.url }}" 
+                         class="card-img-top" 
+                         alt="{{ section.card_title_1|default:'Card 1' }}">
+                    {% endif %}
+                    <div class="card-body">
+                        {% if section.card_title_1 %}
+                        <h5 class="card-title">{{ section.card_title_1 }}</h5>
+                        {% endif %}
+                        {% if section.card_content_1 %}
+                        <p class="card-text">{{ section.card_content_1|linebreaks }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if section.card_title_2 or section.card_content_2 %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if section.card_image_2 %}
+                    <img src="{{ section.card_image_2.url }}" 
+                         class="card-img-top" 
+                         alt="{{ section.card_title_2|default:'Card 2' }}">
+                    {% endif %}
+                    <div class="card-body">
+                        {% if section.card_title_2 %}
+                        <h5 class="card-title">{{ section.card_title_2 }}</h5>
+                        {% endif %}
+                        {% if section.card_content_2 %}
+                        <p class="card-text">{{ section.card_content_2|linebreaks }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if section.card_title_3 or section.card_content_3 %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if section.card_image_3 %}
+                    <img src="{{ section.card_image_3.url }}" 
+                         class="card-img-top" 
+                         alt="{{ section.card_title_3|default:'Card 3' }}">
+                    {% endif %}
+                    <div class="card-body">
+                        {% if section.card_title_3 %}
+                        <h5 class="card-title">{{ section.card_title_3 }}</h5>
+                        {% endif %}
+                        {% if section.card_content_3 %}
+                        <p class="card-text">{{ section.card_content_3|linebreaks }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>

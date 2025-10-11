@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About
+from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection
 
 # Register your models here.
 
@@ -124,17 +124,15 @@ class ContactMessageAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(About)
-class AboutAdmin(admin.ModelAdmin):
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
     """
-    Hakkımızda sayfası için admin yapılandırması (tekil)
+    Site-wide settings configuration (singleton)
     """
     fieldsets = (
-        ('Ana İçerik', {
-            'fields': ('title', 'subtitle', 'content', 'mission', 'vision')
-        }),
-        ('Medya', {
-            'fields': ('main_image', 'image_alt_text')
+        ('Marka ve Kimlik', {
+            'fields': ('logo', 'favicon'),
+            'description': 'Sitenizin logosunu ve faviconunu buraya yükleyin.'
         }),
         ('İletişim Bilgileri', {
             'fields': ('phone', 'email', 'address'),
@@ -152,9 +150,33 @@ class AboutAdmin(admin.ModelAdmin):
             'fields': ('google_search_console_verification', 'google_analytics_id'),
             'description': 'Google Search Console ve Google Analytics ayarlarını buraya ekleyin. Bu alanlar SEO ve analiz için önemlidir.'
         }),
-        ('SEO', {
-            'fields': ('meta_title', 'meta_description'),
-            'classes': ('collapse',)
+    )
+    
+    def has_add_permission(self, request):
+        # Only allow adding if no instance exists
+        return not SiteSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # Don't allow deletion
+        return False
+
+
+@admin.register(About)
+class HomepageSettingsAdmin(admin.ModelAdmin):
+    """
+    Ana Sayfa Ayarları (tekil model)
+    """
+    fieldsets = (
+        ('Şablon Seçimi', {
+            'fields': ('homepage_template',)
+        }),
+        ('Bölüm Görünürlüğü', {
+            'fields': (
+                'show_search_bar', 'show_stats_section', 'show_featured_listings',
+                'show_features_section', 'show_testimonials', 'show_recent_listings',
+                'show_contact_info', 'show_social_media', 'visible_custom_sections'
+            ),
+            'description': 'Anasayfada gösterilmesini istediğiniz bölümleri seçin.'
         }),
     )
     
@@ -165,3 +187,42 @@ class AboutAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Silmeye izin verme
         return False
+
+
+@admin.register(CustomSection)
+class CustomSectionAdmin(admin.ModelAdmin):
+    """
+    Custom content sections admin configuration
+    """
+    list_display = ('title', 'layout', 'is_active', 'order', 'created_date')
+    list_filter = ('layout', 'is_active', 'created_date')
+    search_fields = ('title', 'subtitle', 'content')
+    list_editable = ('is_active', 'order')
+    date_hierarchy = 'created_date'
+    
+    fieldsets = (
+        ('Temel Bilgiler', {
+            'fields': ('title', 'subtitle', 'content')
+        }),
+        ('Düzen ve Stil', {
+            'fields': ('layout', 'text_alignment', 'background_color', 'text_color')
+        }),
+        ('Resimler', {
+            'fields': ('main_image', 'image_alt_text')
+        }),
+        ('Kartlar (Sadece Kart Düzeni İçin)', {
+            'fields': (
+                'card_title_1', 'card_content_1', 'card_image_1',
+                'card_title_2', 'card_content_2', 'card_image_2',
+                'card_title_3', 'card_content_3', 'card_image_3'
+            ),
+            'classes': ('collapse',)
+        }),
+        ('Görüntüleme Seçenekleri', {
+            'fields': ('is_active', 'order')
+        }),
+        ('SEO', {
+            'fields': ('meta_title', 'meta_description'),
+            'classes': ('collapse',)
+        }),
+    )

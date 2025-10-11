@@ -1,4 +1,4 @@
-from .models import About
+from .models import About, SiteSettings
 
 def about_info(request):
     """
@@ -9,6 +9,12 @@ def about_info(request):
     except About.DoesNotExist:
         about_content = None
     
+    try:
+        site_settings = SiteSettings.objects.first()
+    except SiteSettings.DoesNotExist:
+        site_settings = None
+    
     return {
-        'global_about_info': about_content
+        'global_about_info': about_content,
+        'global_site_settings': site_settings
     }

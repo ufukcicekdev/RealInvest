@@ -1,0 +1,30 @@
+{% load static %}
+<!-- Image Center Layout -->
+<section class="custom-section image-center py-5" 
+         {% if section.background_color %}style="background-color: {{ section.background_color }};"{% endif %}>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center mb-4">
+                <h2 class="mb-3">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                <h5 class="mb-4 text-primary">{{ section.subtitle }}</h5>
+                {% endif %}
+            </div>
+            <div class="col-lg-8 mb-4">
+                {% if section.main_image %}
+                <img src="{{ section.main_image.url }}" 
+                     class="img-fluid rounded shadow" 
+                     alt="{{ section.image_alt_text|default:section.title }}">
+                {% endif %}
+            </div>
+            <div class="col-lg-8">
+                <div class="text-content text-{{ section.text_alignment }}" 
+                     {% if section.text_color %}style="color: {{ section.text_color }};"{% endif %}>
+                    <div class="content">
+                        {{ section.content|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

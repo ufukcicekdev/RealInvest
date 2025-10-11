@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
     <title>{% block title %}Emlak{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Profesyonel emlak hizmetleri. Daire, villa, arsa ve diğer gayrimenkuller için en iyi fiyatlar.{% endblock %}">
     
+    <!-- Favicon -->
+    {% if global_site_settings and global_site_settings.favicon %}
+    <link rel="icon" type="image/x-icon" href="{{ global_site_settings.favicon.url }}">
+    {% else %}
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    {% endif %}
+    
     <!-- Google Search Console Verification -->
-    {% if global_about_info and global_about_info.google_search_console_verification %}
-    {{ global_about_info.google_search_console_verification|safe }}
+    {% if global_site_settings and global_site_settings.google_search_console_verification %}
+    {{ global_site_settings.google_search_console_verification|safe }}
     {% endif %}
     
     <!-- Google Analytics -->
-    {% if global_about_info and global_about_info.google_analytics_id %}
+    {% if global_site_settings and global_site_settings.google_analytics_id %}
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ global_about_info.google_analytics_id }}"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ global_site_settings.google_analytics_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', '{{ global_about_info.google_analytics_id }}');
+        gtag('config', '{{ global_site_settings.google_analytics_id }}');
     </script>
     {% endif %}
     
@@ -33,7 +41,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
-    {% load static %}
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
@@ -46,16 +53,20 @@
       "@type": "RealEstateAgent",
       "name": "Emlak",
       "url": "{{ request.scheme }}://{{ request.get_host }}/",
+      {% if global_site_settings and global_site_settings.logo %}
+      "logo": "{{ request.scheme }}://{{ request.get_host }}{{ global_site_settings.logo.url }}",
+      {% else %}
       "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}",
+      {% endif %}
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "{% if global_about_info %}{{ global_about_info.address }}{% endif %}",
+        "streetAddress": "{% if global_site_settings %}{{ global_site_settings.address }}{% endif %}",
         "addressLocality": "İstanbul",
         "addressCountry": "TR"
       },
       "contactPoint": {
         "@type": "ContactPoint",
-        "telephone": "{% if global_about_info %}{{ global_about_info.phone }}{% endif %}",
+        "telephone": "{% if global_site_settings %}{{ global_site_settings.phone }}{% endif %}",
         "contactType": "customer service"
       }
     }
@@ -68,7 +79,11 @@
         <nav class="navbar navbar-expand-lg navbar-light sticky-top">
             <div class="container">
                 <a class="navbar-brand" href="{% url 'home' %}">
+                    {% if global_site_settings and global_site_settings.logo %}
+                    <img src="{{ global_site_settings.logo.url }}" alt="Site Logo" class="logo-img">
+                    {% else %}
                     <i class="bi bi-buildings"></i> Emlak
+                    {% endif %}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -117,22 +132,28 @@
             <div class="row">
                 <!-- Şirket Bilgisi -->
                 <div class="col-md-4 mb-4">
-                    <h5><i class="bi bi-buildings"></i> Emlak</h5>
+                    <h5>
+                        {% if global_site_settings and global_site_settings.logo %}
+                        <img src="{{ global_site_settings.logo.url }}" alt="Site Logo" class="footer-logo">
+                        {% else %}
+                        <i class="bi bi-buildings"></i> Emlak
+                        {% endif %}
+                    </h5>
                     <p>Mükemmel gayrimenkul bulmak için güvenilir ortağınız. Her ihtiyacınız için geniş emlak çözümleri sunuyoruz.</p>
                     <!-- Social Media -->
-                    {% if global_about_info %}
+                    {% if global_site_settings %}
                     <div class="social-links mt-3">
-                        {% if global_about_info.facebook_url %}
-                        <a href="{{ global_about_info.facebook_url }}" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        {% if global_site_settings.facebook_url %}
+                        <a href="{{ global_site_settings.facebook_url }}" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                         {% endif %}
-                        {% if global_about_info.instagram_url %}
-                        <a href="{{ global_about_info.instagram_url }}" target="_blank" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        {% if global_site_settings.instagram_url %}
+                        <a href="{{ global_site_settings.instagram_url }}" target="_blank" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                         {% endif %}
-                        {% if global_about_info.twitter_url %}
-                        <a href="{{ global_about_info.twitter_url }}" target="_blank" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                        {% if global_site_settings.twitter_url %}
+                        <a href="{{ global_site_settings.twitter_url }}" target="_blank" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
                         {% endif %}
-                        {% if global_about_info.linkedin_url %}
-                        <a href="{{ global_about_info.linkedin_url }}" target="_blank" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        {% if global_site_settings.linkedin_url %}
+                        <a href="{{ global_site_settings.linkedin_url }}" target="_blank" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -154,20 +175,20 @@
                 <div class="col-md-4 mb-4">
                     <h5>İletişim Bilgileri</h5>
                     <ul class="list-unstyled">
-                        {% if global_about_info and global_about_info.address %}
-                        <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i> {{ global_about_info.address }}</li>
+                        {% if global_site_settings and global_site_settings.address %}
+                        <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i> {{ global_site_settings.address }}</li>
                         {% else %}
                         <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i> Örnek Mahallesi, Emlak Cad. No:123</li>
                         {% endif %}
                         
-                        {% if global_about_info and global_about_info.phone %}
-                        <li class="mb-2"><i class="bi bi-telephone-fill me-2"></i> {{ global_about_info.phone }}</li>
+                        {% if global_site_settings and global_site_settings.phone %}
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2"></i> {{ global_site_settings.phone }}</li>
                         {% else %}
                         <li class="mb-2"><i class="bi bi-telephone-fill me-2"></i> +90 212 123 45 67</li>
                         {% endif %}
                         
-                        {% if global_about_info and global_about_info.email %}
-                        <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i> {{ global_about_info.email }}</li>
+                        {% if global_site_settings and global_site_settings.email %}
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i> {{ global_site_settings.email }}</li>
                         {% else %}
                         <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i> info@emlak.com</li>
                         {% endif %}
