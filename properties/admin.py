@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage
+from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, ReferenceVideo
 
 # Register your models here.
 
@@ -205,6 +205,13 @@ class HomepageSettingsAdmin(admin.ModelAdmin):
         ('Banner Ayarları', {
             'fields': ('banner_images',)
         }),
+        ('Menü Görünürlüğü', {
+            'fields': (
+                'show_listings_page', 'show_construction_page', 
+                'show_references_page', 'show_contact_page'
+            ),
+            'description': 'Header menüsünde gösterilmesini istediğiniz sayfaları seçin.'
+        }),
         ('Bölüm Görünürlüğü', {
             'fields': (
                 'show_search_bar', 'show_stats_section', 'show_featured_listings',
@@ -259,5 +266,49 @@ class CustomSectionAdmin(admin.ModelAdmin):
         ('SEO', {
             'fields': ('meta_title', 'meta_description'),
             'classes': ('collapse',)
+        }),
+    )
+
+
+class ReferenceImageInline(admin.TabularInline):
+    """
+    Reference images inline admin
+    """
+    model = ReferenceImage
+    extra = 1
+    fields = ('image', 'alt_text', 'order')
+    verbose_name = "Referans Resmi"
+    verbose_name_plural = "Referans Resimleri"
+
+
+class ReferenceVideoInline(admin.TabularInline):
+    """
+    Reference videos inline admin
+    """
+    model = ReferenceVideo
+    extra = 1
+    fields = ('video', 'title', 'order')
+    verbose_name = "Referans Videosu"
+    verbose_name_plural = "Referans Videoları"
+
+
+@admin.register(Reference)
+class ReferenceAdmin(admin.ModelAdmin):
+    """
+    Reference items admin configuration
+    """
+    list_display = ('title', 'is_active', 'order', 'created_date')
+    list_filter = ('is_active', 'created_date')
+    search_fields = ('title', 'subtitle', 'description')
+    list_editable = ('is_active', 'order')
+    date_hierarchy = 'created_date'
+    inlines = [ReferenceImageInline, ReferenceVideoInline]
+    
+    fieldsets = (
+        ('Temel Bilgiler', {
+            'fields': ('title', 'subtitle', 'description')
+        }),
+        ('Görüntüleme Seçenekleri', {
+            'fields': ('is_active', 'order')
         }),
     )

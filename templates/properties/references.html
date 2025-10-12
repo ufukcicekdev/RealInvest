@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container text-center">
+        <h1>Referanslar</h1>
+        <p>Tamamladığımız projeler ve çalışmalarımız</p>
+    </div>
+</div>
+
+<section class="references-section py-5">
+    <div class="container">
+        {% if references %}
+            <div class="row g-4">
+                {% for reference in references %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card reference-card h-100 shadow-sm border-0">
+
+                        <!-- Media Slider -->
+                        <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                {% for image in reference.images.all %}
+                                    {% if image.image %}
+                                    <div class="swiper-slide">
+                                        <a data-fancybox="gallery-{{ reference.id }}" href="{{ image.image.url }}" data-caption="{{ image.alt_text|default:reference.title }}">
+                                            <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:reference.title }}">
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% for video in reference.videos.all %}
+                                    {% if video.video %}
+                                    <div class="swiper-slide position-relative">
+                                        <a data-fancybox="gallery-{{ reference.id }}" href="{{ video.video.url }}" data-type="html5video" data-caption="{{ video.title|default:reference.title }}">
+                                            <video preload="metadata" muted>
+                                                <source src="{{ video.video.url }}#t=0.1" type="video/mp4">
+                                            </video>
+                                            <div class="play-overlay">
+                                                <i class="bi bi-play-circle-fill text-white"></i>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Navigation -->
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <h5 class="card-title">{{ reference.title }}</h5>
+                            {% if reference.subtitle %}
+                            <h6 class="card-subtitle mb-2 text-muted">{{ reference.subtitle }}</h6>
+                            {% endif %}
+
+                            {% if reference.description %}
+                                {% if reference.description|length > 100 %}
+                                    <p class="card-text">
+                                        {{ reference.description|truncatechars:100 }}
+                                        <a href="#" class="read-more-link" data-bs-toggle="modal" data-bs-target="#referenceModal" data-title="{{ reference.title }}" data-description="{{ reference.description }}">daha fazla...</a>
+                                    </p>
+                                {% else %}
+                                    <p class="card-text">{{ reference.description }}</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <h3>Henüz referans eklenmemiş</h3>
+                <p>Yakında tamamladığımız projeleri burada görebileceksiniz.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Single Modal for All References -->
+<div class="modal fade" id="referenceModal" tabindex="-1" aria-labelledby="referenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="referenceModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <p id="referenceModalDescription"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Fancybox CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+<!-- Swiper CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Fancybox
+    Fancybox.bind('[data-fancybox^="gallery-"]', {
+        Thumbs: { autoStart: true },
+        Toolbar: { display: ["zoom","fullscreen","thumbs","close"] },
+        infinite: true,
+        dragToClose: true,
+        Html5Video: { autoplay: false, preload: "metadata", controls: true }
+    });
+
+    // Swiper initialization for each reference card
+    document.querySelectorAll('.reference-card .swiper-container').forEach(function(slider){
+        new Swiper(slider, {
+            slidesPerView: 1,
+            spaceBetween: 10,
+            loop: false,
+            centeredSlides: true,
+            navigation: {
+                nextEl: slider.querySelector('.swiper-button-next'),
+                prevEl: slider.querySelector('.swiper-button-prev'),
+            },
+            breakpoints: {
+                576: { slidesPerView: 1 },
+                768: { slidesPerView: 1 },
+                992: { slidesPerView: 1 }
+            }
+        });
+    });
+
+    // Single modal approach to prevent conflicts
+    const referenceModal = document.getElementById('referenceModal');
+    const modalTitle = document.getElementById('referenceModalLabel');
+    const modalDescription = document.getElementById('referenceModalDescription');
+    
+    // Read more link click handler
+    document.querySelectorAll('.read-more-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const title = this.getAttribute('data-title');
+            const description = this.getAttribute('data-description');
+            
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+        });
+    });
+    
+    // Modal event handlers for flicker prevention
+    if (referenceModal) {
+        // Prevent initial flickering
+        referenceModal.style.visibility = 'hidden';
+        
+        referenceModal.addEventListener('show.bs.modal', function () {
+            // Ensure proper initialization without flickering
+            this.style.visibility = 'visible';
+            this.style.display = 'block';
+            this.offsetHeight; // Trigger reflow
+        });
+        
+        referenceModal.addEventListener('shown.bs.modal', function () {
+            // Optimize rendering after show
+            this.style.transform = 'none';
+            this.style.opacity = '1';
+        });
+        
+        referenceModal.addEventListener('hide.bs.modal', function () {
+            // Clean up after hide
+            this.style.visibility = 'hidden';
+            this.style.display = 'none';
+        });
+    }
+});
+</script>
+
+<style>
+/* Slider */
+.swiper-container { width: 100%; padding: 10px 0; position: relative; }
+.swiper-slide { width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; }
+.swiper-slide img, .swiper-slide video { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; cursor: pointer; }
+
+.play-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; font-size: 3rem; }
+
+/* Navigation Arrows */
+.swiper-button-next, .swiper-button-prev {
+    color: #fff;
+    top: 50%;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+    z-index: 10;
+}
+
+/* Modal flicker fix - comprehensive approach */
+.modal {
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-transform-style: preserve-3d;
+    transform: translateZ(0);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.15s linear;
+}
+
+.modal.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-content {
+    backface-visibility: hidden;
+    -webkit-transform-style: preserve-3d;
+    transform: translateZ(0);
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.15s linear;
+}
+
+.modal-backdrop.show {
+    opacity: 1;
+}
+
+/* Prevent scroll jump when modal opens */
+body.modal-open {
+    padding-right: 0 !important;
+    overflow: hidden;
+}
+
+/* Ensure modal is properly positioned */
+.modal-dialog {
+    transform: none !important;
+    transition: transform 0.15s ease-out;
+}
+</style>
+{% endblock %}

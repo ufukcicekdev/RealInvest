@@ -15,6 +15,6 @@ def about_info(request):
         site_settings = None
     
     return {
-        'global_about_info': about_content,
+        'about': about_content,
         'global_site_settings': site_settings
     }

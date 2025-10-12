@@ -495,7 +495,6 @@ document.addEventListener('DOMContentLoaded', function() {
         handleResponsiveCarousel();
         forceCarouselRecalculation();
     });
-    
 });
 
 // ===================================

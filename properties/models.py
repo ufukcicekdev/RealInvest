@@ -299,6 +299,12 @@ class About(models.Model):
         help_text="Anasayfa banner'ında gösterilmesini istediğiniz görselleri seçin"
     )
     
+    # Navigation visibility options
+    show_listings_page = models.BooleanField(default=True, verbose_name="İlanlar Sayfasını Göster", help_text="Header menüsünde İlanlar sayfası linkini göster")
+    show_construction_page = models.BooleanField(default=True, verbose_name="İnşaatlar Sayfasını Göster", help_text="Header menüsünde İnşaatlar sayfası linkini göster")
+    show_references_page = models.BooleanField(default=True, verbose_name="Referanslar Sayfasını Göster", help_text="Header menüsünde Referanslar sayfası linkini göster")
+    show_contact_page = models.BooleanField(default=True, verbose_name="İletişim Sayfasını Göster", help_text="Header menüsünde İletişim sayfası linkini göster")
+    
     # General section visibility options (not tied to specific content)
     show_search_bar = models.BooleanField(default=True, verbose_name="Arama Çubuğunu Göster")
     show_stats_section = models.BooleanField(default=True, verbose_name="İstatistikleri Göster")
@@ -474,3 +480,74 @@ class CustomSection(models.Model):
     def __str__(self):
         return self.title
 
+
+class Reference(models.Model):
+    """
+    Model for reference items with images, videos, and descriptions
+    """
+    title = models.CharField(max_length=255, verbose_name="Başlık")
+    subtitle = models.CharField(max_length=255, blank=True, verbose_name="Alt Başlık")
+    description = models.TextField(blank=True, verbose_name="Açıklama")
+    
+    # Display options
+    is_active = models.BooleanField(default=True, verbose_name="Aktif")
+    order = models.IntegerField(default=0, verbose_name="Sıra")
+    
+    created_date = models.DateTimeField(default=timezone.now, verbose_name="Oluşturma Tarihi")
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Referans'
+        verbose_name_plural = 'Referanslar'
+    
+    def __str__(self):
+        return self.title
+
+
+class ReferenceImage(models.Model):
+    """
+    Model for reference images
+    """
+    reference = models.ForeignKey(Reference, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='references/images/', verbose_name="Resim")
+    alt_text = models.CharField(max_length=255, blank=True, verbose_name="Alternatif Metin")
+    order = models.IntegerField(default=0, verbose_name="Sıra")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Referans Resmi'
+        verbose_name_plural = 'Referans Resimleri'
+    
+    def save(self, *args, **kwargs):
+        if not self.alt_text and self.image:
+            # Generate alt text from image name if not provided
+            self.alt_text = self.image.name.split('/')[-1].split('.')[0].replace('-', ' ').replace('_', ' ').title()
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.reference.title} - Resim {self.order + 1}"
+
+
+class ReferenceVideo(models.Model):
+    """
+    Model for reference videos
+    """
+    reference = models.ForeignKey(Reference, on_delete=models.CASCADE, related_name='videos')
+    video = models.FileField(upload_to='references/videos/', verbose_name="Video")
+    title = models.CharField(max_length=255, blank=True, verbose_name="Video Başlığı")
+    order = models.IntegerField(default=0, verbose_name="Sıra")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Referans Videosu'
+        verbose_name_plural = 'Referans Videoları'
+    
+    def save(self, *args, **kwargs):
+        if not self.title and self.video:
+            # Generate title from video name if not provided
+            self.title = self.video.name.split('/')[-1].split('.')[0].replace('-', ' ').replace('_', ' ').title()
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.reference.title} - Video {self.order + 1}"

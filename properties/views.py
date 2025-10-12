@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Listing, Construction, About, ContactMessage, SiteSettings, CustomSection, BannerImage
+from .models import Listing, Construction, About, ContactMessage, SiteSettings, CustomSection, BannerImage, Reference
 from .forms import ContactForm
 
 # Create your views here.
@@ -219,3 +219,17 @@ def robots_txt(request):
 def test_dropdowns(request):
     """Test view for dropdown styling"""
     return render(request, 'test_dropdowns.html')
+
+
+def references(request):
+    """
+    References page with gallery layout
+    """
+    references = Reference.objects.filter(is_active=True).prefetch_related('images', 'videos').order_by('order')
+    
+    context = {
+        'references': references,
+        'page_title': 'Referanslar | Çalışmalarımız',
+        'meta_description': 'Referanslarımız ve tamamladığımız projeler hakkında bilgi alın.',
+    }
+    return render(request, 'properties/references.html', context)

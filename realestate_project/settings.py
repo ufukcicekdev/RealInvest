@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "corsheaders",  # Add this for CORS support
     "properties",
     "storages",  # Add this for AWS S3 storage
 ]
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this for static files
+    "corsheaders.middleware.CorsMiddleware",  # Add this for CORS support
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -221,6 +223,37 @@ else:
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://www.realinvestgayrimenkul.com",
+    "https://realinvestgayrimenkul.com",
+    "https://cekfisi.fra1.cdn.digitaloceanspaces.com",
+]
+
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# Allow all origins for static files (only for development)
+# In production, configure CORS on your CDN/Storage bucket instead
+
+
+
+# Additional CORS settings for font files
 
 # Jazzmin Configuration
 JAZZMIN_SETTINGS = {
