@@ -83,7 +83,7 @@
             <div class="container">
                 <a class="navbar-brand" href="{% url 'home' %}">
                     {% if global_site_settings and global_site_settings.logo %}
-                    <img src="{{ global_site_settings.logo.url }}" alt="Site Logo" class="logo-img">
+                    <img src="{{ global_site_settings.logo.url }}" alt="Site Logo" class="logo-img" style="height: 50px; width: 180px; object-fit: contain;">
                     {% else %}
                     <i class="bi bi-buildings"></i> Emlak
                     {% endif %}
@@ -148,7 +148,7 @@
                 <div class="col-md-4 mb-4">
                     <h5>
                         {% if global_site_settings and global_site_settings.logo %}
-                        <img src="{{ global_site_settings.logo.url }}" alt="Site Logo" class="footer-logo">
+                        <img src="{{ global_site_settings.logo.url }}" alt="Site Logo" class="logo-img" style="height: 100px; width: 180px; object-fit: contain;">
                         {% else %}
                         <i class="bi bi-buildings"></i> Emlak
                         {% endif %}

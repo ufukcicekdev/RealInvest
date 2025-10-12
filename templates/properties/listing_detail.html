@@ -42,9 +42,11 @@
                             <div class="carousel-inner rounded shadow">
                                 {% for image in listing.images.all %}
                                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                        <img src="{{ image.image.url }}" 
-                                             class="d-block w-100 property-image" 
-                                             alt="{{ image.alt_text|default:listing.title }}">
+                                        <a data-fancybox="property-gallery" href="{{ image.image.url }}" data-caption="{{ image.alt_text|default:listing.title }}">
+                                            <img src="{{ image.image.url }}" 
+                                                 class="d-block w-100 property-image" 
+                                                 alt="{{ image.alt_text|default:listing.title }}">
+                                        </a>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -62,19 +64,23 @@
                         <div class="row g-2 mt-3">
                             {% for image in listing.images.all %}
                                 <div class="col-md-3 col-6">
-                                    <img src="{{ image.image.url }}" 
-                                         class="img-fluid rounded thumbnail-img" 
-                                         alt="{{ image.alt_text|default:listing.title }}" 
-                                         data-bs-target="#propertyImageCarousel" 
-                                         data-bs-slide-to="{{ forloop.counter0 }}">
+                                    <a data-fancybox="property-gallery" href="{{ image.image.url }}" data-caption="{{ image.alt_text|default:listing.title }}">
+                                        <img src="{{ image.image.url }}" 
+                                             class="img-fluid rounded thumbnail-img" 
+                                             alt="{{ image.alt_text|default:listing.title }}" 
+                                             data-bs-target="#propertyImageCarousel" 
+                                             data-bs-slide-to="{{ forloop.counter0 }}">
+                                    </a>
                                 </div>
                             {% endfor %}
                         </div>
                     {% elif listing.main_image %}
                         <!-- Fallback to single main image if no gallery images -->
-                        <img src="{{ listing.main_image.url }}" 
-                             class="img-fluid rounded shadow property-image" 
-                             alt="{{ listing.image_alt_text|default:listing.title }}">
+                        <a data-fancybox="property-gallery" href="{{ listing.main_image.url }}" data-caption="{{ listing.image_alt_text|default:listing.title }}">
+                            <img src="{{ listing.main_image.url }}" 
+                                 class="img-fluid rounded shadow property-image" 
+                                 alt="{{ listing.image_alt_text|default:listing.title }}">
+                        </a>
                     {% else %}
                         <!-- Placeholder if no images -->
                         <div class="bg-light rounded shadow d-flex align-items-center justify-content-center property-image-placeholder" 
@@ -305,8 +311,46 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Fancybox CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Fancybox for property images with enhanced configuration
+    Fancybox.bind('[data-fancybox="property-gallery"]', {
+        Thumbs: { 
+            autoStart: true,
+            showOnStart: "always"
+        },
+        Toolbar: { 
+            display: {
+                left: ["infobar"],
+                middle: ["zoomIn", "zoomOut", "toggle1to1", "rotateCCW", "rotateCW", "flipX", "flipY"],
+                right: ["slideshow", "thumbs", "close"]
+            }
+        },
+        infinite: true,
+        dragToClose: true,
+        Carousel: {
+            transition: "slide"
+        },
+        Images: {
+            initialSize: "fit",
+            Panzoom: {
+                maxScale: 3
+            }
+        },
+        Html: {
+            youtube: {
+                ratio: 16 / 9
+            },
+            vimeo: {
+                ratio: 16 / 9
+            }
+        }
+    });
+    
     // Add click functionality to thumbnails
     const thumbnails = document.querySelectorAll('.thumbnail-img');
     const carousel = document.getElementById('propertyImageCarousel');
@@ -321,6 +365,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // Ensure Fancybox is properly initialized after all content loads
+    window.addEventListener('load', function() {
+        // Reinitialize Fancybox to ensure all images are captured
+        Fancybox.unbind('[data-fancybox="property-gallery"]');
+        Fancybox.bind('[data-fancybox="property-gallery"]', {
+            Thumbs: { 
+                autoStart: true,
+                showOnStart: "always"
+            },
+            Toolbar: { 
+                display: {
+                    left: ["infobar"],
+                    middle: ["zoomIn", "zoomOut", "toggle1to1", "rotateCCW", "rotateCW", "flipX", "flipY"],
+                    right: ["slideshow", "thumbs", "close"]
+                }
+            },
+            infinite: true,
+            dragToClose: true,
+            Carousel: {
+                transition: "slide"
+            },
+            Images: {
+                initialSize: "fit",
+                Panzoom: {
+                    maxScale: 3
+                }
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

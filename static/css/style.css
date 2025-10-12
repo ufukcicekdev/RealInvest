@@ -1627,15 +1627,55 @@ img.hero-carousel-image {
 
 /* Logo Styles */
 .logo-img {
-    max-height: 50px;
-    width: auto;
+    height: 50px;
+    width: 180px;
     object-fit: contain;
+    object-position: left center;
+    display: block;
 }
 
 .footer-logo {
-    max-height: 40px;
-    width: auto;
+    height: 40px;
+    width: 150px;
     object-fit: contain;
+    object-position: left center;
+    display: block;
+}
+
+/* Navbar Brand Logo Styles */
+.navbar-brand .logo-img {
+    height: 50px;
+    width: 180px;
+    object-fit: contain;
+    object-position: left center;
+    display: block;
+}
+
+/* Responsive adjustments for logos */
+@media (max-width: 768px) {
+    .logo-img,
+    .navbar-brand .logo-img {
+        height: 40px;
+        width: 150px;
+    }
+    
+    .footer-logo {
+        height: 30px;
+        width: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .logo-img,
+    .navbar-brand .logo-img {
+        height: 35px;
+        width: 130px;
+    }
+    
+    .footer-logo {
+        height: 25px;
+        width: 100px;
+    }
 }
 
 /* Responsive adjustments for custom sections */
@@ -1658,14 +1698,6 @@ img.hero-carousel-image {
     .custom-section.cards .card-img-top {
         height: 150px;
     }
-    
-    .logo-img {
-        max-height: 40px;
-    }
-    
-    .footer-logo {
-        max-height: 30px;
-    }
 }
 
 @media (max-width: 576px) {
@@ -1675,14 +1707,6 @@ img.hero-carousel-image {
     
     .custom-section.cards .card-img-top {
         height: 120px;
-    }
-    
-    .logo-img {
-        max-height: 35px;
-    }
-    
-    .footer-logo {
-        max-height: 25px;
     }
 }
 
