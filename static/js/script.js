@@ -331,10 +331,170 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', simpleMapFix);
     
     // ===================================
+    // Initialize Bootstrap Carousel for Banner
+    // ===================================
+    function initializeBannerCarousel() {
+        const bannerCarousels = [
+            'bannerCarousel1',
+            'bannerCarousel2', 
+            'bannerCarousel3',
+            'bannerCarousel4'
+        ];
+        
+        bannerCarousels.forEach(carouselId => {
+            const bannerCarousel = document.getElementById(carouselId);
+            if (bannerCarousel) {
+                // Destroy existing carousel instance if it exists
+                const carouselInstance = bootstrap.Carousel.getInstance(bannerCarousel);
+                if (carouselInstance) {
+                    carouselInstance.dispose();
+                }
+                
+                // Initialize carousel with Bootstrap
+                const carousel = new bootstrap.Carousel(bannerCarousel, {
+                    interval: 5000,
+                    pause: 'hover',
+                    wrap: true
+                });
+                console.log('Banner carousel initialized:', carouselId);
+            }
+        });
+    }
+
+    // ===================================
+    // Responsive Carousel Handling
+    // ===================================
+    function handleResponsiveCarousel() {
+        const bannerCarousels = [
+            'bannerCarousel1',
+            'bannerCarousel2', 
+            'bannerCarousel3',
+            'bannerCarousel4'
+        ];
+        
+        bannerCarousels.forEach(carouselId => {
+            const bannerCarousel = document.getElementById(carouselId);
+            if (bannerCarousel) {
+                // Get current window width
+                const windowWidth = window.innerWidth;
+                
+                // Adjust carousel settings based on screen size
+                let interval = 5000;
+                if (windowWidth < 768) {
+                    interval = 7000; // Slower on mobile
+                }
+                
+                // Reinitialize carousel with appropriate settings
+                const carouselInstance = bootstrap.Carousel.getInstance(bannerCarousel);
+                if (carouselInstance) {
+                    carouselInstance.dispose();
+                }
+                
+                const carousel = new bootstrap.Carousel(bannerCarousel, {
+                    interval: interval,
+                    pause: 'hover',
+                    wrap: true
+                });
+                
+                // Force image recalculation
+                forceImageRecalculation(bannerCarousel);
+            }
+        });
+    }
+
+    // ===================================
+    // Force Image Recalculation
+    // ===================================
+    function forceImageRecalculation(bannerCarousel) {
+        if (bannerCarousel) {
+            // Ensure images maintain proper aspect ratio
+            const images = bannerCarousel.querySelectorAll('.hero-carousel-image');
+            console.log('Found', images.length, 'hero carousel images in', bannerCarousel.id);
+            images.forEach((img, index) => {
+                console.log('Setting styles for image', index, img);
+                img.style.objectFit = 'cover';
+                img.style.objectPosition = 'center';
+                img.style.width = '100%';
+                img.style.height = '100vh';
+                console.log('Applied styles to image', index, ':', img.style);
+            });
+        } else {
+            console.log('No banner carousel provided to forceImageRecalculation');
+        }
+    }
+
+    // ===================================
+    // Force Carousel Recalculation
+    // ===================================
+    function forceCarouselRecalculation() {
+        const bannerCarousels = [
+            'bannerCarousel1',
+            'bannerCarousel2', 
+            'bannerCarousel3',
+            'bannerCarousel4'
+        ];
+        
+        bannerCarousels.forEach(carouselId => {
+            const bannerCarousel = document.getElementById(carouselId);
+            if (bannerCarousel) {
+                console.log('Processing carousel:', carouselId);
+                // Trigger a resize event to force recalculation
+                const resizeEvent = new Event('resize');
+                window.dispatchEvent(resizeEvent);
+                
+                // Also manually set the width and height
+                const items = bannerCarousel.querySelectorAll('.carousel-item');
+                console.log('Found', items.length, 'carousel items in', carouselId);
+                items.forEach(item => {
+                    item.style.width = '100%';
+                    item.style.height = '100vh';
+                });
+                
+                // Update the active item
+                const activeItem = bannerCarousel.querySelector('.carousel-item.active');
+                if (activeItem) {
+                    activeItem.style.width = '100%';
+                    activeItem.style.height = '100vh';
+                }
+                
+                // Force image recalculation
+                forceImageRecalculation(bannerCarousel);
+            } else {
+                console.log('Carousel not found:', carouselId);
+            }
+        });
+    }
+
+    // ===================================
     // Console Welcome Message
     // ===================================
     console.log('%c Real Estate Website ', 'background: #0d6efd; color: white; font-size: 20px; padding: 10px;');
     console.log('%c Built with Django & Bootstrap 5 ', 'color: #6c757d; font-size: 14px;');
+
+    // Initialize components when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize banner carousel
+        handleResponsiveCarousel();
+        
+        // Force recalculation after a short delay
+        setTimeout(forceCarouselRecalculation, 100);
+        
+        // Reinitialize carousel on window resize
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                handleResponsiveCarousel();
+                forceCarouselRecalculation();
+            }, 250); // Debounce resize events
+        });
+    });
+    
+    // Also initialize when window loads
+    window.addEventListener('load', function() {
+        handleResponsiveCarousel();
+        forceCarouselRecalculation();
+    });
     
 });
 

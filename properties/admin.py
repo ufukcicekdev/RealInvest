@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection
+from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage
 
 # Register your models here.
 
@@ -161,6 +161,38 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         return False
 
 
+@admin.register(BannerImage)
+class BannerImageAdmin(admin.ModelAdmin):
+    """
+    Banner image admin configuration
+    """
+    list_display = ('image_preview', 'alt_text', 'button_text', 'is_active', 'order', 'created_date')
+    list_filter = ('is_active', 'created_date')
+    search_fields = ('alt_text', 'button_text')
+    list_editable = ('is_active', 'order')
+    date_hierarchy = 'created_date'
+    
+    fieldsets = (
+        ('Görsel', {
+            'fields': ('image', 'alt_text'),
+            'description': 'Önerilen boyut: 1920x1080 piksel (16:9 en-boy oranı). Tüm banner görselleri aynı boyutta olmalıdır.'
+        }),
+        ('Buton Ayarları', {
+            'fields': ('button_text', 'button_link', 'button_position'),
+            'description': 'Banner üzerinde buton göstermek istiyorsanız bu alanları doldurun.'
+        }),
+        ('Görüntüleme Seçenekleri', {
+            'fields': ('is_active', 'order')
+        }),
+    )
+    
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height: 50px; max-width: 50px;" />', obj.image.url)
+        return "Görsel Yok"
+    image_preview.short_description = 'Önizleme'
+
+
 @admin.register(About)
 class HomepageSettingsAdmin(admin.ModelAdmin):
     """
@@ -169,6 +201,9 @@ class HomepageSettingsAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Şablon Seçimi', {
             'fields': ('homepage_template',)
+        }),
+        ('Banner Ayarları', {
+            'fields': ('banner_images',)
         }),
         ('Bölüm Görünürlüğü', {
             'fields': (

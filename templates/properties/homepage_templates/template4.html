@@ -3,18 +3,46 @@
 <div class="homepage-template template4">
   <!-- Content-rich Hero Section -->
   <section class="hero-section content-rich">
-      <div class="hero-image"></div>
-      <div class="hero-content">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-8">
-                      <h1>Gayrimenkulde Yeni Standart</h1>
-                      <p class="lead">Profesyonel danışmanlık ve kapsamlı hizmet</p>
-                      <a href="{% url 'listings' %}" class="btn btn-hero">Hemen Başlayın</a>
+      {% if banner_images %}
+      <div id="bannerCarousel4" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+              {% for banner in banner_images %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ banner.image.url }}" class="d-block w-100 hero-carousel-image" alt="{{ banner.alt_text|default:'Banner image' }}">
+                  <div class="hero-content">
+                      <div class="container">
+                          <div class="row">
+                              <div class="col-lg-8">
+                                  {% if banner.button_text %}
+                                  <a href="{{ banner.button_link }}" class="btn btn-banner {{ banner.button_position }}">
+                                      {{ banner.button_text }}
+                                  </a>
+                                  {% endif %}
+                              </div>
+                          </div>
+                      </div>
                   </div>
               </div>
+              {% endfor %}
           </div>
+          {% if banner_images.count > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel4" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel4" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+          </button>
+          <div class="carousel-indicators">
+              {% for banner in banner_images %}
+              <button type="button" data-bs-target="#bannerCarousel4" data-bs-slide-to="{{ forloop.counter0 }}" 
+                      {% if forloop.first %}class="active"{% endif %} aria-current="true" aria-label="Slide {{ forloop.counter }}"></button>
+              {% endfor %}
+          </div>
+          {% endif %}
       </div>
+      {% endif %}
   </section>
 
   {% if about.show_search_bar %}

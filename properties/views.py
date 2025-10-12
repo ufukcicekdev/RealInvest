@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Listing, Construction, About, ContactMessage, SiteSettings, CustomSection
+from .models import Listing, Construction, About, ContactMessage, SiteSettings, CustomSection, BannerImage
 from .forms import ContactForm
 
 # Create your views here.
@@ -21,11 +21,21 @@ def home(request):
         # Get visible custom sections if about_content exists
         if about_content:
             custom_sections = about_content.visible_custom_sections.filter(is_active=True).order_by('order')
+            # Get banner images
+            banner_images = about_content.banner_images.filter(is_active=True).order_by('order')
+            # Debug: Print banner images count
+            print(f"Banner images count: {banner_images.count()}")
+            for banner in banner_images:
+                print(f"Banner: {banner.image.url if banner.image else 'No image'}")
         else:
             custom_sections = CustomSection.objects.none()
+            banner_images = BannerImage.objects.none()
+            print("No about content found")
     except About.DoesNotExist:
         about_content = None
         custom_sections = CustomSection.objects.none()
+        banner_images = BannerImage.objects.none()
+        print("About.DoesNotExist exception")
     
     # Get site settings
     try:
@@ -36,6 +46,11 @@ def home(request):
     # If no about_content exists, get all active custom sections
     if not about_content:
         custom_sections = CustomSection.objects.filter(is_active=True).order_by('order')
+        banner_images = BannerImage.objects.filter(is_active=True).order_by('order')
+    
+    # Debug: Print banner images information
+    print(f"Final banner images count: {banner_images.count()}")
+    print(f"Banner images exists: {banner_images.exists()}")
     
     context = {
         'featured_listings': featured_listings,
@@ -43,8 +58,9 @@ def home(request):
         'about': about_content,
         'site_settings': site_settings,
         'custom_sections': custom_sections,
+        'banner_images': banner_images,
         'page_title': 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun',
-        'meta_description': 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.',
+        'meta_description': 'Geniş emlak ilanlarımıza göz atın. Satılık veya kiralık daire, ev, villa ve ticari gayrimenkuller bulun.',
     }
     return render(request, 'properties/home.html', context)
 

@@ -291,6 +291,14 @@ class About(models.Model):
         help_text="Anasayfa için kullanılacak şablonu seçin"
     )
     
+    # Banner images
+    banner_images = models.ManyToManyField(
+        'BannerImage',
+        blank=True,
+        verbose_name="Banner Görselleri",
+        help_text="Anasayfa banner'ında gösterilmesini istediğiniz görselleri seçin"
+    )
+    
     # General section visibility options (not tied to specific content)
     show_search_bar = models.BooleanField(default=True, verbose_name="Arama Çubuğunu Göster")
     show_stats_section = models.BooleanField(default=True, verbose_name="İstatistikleri Göster")
@@ -323,6 +331,74 @@ class About(models.Model):
     
     def __str__(self):
         return "Ana Sayfa Ayarları"
+
+
+class BannerImage(models.Model):
+    """
+    Model for homepage banner images with optional buttons
+    """
+    image = models.ImageField(
+        upload_to='banner/',
+        verbose_name="Banner Görseli",
+        help_text="Banner olarak kullanılacak görsel. Önerilen boyut: 1920x1080 piksel (16:9 en-boy oranı). Tüm banner görselleri aynı boyutta olmalıdır."
+    )
+    alt_text = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Alternatif Metin",
+        help_text="Görsel için erişilebilirlik metni"
+    )
+    
+    # Button options
+    button_text = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Buton Metni",
+        help_text="Banner üzerinde gösterilecek buton metni (boş bırakılırsa buton gösterilmez)"
+    )
+    button_link = models.URLField(
+        blank=True,
+        verbose_name="Buton Bağlantısı",
+        help_text="Butonun yönlendireceği URL"
+    )
+    button_position = models.CharField(
+        max_length=20,
+        choices=[
+            ('top-left', 'Üst Sol'),
+            ('top-center', 'Üst Orta'),
+            ('top-right', 'Üst Sağ'),
+            ('middle-left', 'Orta Sol'),
+            ('middle-center', 'Orta'),
+            ('middle-right', 'Orta Sağ'),
+            ('bottom-left', 'Alt Sol'),
+            ('bottom-center', 'Alt Orta'),
+            ('bottom-right', 'Alt Sağ'),
+        ],
+        default='middle-center',
+        verbose_name="Buton Konumu",
+        help_text="Butonun banner üzerindeki konumu"
+    )
+    
+    # Display options
+    is_active = models.BooleanField(default=True, verbose_name="Aktif")
+    order = models.IntegerField(default=0, verbose_name="Sıra")
+    
+    created_date = models.DateTimeField(default=timezone.now, verbose_name="Oluşturma Tarihi")
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Banner Görseli'
+        verbose_name_plural = 'Banner Görselleri'
+    
+    def save(self, *args, **kwargs):
+        if not self.alt_text and self.image:
+            # Generate alt text from image name if not provided
+            self.alt_text = self.image.name.split('/')[-1].split('.')[0].replace('-', ' ').replace('_', ' ').title()
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"Banner Görseli - {self.alt_text}"
 
 
 class CustomSection(models.Model):

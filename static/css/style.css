@@ -151,6 +151,109 @@ a {
     box-shadow: 0 15px 30px rgba(37, 117, 252, 0.6);
 }
 
+/* Hero Content - Ensure it appears above images */
+.hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Banner Buttons - Positioning */
+.btn-banner {
+    z-index: 20;
+    position: relative;
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+    border: none;
+    box-shadow: 0 10px 25px rgba(37, 117, 252, 0.4);
+    transition: all 0.4s ease;
+    color: white;
+    font-weight: 600;
+}
+
+.btn-banner:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(37, 117, 252, 0.6);
+    color: white;
+    text-decoration: none;
+}
+
+/* Button Positions */
+.btn-banner.top-left {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    margin: 0;
+}
+
+.btn-banner.top-center {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.btn-banner.top-right {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    margin: 0;
+}
+
+.btn-banner.middle-left {
+    position: absolute;
+    top: 50%;
+    left: 2rem;
+    transform: translateY(-50%);
+    margin: 0;
+}
+
+.btn-banner.middle-center {
+    margin: 0;
+}
+
+.btn-banner.middle-right {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+    margin: 0;
+}
+
+.btn-banner.bottom-left {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    margin: 0;
+}
+
+.btn-banner.bottom-center {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.btn-banner.bottom-right {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    margin: 0;
+}
+
 /* Search Section */
 .search-section {
     background: white;
@@ -1314,16 +1417,46 @@ img {
 
 /* Homepage Template Styles */
 
+/* Hero Carousel Image - Ensure consistent sizing */
+img.hero-carousel-image {
+    width: 100% !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    margin: 0 auto !important;
+    z-index: 1 !important;
+    border: 5px solid red !important; /* Debug border to see if styles are applied */
+}
+
+/* Hero Content - Ensure it appears above images */
+.hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+}
+
 /* Template 1: Large Banner */
 .homepage-template.template1 .hero-section {
     height: 100vh;
     min-height: 600px;
+    position: relative;
 }
 
 /* Template 2: Minimal */
 .homepage-template.template2 .hero-section.minimal {
     height: 60vh;
     min-height: 400px;
+    position: relative;
 }
 
 .homepage-template.template2 .hero-section.minimal .hero-content h1 {
@@ -1344,6 +1477,7 @@ img {
 .homepage-template.template3 .hero-section.featured-focus {
     height: 80vh;
     min-height: 500px;
+    position: relative;
 }
 
 .homepage-template.template3 .hero-section.featured-focus .hero-content {
@@ -1366,6 +1500,7 @@ img {
 .homepage-template.template4 .hero-section.content-rich {
     height: 70vh;
     min-height: 500px;
+    position: relative;
 }
 
 .homepage-template.template4 .hero-section.content-rich .hero-content {
@@ -1382,6 +1517,10 @@ img {
 
 /* Responsive adjustments for homepage templates */
 @media (max-width: 992px) {
+    .hero-carousel-image {
+        height: 80vh;
+    }
+    
     .homepage-template.template1 .hero-section {
         height: 80vh;
     }
@@ -1400,6 +1539,10 @@ img {
 }
 
 @media (max-width: 768px) {
+    .hero-carousel-image {
+        height: 70vh;
+    }
+    
     .homepage-template.template1 .hero-section h1 {
         font-size: 2.5rem;
     }
@@ -1422,6 +1565,10 @@ img {
 }
 
 @media (max-width: 576px) {
+    .hero-carousel-image {
+        height: 60vh;
+    }
+    
     .homepage-template.template1 .hero-section {
         height: 70vh;
     }
