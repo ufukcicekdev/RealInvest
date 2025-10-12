@@ -135,7 +135,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             'description': 'Sitenizin logosunu ve faviconunu buraya yükleyin.'
         }),
         ('İletişim Bilgileri', {
-            'fields': ('phone', 'email', 'address'),
+            'fields': ('phone', 'email', 'address', 'tax_number', 'tax_office'),
             'description': 'Şirketinizin iletişim bilgilerini buraya girin. Bu bilgiler web sitenizin farklı bölümlerinde gösterilecektir.'
         }),
         ('Harita Konumu', {

@@ -234,7 +234,7 @@ Banner {{ forloop.counter }}: {{ banner.image.url }}
                           <img src="{% static 'images/placeholder.jpg' %}" alt="Müşteri">
                           <div class="client-info">
                               <h6>Ahmet Yılmaz</h6>
-                              <p>İstanbul</p>
+                              <p class="mb-0">İstanbul</p>
                           </div>
                       </div>
                   </div>
@@ -248,7 +248,7 @@ Banner {{ forloop.counter }}: {{ banner.image.url }}
                           <img src="{% static 'images/placeholder.jpg' %}" alt="Müşteri">
                           <div class="client-info">
                               <h6>Mehmet Demir</h6>
-                              <p>Ankara</p>
+                              <p class="mb-0">Ankara</p>
                           </div>
                       </div>
                   </div>
@@ -267,21 +267,33 @@ Banner {{ forloop.counter }}: {{ banner.image.url }}
                   <div class="info-box">
                       <i class="bi bi-telephone-fill"></i>
                       <h5>Bizi Arayın</h5>
+                      {% if global_site_settings and global_site_settings.phone %}
+                      <p class="mb-0">{{ global_site_settings.phone }}</p>
+                      {% else %}
                       <p class="mb-0">+90 212 123 45 67</p>
+                      {% endif %}
                   </div>
               </div>
               <div class="col-md-4">
                   <div class="info-box">
                       <i class="bi bi-envelope-fill"></i>
                       <h5>E-posta Gönderin</h5>
+                      {% if global_site_settings and global_site_settings.email %}
+                      <p class="mb-0">{{ global_site_settings.email }}</p>
+                      {% else %}
                       <p class="mb-0">info@emlak.com</p>
+                      {% endif %}
                   </div>
               </div>
               <div class="col-md-4">
                   <div class="info-box">
                       <i class="bi bi-geo-alt-fill"></i>
                       <h5>Bizi Ziyaret Edin</h5>
+                      {% if global_site_settings and global_site_settings.address %}
+                      <p class="mb-0">{{ global_site_settings.address }}</p>
+                      {% else %}
                       <p class="mb-0">Örnek Mahallesi, Emlak Cad. No:123</p>
+                      {% endif %}
                   </div>
               </div>
           </div>

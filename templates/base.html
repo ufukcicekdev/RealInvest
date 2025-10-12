@@ -219,6 +219,19 @@
                 </div>
             </div>
             
+            <!-- Vergi Bilgileri -->
+            {% if global_site_settings and global_site_settings.tax_number %}
+            <div class="row">
+                <div class="col-12 text-center mt-3">
+                    <p class="mb-0">
+                        <strong>Vergi Bilgileri:</strong> 
+                        {{ global_site_settings.tax_number }}
+                        {% if global_site_settings.tax_office %} {{ global_site_settings.tax_office }} {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+            
             <div class="footer-bottom">
                 <div class="row">
                     <div class="col-12 text-center">

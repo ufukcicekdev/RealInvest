@@ -32,11 +32,11 @@
                         <li data-value="ongoing" {% if selected_status == 'ongoing' %}data-selected="true"{% endif %}>Devam Ediyor</li>
                         <li data-value="completed" {% if selected_status == 'completed' %}data-selected="true"{% endif %}>Tamamlandı</li>
                     </ul>
-                    <input type="hidden" name="status" id="status" value="{{ selected_status }}">
+                    <input type="hidden" name="status" value="{{ selected_status }}">
                 </div>
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100 mt-4">
+                <button type="submit" class="btn btn-primary w-100 mb-3">
                     <i class="bi bi-funnel"></i> Filtrele
                 </button>
             </div>

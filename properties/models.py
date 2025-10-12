@@ -206,9 +206,13 @@ class SiteSettings(models.Model):
     )
     
     # Contact information
-    phone = models.CharField(max_length=20, blank=True, verbose_name="Telefon")
+    phone = models.CharField(max_length=200, blank=True, verbose_name="Telefon")
     email = models.EmailField(blank=True, verbose_name="E-posta")
     address = models.CharField(max_length=500, blank=True, verbose_name="Adres")
+    
+    # Tax information
+    tax_number = models.CharField(max_length=20, blank=True, verbose_name="Vergi Numarası")
+    tax_office = models.CharField(max_length=100, blank=True, verbose_name="Vergi Dairesi")
     
     # Map location
     map_embed_code = models.TextField(

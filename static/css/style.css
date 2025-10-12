@@ -350,7 +350,7 @@ a {
     position: relative;
     width: 100%;
     font-family: 'Poppins', sans-serif;
-    margin-bottom: 0;
+    margin-bottom: 1rem;
 }
 
 .dropdown-selected {
@@ -395,7 +395,7 @@ a {
     border-radius: 10px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     display: none;
-    position: absolute;
+    position: relative;
     width: 100%;
     z-index: 1000;
     max-height: 200px;
