@@ -18,7 +18,12 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
-load_dotenv(BASE_DIR / '.env')
+env_path = BASE_DIR / '.env'
+print(f"Looking for .env file at: {env_path}")
+print(f".env file exists: {env_path.exists()}")
+
+# Load .env file with override=True to override system environment variables
+load_dotenv(env_path, override=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -27,7 +32,23 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG_ENV = os.getenv('DEBUG', 'False')
+print(f"DEBUG from os.getenv: '{DEBUG_ENV}'")
+
+# Try reading directly from .env file as fallback
+if DEBUG_ENV.lower() not in ['true', '1', 'yes']:
+    try:
+        with open(env_path, 'r') as f:
+            for line in f:
+                if line.strip().startswith('DEBUG='):
+                    DEBUG_ENV = line.strip().split('=', 1)[1]
+                    print(f"DEBUG from .env file directly: '{DEBUG_ENV}'")
+                    break
+    except Exception as e:
+        print(f"Error reading .env file: {e}")
+
+DEBUG = DEBUG_ENV.lower() in ['true', '1', 'yes']
+print(f"DEBUG final value: {DEBUG}")
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -185,6 +206,7 @@ else:
 # AWS/DigitalOcean Spaces ayarları
 
 # Static ve Media dosya ayarları
+print("DEBUG",DEBUG)
 if DEBUG:
     # Local development settings
     STATIC_URL = '/static/'
