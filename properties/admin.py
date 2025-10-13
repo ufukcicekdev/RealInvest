@@ -252,10 +252,10 @@ class CustomSectionAdmin(admin.ModelAdmin):
     """
     form = CustomSectionForm  # Use custom form with color pickers
     
-    list_display = ('title', 'layout', 'is_active', 'order', 'created_date')
+    list_display = ('title', 'layout', 'is_active', 'created_date')
     list_filter = ('layout', 'is_active', 'created_date')
     search_fields = ('title', 'subtitle', 'content')
-    list_editable = ('is_active', 'order')
+    list_editable = ('is_active',)
     date_hierarchy = 'created_date'
     
     fieldsets = (
@@ -277,7 +277,7 @@ class CustomSectionAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         ('Görüntüleme Seçenekleri', {
-            'fields': ('is_active', 'order')
+            'fields': ('is_active',)
         }),
     )
 

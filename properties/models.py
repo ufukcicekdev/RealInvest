@@ -459,13 +459,11 @@ class CustomSection(models.Model):
     background_color = models.CharField(max_length=20, blank=True, verbose_name="Arka Plan Rengi", help_text="HEX renk kodu (örn: #ffffff)")
     text_color = models.CharField(max_length=20, blank=True, verbose_name="Metin Rengi", help_text="HEX renk kodu (örn: #000000)")
     is_active = models.BooleanField(default=True, verbose_name="Aktif")
-    order = models.IntegerField(default=0, verbose_name="Sıra")
     
     created_date = models.DateTimeField(default=timezone.now, verbose_name="Oluşturma Tarihi")
     updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
     
     class Meta:
-        ordering = ['order']
         verbose_name = 'Özel Bölüm'
         verbose_name_plural = 'Özel Bölümler'
     
