@@ -1,6 +1,74 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<!-- Fancybox CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css">
+<style>
+/* Custom gallery styles */
+.project-gallery-slider {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.project-gallery-slider .carousel-item img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+.project-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+}
+
+.project-thumbnails img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.project-thumbnails img.active {
+    border-color: #0d6efd;
+}
+
+.project-thumbnails img:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .project-gallery-slider .carousel-item img {
+        height: 300px;
+    }
+    
+    .project-thumbnails img {
+        width: 60px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 576px) {
+    .project-gallery-slider .carousel-item img {
+        height: 250px;
+    }
+    
+    .project-thumbnails img {
+        width: 50px;
+        height: 38px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Page Header -->
 <section class="page-header bg-light py-5">
@@ -162,19 +230,41 @@
                                 </div>
                             </div>
                             
-                            <!-- Gallery Grid -->
+                            <!-- Gallery Slider with Fancybox -->
                             {% if project.images.all %}
-                            <div class="row g-3">
-                                {% for image in project.images.all %}
-                                <div class="col-md-4 col-sm-6">
-                                    <div class="gallery-item">
-                                        <img src="{{ image.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ image.alt_text }}" style="width: 100%; height: 250px; object-fit: cover;">
-                                        {% if image.caption %}
-                                        <p class="text-muted small mt-2">{{ image.caption }}</p>
-                                        {% endif %}
+                            <div class="project-gallery-container">
+                                <div id="projectGallery{{ project.id }}" class="carousel slide project-gallery-slider" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        {% for image in project.images.all %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            <a href="{{ image.image.url }}" data-fancybox="gallery-{{ project.id }}" data-caption="{{ image.caption|default:image.alt_text }}">
+                                                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.alt_text }}">
+                                            </a>
+                                        </div>
+                                        {% endfor %}
                                     </div>
+                                    {% if project.images.count > 1 %}
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#projectGallery{{ project.id }}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Önceki</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#projectGallery{{ project.id }}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Sonraki</span>
+                                    </button>
+                                    {% endif %}
                                 </div>
-                                {% endfor %}
+                                
+                                <!-- Thumbnails -->
+                                <div class="project-thumbnails">
+                                    {% for image in project.images.all %}
+                                    <img src="{{ image.image.url }}" 
+                                         alt="{{ image.alt_text }}" 
+                                         data-bs-target="#projectGallery{{ project.id }}" 
+                                         data-bs-slide-to="{{ forloop.counter0 }}" 
+                                         class="{% if forloop.first %}active{% endif %}">
+                                    {% endfor %}
+                                </div>
                             </div>
                             {% else %}
                             <div class="text-center py-4">
@@ -239,4 +329,88 @@
 </script>
 {% endblock %}
 
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<!-- Fancybox JS -->
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Fancybox
+    Fancybox.bind("[data-fancybox]", {
+        // Fancybox options
+        infinite: true,
+        keyboard: {
+            Escape: "close",
+            Delete: "close",
+            Backspace: "close",
+        },
+        Toolbar: {
+            display: {
+                left: ["infobar"],
+                middle: [
+                    "zoomIn",
+                    "zoomOut",
+                    "toggle1to1",
+                    "rotateCCW",
+                    "rotateCW",
+                    "flipX",
+                    "flipY",
+                ],
+                right: ["slideshow", "thumbs", "close"],
+            },
+        },
+        Image: {
+            zoom: true,
+            click: true,
+            wheel: "zoom",
+        },
+    });
+    
+    // Thumbnail click functionality
+    document.querySelectorAll('.project-thumbnails img').forEach(function(thumb) {
+        thumb.addEventListener('click', function() {
+            // Remove active class from all thumbnails
+            thumb.parentElement.querySelectorAll('img').forEach(function(img) {
+                img.classList.remove('active');
+            });
+            
+            // Add active class to clicked thumbnail
+            this.classList.add('active');
+            
+            // Trigger carousel slide
+            const slideTo = this.getAttribute('data-bs-slide-to');
+            const carouselId = this.getAttribute('data-bs-target');
+            const carousel = document.querySelector(carouselId);
+            
+            if (carousel) {
+                const carouselInstance = bootstrap.Carousel.getOrCreateInstance(carousel);
+                carouselInstance.to(parseInt(slideTo));
+            }
+        });
+    });
+    
+    // Update active thumbnail when carousel slides
+    document.querySelectorAll('.project-gallery-slider').forEach(function(carousel) {
+        carousel.addEventListener('slide.bs.carousel', function(event) {
+            const projectId = carousel.id.replace('projectGallery', '');
+            const thumbnailsContainer = carousel.parentElement.querySelector('.project-thumbnails');
+            
+            if (thumbnailsContainer) {
+                // Remove active class from all thumbnails
+                thumbnailsContainer.querySelectorAll('img').forEach(function(img) {
+                    img.classList.remove('active');
+                });
+                
+                // Add active class to current slide thumbnail
+                const activeThumb = thumbnailsContainer.querySelector(`img[data-bs-slide-to="${event.to}"]`);
+                if (activeThumb) {
+                    activeThumb.classList.add('active');
+                }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
