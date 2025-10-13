@@ -60,7 +60,7 @@
         {% elif custom_section.layout == 'contact_info' %}
           {% include 'properties/custom_sections/contact_info.html' %}
         {% elif custom_section.layout == 'social_media' %}
-          {% include 'properties/custom_sections/social_media.html' %}
+          {% include 'properties/custom_sections/social_media.html' with about=about %}
         {% endif %}
       {% endwith %}
     {% elif section.type == 'search_bar' %}
@@ -82,7 +82,7 @@
     {% elif section.type == 'contact_info' %}
       {% include 'properties/custom_sections/contact_info.html' %}
     {% elif section.type == 'social_media' %}
-      {% include 'properties/custom_sections/social_media.html' %}
+      {% include 'properties/custom_sections/social_media.html' with about=about %}
     {% endif %}
   {% endfor %}
 
