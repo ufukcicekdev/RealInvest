@@ -1,0 +1,39 @@
+<!-- Search Bar Template -->
+<section class="search-section">
+    <form method="get" action="{% url 'listings' %}" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Konum veya başlık ile ara...">
+        </div>
+        <div class="col-md-3">
+            <div class="dropdown-container">
+                <div class="dropdown-selected">Tüm Gayrimenkul Tipleri</div>
+                <ul class="dropdown-options">
+                    <li data-value="">Tüm Gayrimenkul Tipleri</li>
+                    <li data-value="apartment">Daire</li>
+                    <li data-value="house">Ev</li>
+                    <li data-value="villa">Villa</li>
+                    <li data-value="land">Arsa</li>
+                    <li data-value="commercial">Ticari</li>
+                    <li data-value="office">Ofis</li>
+                </ul>
+                <input type="hidden" name="type" id="type">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dropdown-container">
+                <div class="dropdown-selected">Tüm Durumlar</div>
+                <ul class="dropdown-options">
+                    <li data-value="">Tüm Durumlar</li>
+                    <li data-value="sale">Satılık</li>
+                    <li data-value="rent">Kiralık</li>
+                </ul>
+                <input type="hidden" name="status" id="status">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Ara
+            </button>
+        </div>
+    </form>
+</section>

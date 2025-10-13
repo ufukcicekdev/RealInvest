@@ -422,8 +422,16 @@ class CustomSection(models.Model):
         ('image_right', 'Resim Sağda'),
         ('image_center', 'Resim Ortada'),
         ('cards', 'Kartlar'),
-        ('about_section', 'Hakkımızda Bölümü'),  # Added new layout for About section
         ('services', 'Hizmetler'),  # Added new layout for Services section
+        # Sabit bölümler için yeni layout seçenekleri
+        ('search_bar', 'Arama Çubuğu (Sabit)'),
+        ('stats_section', 'İstatistikler Bölümü (Sabit)'),
+        ('featured_listings', 'Öne Çıkan İlanlar (Sabit)'),
+        ('features_section', 'Özellikler Bölümü (Sabit)'),
+        ('testimonials', 'Müşteri Yorumları (Sabit)'),
+        ('recent_listings', 'Son İlanlar (Sabit)'),
+        ('contact_info', 'İletişim Bilgileri (Sabit)'),
+        ('social_media', 'Sosyal Medya (Sabit)'),
     )
     
     ALIGNMENT_CHOICES = (

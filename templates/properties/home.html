@@ -19,22 +19,70 @@
     {% include 'properties/homepage_templates/template1.html' %}
   {% endif %}
 
-  <!-- Custom Sections -->
-  {% for section in custom_sections %}
-    {% if section.layout == 'text_only' %}
-      {% include 'properties/custom_sections/text_only.html' %}
-    {% elif section.layout == 'image_left' %}
-      {% include 'properties/custom_sections/image_left.html' %}
-    {% elif section.layout == 'image_right' %}
-      {% include 'properties/custom_sections/image_right.html' %}
-    {% elif section.layout == 'image_center' %}
-      {% include 'properties/custom_sections/image_center.html' %}
-    {% elif section.layout == 'cards' %}
-      {% include 'properties/custom_sections/cards.html' %}
-    {% elif section.layout == 'about_section' %}
-      {% include 'properties/custom_sections/about_section.html' %}
-    {% elif section.layout == 'services' %}
-      {% include 'properties/custom_sections/services.html' %}
+  <!-- Custom Sections with dynamic ordering -->
+  {% for section in sections %}
+    {% if section.type == 'custom_section' %}
+      {% with section.custom_section as custom_section %}
+        {% if custom_section.layout == 'text_only' %}
+          <!-- Pass the custom_section data to the template -->
+          {% include 'properties/custom_sections/text_only.html' with section=custom_section %}
+        {% elif custom_section.layout == 'image_left' %}
+          <!-- Pass the custom_section data to the template -->
+          {% include 'properties/custom_sections/image_left.html' with section=custom_section %}
+        {% elif custom_section.layout == 'image_right' %}
+          <!-- Pass the custom_section data to the template -->
+          {% include 'properties/custom_sections/image_right.html' with section=custom_section %}
+        {% elif custom_section.layout == 'image_center' %}
+          <!-- Pass the custom_section data to the template -->
+          {% include 'properties/custom_sections/image_center.html' with section=custom_section %}
+        {% elif custom_section.layout == 'cards' %}
+          <!-- Pass the custom_section data to the template -->
+          {% include 'properties/custom_sections/cards.html' with section=custom_section %}
+        {% elif custom_section.layout == 'services' %}
+          <!-- Pass the custom_section data to the template -->
+          {% include 'properties/custom_sections/services.html' with section=custom_section %}
+        {% elif custom_section.layout == 'search_bar' %}
+          {% include 'properties/custom_sections/search_bar.html' %}
+        {% elif custom_section.layout == 'stats_section' %}
+          {% include 'properties/custom_sections/stats_section.html' %}
+        {% elif custom_section.layout == 'featured_listings' %}
+          {% with section.data as featured_listings %}
+            {% include 'properties/custom_sections/featured_listings.html' %}
+          {% endwith %}
+        {% elif custom_section.layout == 'features_section' %}
+          {% include 'properties/custom_sections/features_section.html' %}
+        {% elif custom_section.layout == 'testimonials' %}
+          {% include 'properties/custom_sections/testimonials.html' %}
+        {% elif custom_section.layout == 'recent_listings' %}
+          {% with section.data as recent_listings %}
+            {% include 'properties/custom_sections/recent_listings.html' %}
+          {% endwith %}
+        {% elif custom_section.layout == 'contact_info' %}
+          {% include 'properties/custom_sections/contact_info.html' %}
+        {% elif custom_section.layout == 'social_media' %}
+          {% include 'properties/custom_sections/social_media.html' %}
+        {% endif %}
+      {% endwith %}
+    {% elif section.type == 'search_bar' %}
+      {% include 'properties/custom_sections/search_bar.html' %}
+    {% elif section.type == 'stats_section' %}
+      {% include 'properties/custom_sections/stats_section.html' %}
+    {% elif section.type == 'featured_listings' %}
+      {% with section.data as featured_listings %}
+        {% include 'properties/custom_sections/featured_listings.html' %}
+      {% endwith %}
+    {% elif section.type == 'features_section' %}
+      {% include 'properties/custom_sections/features_section.html' %}
+    {% elif section.type == 'testimonials' %}
+      {% include 'properties/custom_sections/testimonials.html' %}
+    {% elif section.type == 'recent_listings' %}
+      {% with section.data as recent_listings %}
+        {% include 'properties/custom_sections/recent_listings.html' %}
+      {% endwith %}
+    {% elif section.type == 'contact_info' %}
+      {% include 'properties/custom_sections/contact_info.html' %}
+    {% elif section.type == 'social_media' %}
+      {% include 'properties/custom_sections/social_media.html' %}
     {% endif %}
   {% endfor %}
 

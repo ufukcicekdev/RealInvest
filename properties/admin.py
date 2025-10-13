@@ -258,6 +258,32 @@ class CustomSectionAdmin(admin.ModelAdmin):
     list_editable = ('is_active',)
     date_hierarchy = 'created_date'
     
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Sabit bölümler için alanları read-only yap
+        """
+        readonly_fields = []
+        if obj and obj.layout in [
+            'search_bar', 'stats_section', 'featured_listings', 
+            'features_section', 'testimonials', 'recent_listings', 
+            'contact_info', 'social_media'
+        ]:
+            # Sabit bölümler için tüm alanları read-only yap
+            readonly_fields = [field.name for field in obj._meta.fields]
+        return readonly_fields
+    
+    def has_change_permission(self, request, obj=None):
+        """
+        Sabit bölümler için düzenleme iznini kaldır
+        """
+        if obj and obj.layout in [
+            'search_bar', 'stats_section', 'featured_listings', 
+            'features_section', 'testimonials', 'recent_listings', 
+            'contact_info', 'social_media'
+        ]:
+            return False
+        return super().has_change_permission(request, obj)
+    
     fieldsets = (
         ('Temel Bilgiler', {
             'fields': ('title', 'subtitle', 'content')

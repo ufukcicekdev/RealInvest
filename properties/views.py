@@ -25,10 +25,14 @@ def home(request):
     custom_sections = CustomSection.objects.none()
     if about_content:
         custom_sections = CustomSection.objects.filter(
-            visiblecustomsection__about=about_content,
             is_active=True
         ).order_by('visiblecustomsection__order')
-    
+        
+        # Debug output
+        print(f"Custom sections count: {custom_sections.count()}")
+        for section in custom_sections:
+            print(f"Section: {section.title}, Layout: {section.layout}")
+
     # Get SEO settings for homepage
     try:
         seo_settings = SEOSettings.objects.get(page_type='home')
@@ -39,11 +43,65 @@ def home(request):
         meta_description = 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.'
         seo_settings = None
     
+    # Create a list of sections with their order and visibility
+    sections = []
+    if about_content:
+        # Add fixed sections only if they are in the ordering (visible in section management)
+        # Search Bar
+        if hasattr(about_content, 'search_bar_order') and about_content.show_search_bar:
+            sections.append({'type': 'search_bar', 'order': about_content.search_bar_order})
+        
+        # Stats Section
+        if hasattr(about_content, 'stats_section_order') and about_content.show_stats_section:
+            sections.append({'type': 'stats_section', 'order': about_content.stats_section_order})
+        
+        # Featured Listings
+        if hasattr(about_content, 'featured_listings_order') and about_content.show_featured_listings and featured_listings:
+            sections.append({'type': 'featured_listings', 'order': about_content.featured_listings_order, 'data': featured_listings})
+        
+        # Features Section
+        if hasattr(about_content, 'features_section_order') and about_content.show_features_section:
+            sections.append({'type': 'features_section', 'order': about_content.features_section_order})
+        
+        # Testimonials
+        if hasattr(about_content, 'testimonials_order') and about_content.show_testimonials:
+            sections.append({'type': 'testimonials', 'order': about_content.testimonials_order})
+        
+        # Recent Listings
+        if hasattr(about_content, 'recent_listings_order') and about_content.show_recent_listings and recent_listings:
+            sections.append({'type': 'recent_listings', 'order': about_content.recent_listings_order, 'data': recent_listings})
+        
+        # Contact Info
+        if hasattr(about_content, 'contact_info_order') and about_content.show_contact_info:
+            sections.append({'type': 'contact_info', 'order': about_content.contact_info_order})
+        
+        # Social Media
+        if hasattr(about_content, 'social_media_order') and about_content.show_social_media:
+            sections.append({'type': 'social_media', 'order': about_content.social_media_order})
+        
+        # Add custom sections with their order from VisibleCustomSection
+        for custom_section in custom_sections:
+            # Get the order from the through model
+            visible_custom_section = custom_section.visiblecustomsection_set.filter(about=about_content).first()
+            if visible_custom_section:
+                section_data = {
+                    'type': 'custom_section',
+                    'order': visible_custom_section.order,
+                    'custom_section': custom_section
+                }
+                sections.append(section_data)
+                print(f"Added custom section: {custom_section.title}, Order: {visible_custom_section.order}")
+    
+    # Sort sections by order
+    sections.sort(key=lambda x: x['order'])
+    print(f"Total sections: {len(sections)}")
+
     context = {
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,
         'about': about_content,
         'custom_sections': custom_sections,
+        'sections': sections,
         'page_title': page_title,
         'meta_description': meta_description,
         'seo_settings': seo_settings,

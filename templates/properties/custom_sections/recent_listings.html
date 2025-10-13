@@ -1,0 +1,46 @@
+<!-- Recent Listings Template -->
+{% load static %}
+<section class="recent-listings-section py-5">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Son Eklenen Gayrimenkuller</h2>
+            <p>Yeni çıkan ilanlarımızı kaçırmayın</p>
+        </div>
+        <div class="row g-4">
+            {% for listing in recent_listings %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card property-card h-100">
+                    <div class="position-relative">
+                        {% if listing.main_image %}
+                        <img src="{{ listing.main_image.url }}" class="card-img-top" alt="{{ listing.image_alt_text }}">
+                        {% else %}
+                        <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="Property placeholder">
+                        {% endif %}
+                        <span class="badge bg-primary position-absolute top-0 start-0 m-3">{{ listing.get_status_display }}</span>
+                        <span class="badge bg-dark position-absolute top-0 end-0 m-3">{{ listing.get_property_type_display }}</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }}</h5>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-geo-alt"></i> {{ listing.location }}
+                        </p>
+                        <p class="card-text text-truncate">{{ listing.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted"><i class="bi bi-house"></i> {{ listing.bedrooms }} oda</span>
+                            <span class="text-muted"><i class="bi bi-droplet"></i> {{ listing.bathrooms }} banyo</span>
+                            <span class="text-muted"><i class="bi bi-arrows-fullscreen"></i> {{ listing.area }} m²</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="price mb-0">₺{{ listing.price|floatformat:0 }}</h4>
+                            <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-outline-primary btn-sm">Detayları Gör</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'listings' %}" class="btn btn-primary btn-lg">Tüm İlanları Görüntüle</a>
+        </div>
+    </div>
+</section>
