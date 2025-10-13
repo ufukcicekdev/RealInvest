@@ -159,6 +159,27 @@
         {% endblock %}
     </main>
 
+    <!-- Floating WhatsApp and Phone Icons -->
+    {% if global_site_settings %}
+        {% if global_site_settings.show_whatsapp and global_site_settings.whatsapp_number %}
+        <a href="https://wa.me/{{ global_site_settings.whatsapp_number }}" 
+           class="floating-icon whatsapp-icon floating-{{ global_site_settings.whatsapp_position }}" 
+           target="_blank" 
+           aria-label="WhatsApp ile İletişim">
+            <i class="bi bi-whatsapp"></i>
+        </a>
+        {% endif %}
+        
+        {% if global_site_settings.show_phone and global_site_settings.phone_number %}
+        <a href="tel:{{ global_site_settings.phone_number }}" 
+           class="floating-icon phone-icon floating-{{ global_site_settings.phone_position }}" 
+           aria-label="Telefon ile İletişim">
+            <i class="bi bi-telephone-fill"></i>
+        </a>
+        {% endif %}
+    {% endif %}
+
+
     <!-- Footer -->
     <footer class="footer-section">
         <div class="container">

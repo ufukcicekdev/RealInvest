@@ -148,6 +148,13 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             'fields': ('facebook_url', 'instagram_url', 'twitter_url', 'linkedin_url'),
             'description': 'Sosyal medya hesaplarınızı buraya ekleyin. Boş bırakılan alanlar web sitesinde gösterilmeyecektir.'
         }),
+        ('WhatsApp ve Telefon İkonları', {
+            'fields': (
+                ('show_whatsapp', 'whatsapp_number', 'whatsapp_position'),
+                ('show_phone', 'phone_number', 'phone_position')
+            ),
+            'description': 'Sayfada sabit whatsapp ve telefon ikonlarını göster. Kullanıcılar bu ikonlara tıklayarak sizi arayabilir veya WhatsApp\'tan yazabilir.'
+        }),
         ('Google Araçları', {
             'fields': ('google_search_console_verification', 'google_analytics_id'),
             'description': 'Google Search Console ve Google Analytics ayarlarını buraya ekleyin. Bu alanlar SEO ve analiz için önemlidir.'

@@ -245,6 +245,51 @@ class SiteSettings(models.Model):
     twitter_url = models.URLField(blank=True, verbose_name="Twitter URL")
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
     
+    # WhatsApp and Phone (Floating Icons)
+    whatsapp_number = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name="WhatsApp Numarası",
+        help_text="WhatsApp için telefon numarası (ör: 905551234567)"
+    )
+    whatsapp_position = models.CharField(
+        max_length=10,
+        choices=[
+            ('left', 'Sol'),
+            ('right', 'Sağ'),
+        ],
+        default='right',
+        verbose_name="WhatsApp İkon Konumu",
+        help_text="WhatsApp ikonunun ekranda görüneceği konum"
+    )
+    show_whatsapp = models.BooleanField(
+        default=True,
+        verbose_name="WhatsApp İkonunu Göster",
+        help_text="Sayfada WhatsApp ikonunu göster/gizle"
+    )
+    
+    phone_number = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name="Telefon Numarası",
+        help_text="Arama için telefon numarası (ör: 905551234567)"
+    )
+    phone_position = models.CharField(
+        max_length=10,
+        choices=[
+            ('left', 'Sol'),
+            ('right', 'Sağ'),
+        ],
+        default='left',
+        verbose_name="Telefon İkon Konumu",
+        help_text="Telefon ikonunun ekranda görüneceği konum"
+    )
+    show_phone = models.BooleanField(
+        default=True,
+        verbose_name="Telefon İkonunu Göster",
+        help_text="Sayfada telefon ikonunu göster/gizle"
+    )
+    
     # Google tools
     google_search_console_verification = models.CharField(
         max_length=500, 
