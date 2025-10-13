@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
+from django.shortcuts import render
 from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection, BannerImage
 from .forms import ContactForm
 
@@ -356,3 +357,30 @@ def references(request):
         'seo_settings': seo_settings,
     }
     return render(request, 'properties/references.html', context)
+
+
+def test_404(request):
+    """
+    Test view for 404 error page
+    """
+    # This will raise a 404 error
+    raise Http404("Test 404 error")
+
+def test_500(request):
+    """
+    Test view for 500 error page
+    """
+    # This will raise a 500 error
+    raise Exception("Test 500 error")
+
+def custom_page_not_found(request, exception):
+    """
+    Custom 404 error handler
+    """
+    return render(request, 'errors/404.html', status=404)
+
+def custom_server_error(request):
+    """
+    Custom 500 error handler
+    """
+    return render(request, 'errors/500.html', status=500)

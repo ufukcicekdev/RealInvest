@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from properties.sitemaps import ListingSitemap, ConstructionSitemap, StaticViewSitemap
+from django.views.defaults import page_not_found, server_error
 
 # Sitemap configuration
 sitemaps = {
@@ -38,3 +39,7 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Custom error handlers
+handler404 = 'properties.views.custom_page_not_found'
+handler500 = 'properties.views.custom_server_error'
