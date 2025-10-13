@@ -31,10 +31,6 @@ def home(request):
             is_active=True
         ).order_by('visiblecustomsection__order')
         
-        # Debug output
-        print(f"Custom sections count: {custom_sections.count()}")
-        for section in custom_sections:
-            print(f"Section: {section.title}, Layout: {section.layout}")
 
     # Get SEO settings for homepage
     try:
@@ -93,11 +89,9 @@ def home(request):
                     'custom_section': custom_section
                 }
                 sections.append(section_data)
-                print(f"Added custom section: {custom_section.title}, Order: {visible_custom_section.order}")
     
     # Sort sections by order
     sections.sort(key=lambda x: x['order'])
-    print(f"Total sections: {len(sections)}")
 
     context = {
         'featured_listings': featured_listings,
