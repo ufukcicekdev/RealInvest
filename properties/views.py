@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Listing, Construction, About, ContactMessage, SiteSettings, CustomSection, BannerImage, Reference
+from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection
 from .forms import ContactForm
 
 # Create your views here.
@@ -18,49 +18,35 @@ def home(request):
     # Get about content for homepage
     try:
         about_content = About.objects.first()
-        # Get visible custom sections if about_content exists
-        if about_content:
-            custom_sections = about_content.visible_custom_sections.filter(is_active=True).order_by('order')
-            # Get banner images
-            banner_images = about_content.banner_images.filter(is_active=True).order_by('order')
-            # Debug: Print banner images count
-            print(f"Banner images count: {banner_images.count()}")
-            for banner in banner_images:
-                print(f"Banner: {banner.image.url if banner.image else 'No image'}")
-        else:
-            custom_sections = CustomSection.objects.none()
-            banner_images = BannerImage.objects.none()
-            print("No about content found")
     except About.DoesNotExist:
         about_content = None
-        custom_sections = CustomSection.objects.none()
-        banner_images = BannerImage.objects.none()
-        print("About.DoesNotExist exception")
     
-    # Get site settings
+    # Get visible custom sections for homepage with ordering
+    custom_sections = CustomSection.objects.none()
+    if about_content:
+        custom_sections = CustomSection.objects.filter(
+            visiblecustomsection__about=about_content,
+            is_active=True
+        ).order_by('visiblecustomsection__order')
+    
+    # Get SEO settings for homepage
     try:
-        site_settings = SiteSettings.objects.first()
-    except SiteSettings.DoesNotExist:
-        site_settings = None
-    
-    # If no about_content exists, get all active custom sections
-    if not about_content:
-        custom_sections = CustomSection.objects.filter(is_active=True).order_by('order')
-        banner_images = BannerImage.objects.filter(is_active=True).order_by('order')
-    
-    # Debug: Print banner images information
-    print(f"Final banner images count: {banner_images.count()}")
-    print(f"Banner images exists: {banner_images.exists()}")
+        seo_settings = SEOSettings.objects.get(page_type='home')
+        page_title = seo_settings.meta_title or 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun'
+        meta_description = seo_settings.meta_description or 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.'
+    except SEOSettings.DoesNotExist:
+        page_title = 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun'
+        meta_description = 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.'
+        seo_settings = None
     
     context = {
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,
         'about': about_content,
-        'site_settings': site_settings,
         'custom_sections': custom_sections,
-        'banner_images': banner_images,
-        'page_title': 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun',
-        'meta_description': 'Geniş emlak ilanlarımıza göz atın. Satılık veya kiralık daire, ev, villa ve ticari gayrimenkuller bulun.',
+        'page_title': page_title,
+        'meta_description': meta_description,
+        'seo_settings': seo_settings,
     }
     return render(request, 'properties/home.html', context)
 
@@ -95,13 +81,24 @@ def listings(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Get SEO settings for listings page
+    try:
+        seo_settings = SEOSettings.objects.get(page_type='listings')
+        page_title = seo_settings.meta_title or 'Gayrimenkul İlanları | Tüm Gayrimenkullere Göz Atın'
+        meta_description = seo_settings.meta_description or 'Kapsamlı gayrimenkul ilanlarımıza göz atın. Satılık veya kiralık daire, ev, villa ve ticari gayrimenkuller bulun.'
+    except SEOSettings.DoesNotExist:
+        page_title = 'Gayrimenkul İlanları | Tüm Gayrimenkullere Göz Atın'
+        meta_description = 'Kapsamlı gayrimenkul ilanlarımıza göz atın. Satılık veya kiralık daire, ev, villa ve ticari gayrimenkuller bulun.'
+        seo_settings = None
+    
     context = {
         'page_obj': page_obj,
         'search_query': search_query,
         'selected_type': property_type,
         'selected_status': status,
-        'page_title': 'Gayrimenkul İlanları | Tüm Gayrimenkullere Göz Atın',
-        'meta_description': 'Kapsamlı gayrimenkul ilanlarımıza göz atın. Satılık veya kiralık daire, ev, villa ve ticari gayrimenkuller bulun.',
+        'page_title': page_title,
+        'meta_description': meta_description,
+        'seo_settings': seo_settings,
     }
     return render(request, 'properties/listings.html', context)
 
@@ -136,13 +133,61 @@ def construction(request):
     if status:
         projects = projects.filter(status=status)
     
+    # Get SEO settings for construction page
+    try:
+        seo_settings = SEOSettings.objects.get(page_type='construction')
+        page_title = seo_settings.meta_title or 'İnşaat Projeleri | Devam Eden ve Tamamlananlar'
+        meta_description = seo_settings.meta_description or 'İnşaat projelerimizi keşfedin. Devam eden ve tamamlanmış emlak gelişim ve inşaat projelerini görüntüleyin.'
+    except SEOSettings.DoesNotExist:
+        page_title = 'İnşaat Projeleri | Devam Eden ve Tamamlananlar'
+        meta_description = 'İnşaat projelerimizi keşfedin. Devam eden ve tamamlanmış emlak gelişim ve inşaat projelerini görüntüleyin.'
+        seo_settings = None
+    
     context = {
         'projects': projects,
         'selected_status': status,
-        'page_title': 'İnşaat Projeleri | Devam Eden ve Tamamlananlar',
-        'meta_description': 'İnşaat projelerimizi keşfedin. Devam eden ve tamamlanmış emlak gelişim ve inşaat projelerini görüntüleyin.',
+        'page_title': page_title,
+        'meta_description': meta_description,
+        'seo_settings': seo_settings,
     }
     return render(request, 'properties/construction.html', context)
+
+
+def about(request):
+    """
+    About page view
+    """
+    try:
+        about_content = About.objects.first()
+    except About.DoesNotExist:
+        about_content = None
+    
+    # Get visible custom sections for about page with ordering
+    custom_sections = CustomSection.objects.none()
+    if about_content:
+        custom_sections = CustomSection.objects.filter(
+            visiblecustomsection__about=about_content,
+            is_active=True
+        ).order_by('visiblecustomsection__order')
+    
+    # Get SEO settings for about page
+    try:
+        seo_settings = SEOSettings.objects.get(page_type='about')
+        page_title = seo_settings.meta_title or 'Hakkımızda'
+        meta_description = seo_settings.meta_description or 'Emlak şirketimiz, misyonumuz ve ekibimiz hakkında daha fazla bilgi edinin.'
+    except SEOSettings.DoesNotExist:
+        page_title = 'Hakkımızda'
+        meta_description = 'Emlak şirketimiz, misyonumuz ve ekibimiz hakkında daha fazla bilgi edinin.'
+        seo_settings = None
+    
+    context = {
+        'about': about_content,
+        'custom_sections': custom_sections,
+        'page_title': page_title,
+        'meta_description': meta_description,
+        'seo_settings': seo_settings,
+    }
+    return render(request, 'properties/about.html', context)
 
 
 def contact(request):
@@ -178,17 +223,28 @@ def contact(request):
         
         form = ContactForm(initial_data)
     
-    # Get company info from SiteSettings model
+    # Get company info from About model
     try:
-        site_settings = SiteSettings.objects.first()
-    except SiteSettings.DoesNotExist:
-        site_settings = None
+        about_info = About.objects.first()
+    except About.DoesNotExist:
+        about_info = None
+    
+    # Get SEO settings for contact page
+    try:
+        seo_settings = SEOSettings.objects.get(page_type='contact')
+        page_title = seo_settings.meta_title or 'İletişim | Bize Ulaşın'
+        meta_description = seo_settings.meta_description or 'Gayrimenkullerimiz hakkında herhangi bir sorunuz için bize ulaşın. Hayalinizdeki evi bulmanıza yardımcı olmak için buradayız.'
+    except SEOSettings.DoesNotExist:
+        page_title = 'İletişim | Bize Ulaşın'
+        meta_description = 'Gayrimenkullerimiz hakkında herhangi bir sorunuz için bize ulaşın. Hayalinizdeki evi bulmanıza yardımcı olmak için buradayız.'
+        seo_settings = None
     
     context = {
         'form': form,
-        'about_info': site_settings,
-        'page_title': 'İletişim | Bize Ulaşın',
-        'meta_description': 'Gayrimenkullerimiz hakkında herhangi bir sorunuz için bize ulaşın. Hayalinizdeki evi bulmanıza yardımcı olmak için buradayız.',
+        'about_info': about_info,
+        'page_title': page_title,
+        'meta_description': meta_description,
+        'seo_settings': seo_settings,
     }
     return render(request, 'properties/contact.html', context)
 
@@ -216,20 +272,26 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
-def test_dropdowns(request):
-    """Test view for dropdown styling"""
-    return render(request, 'test_dropdowns.html')
-
-
 def references(request):
     """
     References page with gallery layout
     """
     references = Reference.objects.filter(is_active=True).prefetch_related('images', 'videos').order_by('order')
     
+    # Get SEO settings for references page
+    try:
+        seo_settings = SEOSettings.objects.get(page_type='references')
+        page_title = seo_settings.meta_title or 'Referanslar | Çalışmalarımız'
+        meta_description = seo_settings.meta_description or 'Referanslarımız ve tamamladığımız projeler hakkında bilgi alın.'
+    except SEOSettings.DoesNotExist:
+        page_title = 'Referanslar | Çalışmalarımız'
+        meta_description = 'Referanslarımız ve tamamladığımız projeler hakkında bilgi alın.'
+        seo_settings = None
+    
     context = {
         'references': references,
-        'page_title': 'Referanslar | Çalışmalarımız',
-        'meta_description': 'Referanslarımız ve tamamladığımız projeler hakkında bilgi alın.',
+        'page_title': page_title,
+        'meta_description': meta_description,
+        'seo_settings': seo_settings,
     }
     return render(request, 'properties/references.html', context)

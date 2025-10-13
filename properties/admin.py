@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, ReferenceVideo
+from .widgets import ColorPickerWidget, CustomSectionForm
+from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, ReferenceVideo, SEOSettings, VisibleCustomSection
 
 # Register your models here.
 
@@ -193,11 +194,24 @@ class BannerImageAdmin(admin.ModelAdmin):
     image_preview.short_description = 'Önizleme'
 
 
+class VisibleCustomSectionInline(admin.TabularInline):
+    """
+    Inline admin for ordering visible custom sections
+    """
+    model = VisibleCustomSection
+    extra = 1
+    fields = ('custom_section', 'order')
+    verbose_name = "Görünür Özel Bölüm"
+    verbose_name_plural = "Görünür Özel Bölümler"
+
+
 @admin.register(About)
 class HomepageSettingsAdmin(admin.ModelAdmin):
     """
     Ana Sayfa Ayarları (tekil model)
     """
+    inlines = [VisibleCustomSectionInline]
+    
     fieldsets = (
         ('Şablon Seçimi', {
             'fields': ('homepage_template',)
@@ -216,7 +230,7 @@ class HomepageSettingsAdmin(admin.ModelAdmin):
             'fields': (
                 'show_search_bar', 'show_stats_section', 'show_featured_listings',
                 'show_features_section', 'show_testimonials', 'show_recent_listings',
-                'show_contact_info', 'show_social_media', 'visible_custom_sections'
+                'show_contact_info', 'show_social_media'
             ),
             'description': 'Anasayfada gösterilmesini istediğiniz bölümleri seçin.'
         }),
@@ -236,6 +250,8 @@ class CustomSectionAdmin(admin.ModelAdmin):
     """
     Custom content sections admin configuration
     """
+    form = CustomSectionForm  # Use custom form with color pickers
+    
     list_display = ('title', 'layout', 'is_active', 'order', 'created_date')
     list_filter = ('layout', 'is_active', 'created_date')
     search_fields = ('title', 'subtitle', 'content')
@@ -262,10 +278,6 @@ class CustomSectionAdmin(admin.ModelAdmin):
         }),
         ('Görüntüleme Seçenekleri', {
             'fields': ('is_active', 'order')
-        }),
-        ('SEO', {
-            'fields': ('meta_title', 'meta_description'),
-            'classes': ('collapse',)
         }),
     )
 
@@ -312,3 +324,34 @@ class ReferenceAdmin(admin.ModelAdmin):
             'fields': ('is_active', 'order')
         }),
     )
+
+
+@admin.register(SEOSettings)
+class SEOSettingsAdmin(admin.ModelAdmin):
+    """
+    SEO settings admin configuration
+    """
+    list_display = ('page_type_display', 'meta_title', 'updated_date')
+    list_filter = ('page_type', 'updated_date')
+    search_fields = ('meta_title', 'meta_description')
+    date_hierarchy = 'updated_date'
+    
+    fieldsets = (
+        ('Sayfa Türü', {
+            'fields': ('page_type',)
+        }),
+        ('Meta Etiketleri', {
+            'fields': ('meta_title', 'meta_description')
+        }),
+        ('Open Graph (Sosyal Medya)', {
+            'fields': ('og_title', 'og_description', 'og_image', 'og_image_alt')
+        }),
+        ('Yapılandırılmış Veri', {
+            'fields': ('structured_data',)
+        }),
+    )
+    
+    def page_type_display(self, obj):
+        return obj.get_page_type_display()
+    page_type_display.short_description = 'Sayfa Türü'
+    page_type_display.admin_order_field = 'page_type'

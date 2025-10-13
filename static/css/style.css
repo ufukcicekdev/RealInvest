@@ -492,6 +492,7 @@ a {
     margin-bottom: 1rem;
     position: relative;
     display: inline-block;
+    color: var(--dark-color);
 }
 
 .section-heading h2::after {
@@ -829,6 +830,14 @@ a {
     position: relative;
 }
 
+.testimonials-section .section-heading h2 {
+    color: white;
+}
+
+.testimonials-section .section-heading p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 .testimonial-card {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -842,31 +851,39 @@ a {
     font-style: italic;
     line-height: 1.8;
     margin-bottom: 1.5rem;
-}
-
-.testimonial-card .client {
-    display: flex;
-    align-items: center;
-}
-
-.testimonial-card .client img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 1rem;
-    border: 3px solid var(--accent-color);
+    color: white;
 }
 
 .testimonial-card .client-info h6 {
     font-weight: 700;
     margin-bottom: 0.25rem;
+    color: white;
 }
 
 .testimonial-card .client-info p {
     margin-bottom: 0;
     opacity: 0.8;
     font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Client Icon Styles */
+.testimonial-card .client-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--accent-color);
+}
+
+.testimonial-card .client {
+    display: flex;
+    align-items: center;
 }
 
 /* Contact Info Section */
@@ -1604,6 +1621,67 @@ img.hero-carousel-image {
     font-weight: 500;
 }
 
+/* Add text wrapping and overflow handling for custom section content */
+.custom-section .content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    line-height: 1.6;
+}
+
+.custom-section .content p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Handle long words and URLs */
+.custom-section .content a {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.custom-section .content code,
+.custom-section .content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Text alignment specific styles to prevent overflow */
+.custom-section .text-content.text-left {
+    text-align: left;
+}
+
+.custom-section .text-content.text-center {
+    text-align: center;
+}
+
+.custom-section .text-content.text-right {
+    text-align: right;
+}
+
+/* Ensure proper container sizing */
+.custom-section .container {
+    max-width: 100%;
+}
+
+.custom-section .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.custom-section .col-lg-8 {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 .custom-section.image-left .content,
 .custom-section.image-right .content,
 .custom-section.image-center .content {
@@ -1698,6 +1776,14 @@ img.hero-carousel-image {
     .custom-section.cards .card-img-top {
         height: 150px;
     }
+    
+    /* Ensure proper text wrapping on mobile */
+    .custom-section .content {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
 }
 
 @media (max-width: 576px) {
@@ -1707,6 +1793,18 @@ img.hero-carousel-image {
     
     .custom-section.cards .card-img-top {
         height: 120px;
+    }
+    
+    /* Additional text wrapping for small screens */
+    .custom-section .content {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
+    
+    .custom-section .text-content {
+        padding: 0 15px;
     }
 }
 

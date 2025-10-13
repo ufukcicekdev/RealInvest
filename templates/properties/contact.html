@@ -87,39 +87,39 @@
                     <div class="card-body">
                         <h5 class="card-title mb-4">İletişim Bilgilerimiz</h5>
                         
-                        {% if about_info %}
-                            {% if about_info.phone %}
+                        {% if global_site_settings %}
+                            {% if global_site_settings.phone %}
                             <div class="d-flex mb-3">
                                 <div class="flex-shrink-0">
                                     <i class="bi bi-telephone-fill text-primary fs-5"></i>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h6 class="mb-0">Telefon</h6>
-                                    <p class="mb-0 text-muted">{{ about_info.phone }}</p>
+                                    <p class="mb-0 text-muted">{{ global_site_settings.phone }}</p>
                                 </div>
                             </div>
                             {% endif %}
                             
-                            {% if about_info.email %}
+                            {% if global_site_settings.email %}
                             <div class="d-flex mb-3">
                                 <div class="flex-shrink-0">
                                     <i class="bi bi-envelope-fill text-primary fs-5"></i>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h6 class="mb-0">E-posta</h6>
-                                    <p class="mb-0 text-muted">{{ about_info.email }}</p>
+                                    <p class="mb-0 text-muted">{{ global_site_settings.email }}</p>
                                 </div>
                             </div>
                             {% endif %}
                             
-                            {% if about_info.address %}
+                            {% if global_site_settings.address %}
                             <div class="d-flex mb-3">
                                 <div class="flex-shrink-0">
                                     <i class="bi bi-geo-alt-fill text-primary fs-5"></i>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h6 class="mb-0">Adres</h6>
-                                    <p class="mb-0 text-muted">{{ about_info.address }}</p>
+                                    <p class="mb-0 text-muted">{{ global_site_settings.address }}</p>
                                 </div>
                             </div>
                             {% endif %}
@@ -156,27 +156,27 @@
                         {% endif %}
                         
                         <!-- Social Media -->
-                        {% if about_info %}
+                        {% if global_site_settings and global_site_settings.facebook_url or global_site_settings.instagram_url or global_site_settings.twitter_url or global_site_settings.linkedin_url  %}
                         <div class="mt-4">
                             <h6 class="mb-3">Bizi Takip Edin</h6>
                             <div class="social-links">
-                                {% if about_info.facebook_url %}
-                                <a href="{{ about_info.facebook_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+                                {% if global_site_settings.facebook_url %}
+                                <a href="{{ global_site_settings.facebook_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
                                     <i class="bi bi-facebook"></i>
                                 </a>
                                 {% endif %}
-                                {% if about_info.instagram_url %}
-                                <a href="{{ about_info.instagram_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+                                {% if global_site_settings.instagram_url %}
+                                <a href="{{ global_site_settings.instagram_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
                                     <i class="bi bi-instagram"></i>
                                 </a>
                                 {% endif %}
-                                {% if about_info.twitter_url %}
-                                <a href="{{ about_info.twitter_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+                                {% if global_site_settings.twitter_url %}
+                                <a href="{{ global_site_settings.twitter_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
                                     <i class="bi bi-twitter"></i>
                                 </a>
                                 {% endif %}
-                                {% if about_info.linkedin_url %}
-                                <a href="{{ about_info.linkedin_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                {% if global_site_settings.linkedin_url %}
+                                <a href="{{ global_site_settings.linkedin_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
                                     <i class="bi bi-linkedin"></i>
                                 </a>
                                 {% endif %}
@@ -187,12 +187,12 @@
                 </div>
                 
                 <!-- Map -->
-                {% if about_info and about_info.map_embed_code %}
+                {% if global_site_settings and global_site_settings.map_embed_code %}
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Konumumuz</h5>
                         <div class="map-container">
-                            {{ about_info.map_embed_code|safe }}
+                            {{ global_site_settings.map_embed_code|safe }}
                         </div>
                     </div>
                 </div>
@@ -211,11 +211,11 @@
   "@type": "ContactPage",
   "name": "İletişim",
   "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'contact' %}",
-  {% if about_info %}
+  {% if global_site_settings %}
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "{{ about_info.phone }}",
-    "email": "{{ about_info.email }}",
+    "telephone": "{{ global_site_settings.phone }}",
+    "email": "{{ global_site_settings.email }}",
     "contactType": "customer service"
   }
   {% endif %}

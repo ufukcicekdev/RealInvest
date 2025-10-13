@@ -3,6 +3,15 @@
 <section class="custom-section about-section py-5" 
          {% if section.background_color %}style="background-color: {{ section.background_color }};"{% endif %}>
     <div class="container">
+        <!-- Always place title and subtitle at the top center -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 text-center">
+                <h2 class="mb-3">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                <h5 class="mb-4 text-primary">{{ section.subtitle }}</h5>
+                {% endif %}
+            </div>
+        </div>
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0">
                 {% if section.main_image %}
@@ -18,10 +27,6 @@
             <div class="col-lg-6">
                 <div class="text-content text-{{ section.text_alignment }}" 
                      {% if section.text_color %}style="color: {{ section.text_color }};"{% endif %}>
-                    <h2 class="mb-3">{{ section.title }}</h2>
-                    {% if section.subtitle %}
-                    <h5 class="mb-4 text-primary">{{ section.subtitle }}</h5>
-                    {% endif %}
                     <div class="content mb-4">
                         {{ section.content|linebreaks }}
                     </div>

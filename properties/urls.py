@@ -9,6 +9,5 @@ urlpatterns = [
     # About page has been removed, content moved to homepage
     path('contact/', views.contact, name='contact'),
     path('references/', views.references, name='references'),
-    path('test-dropdowns/', views.test_dropdowns, name='test_dropdowns'),
     path('robots.txt', views.robots_txt, name='robots_txt'),
 ]

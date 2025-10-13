@@ -319,13 +319,14 @@ class About(models.Model):
     show_contact_info = models.BooleanField(default=True, verbose_name="İletişim Bilgilerini Göster")
     show_social_media = models.BooleanField(default=True, verbose_name="Sosyal Medya Bağlantılarını Göster")
     
-    # Custom sections visibility
-    visible_custom_sections = models.ManyToManyField(
-        'CustomSection',
-        blank=True,
-        verbose_name="Görünür Özel Bölümler",
-        help_text="Anasayfada gösterilmesini istediğiniz özel bölümleri seçin"
-    )
+    # Custom sections visibility with ordering
+    # visible_custom_sections = models.ManyToManyField(
+    #     'CustomSection',
+    #     through='VisibleCustomSection',
+    #     blank=True,
+    #     verbose_name="Görünür Özel Bölümler",
+    #     help_text="Anasayfada gösterilmesini istediğiniz özel bölümleri seçin"
+    # )
     
     updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
     
@@ -460,10 +461,6 @@ class CustomSection(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Aktif")
     order = models.IntegerField(default=0, verbose_name="Sıra")
     
-    # SEO
-    meta_title = models.CharField(max_length=60, blank=True, verbose_name="Meta Başlık")
-    meta_description = models.CharField(max_length=160, blank=True, verbose_name="Meta Açıklama")
-    
     created_date = models.DateTimeField(default=timezone.now, verbose_name="Oluşturma Tarihi")
     updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
     
@@ -472,19 +469,11 @@ class CustomSection(models.Model):
         verbose_name = 'Özel Bölüm'
         verbose_name_plural = 'Özel Bölümler'
     
-    def save(self, *args, **kwargs):
-        if not self.image_alt_text and self.title:
-            self.image_alt_text = self.title
-        if not self.meta_title and self.title:
-            self.meta_title = self.title[:60]
-        if not self.meta_description and self.content:
-            self.meta_description = self.content[:160]
-        super().save(*args, **kwargs)
-    
     def __str__(self):
         return self.title
 
 
+# Through model for ordering visible custom sections
 class Reference(models.Model):
     """
     Model for reference items with images, videos, and descriptions
@@ -555,3 +544,55 @@ class ReferenceVideo(models.Model):
     
     def __str__(self):
         return f"{self.reference.title} - Video {self.order + 1}"
+
+
+class SEOSettings(models.Model):
+    """
+    SEO settings for different page types
+    """
+    PAGE_TYPES = (
+        ('home', 'Anasayfa'),
+        ('listings', 'İlanlar'),
+        ('construction', 'İnşaatlar'),
+        ('references', 'Referanslar'),
+        ('contact', 'İletişim'),
+    )
+    
+    page_type = models.CharField(max_length=20, choices=PAGE_TYPES, unique=True, verbose_name="Sayfa Türü")
+    meta_title = models.CharField(max_length=60, blank=True, verbose_name="Meta Başlık", help_text="Tarayıcı sekmesinde görünen başlık (en fazla 60 karakter)")
+    meta_description = models.CharField(max_length=160, blank=True, verbose_name="Meta Açıklama", help_text="Arama motorlarında görünen açıklama (en fazla 160 karakter)")
+    og_title = models.CharField(max_length=60, blank=True, verbose_name="Open Graph Başlık", help_text="Sosyal medya platformlarında paylaşıldığında görünen başlık")
+    og_description = models.CharField(max_length=255, blank=True, verbose_name="Open Graph Açıklama", help_text="Sosyal medya platformlarında paylaşıldığında görünen açıklama")
+    og_image = models.ImageField(upload_to='seo/', blank=True, null=True, verbose_name="Open Graph Görseli", help_text="Sosyal medya platformlarında paylaşıldığında görünen görsel")
+    og_image_alt = models.CharField(max_length=255, blank=True, verbose_name="Open Graph Görsel Açıklaması", help_text="Open Graph görseli için alternatif metin")
+    
+    # JSON-LD structured data
+    structured_data = models.TextField(blank=True, verbose_name="Yapılandırılmış Veri (JSON-LD)", help_text="Sayfa için özel JSON-LD yapılandırılmış veri")
+    
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        verbose_name = 'SEO Ayarı'
+        verbose_name_plural = 'SEO Ayarları'
+    
+    def __str__(self):
+        return f"SEO - {self.get_page_type_display()}"
+
+
+class VisibleCustomSection(models.Model):
+    """
+    Through model to manage visible custom sections with ordering
+    """
+    about = models.ForeignKey('About', on_delete=models.CASCADE)
+    custom_section = models.ForeignKey('CustomSection', on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0, verbose_name="Görünüm Sırası")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Görünür Özel Bölüm'
+        verbose_name_plural = 'Görünür Özel Bölümler'
+        unique_together = ('about', 'custom_section')
+    
+    def __str__(self):
+        return f"{self.about} - {self.custom_section} (Sıra: {self.order})"
+

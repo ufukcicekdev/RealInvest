@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
-    <title>{% block title %}Emlak{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Profesyonel emlak hizmetleri. Daire, villa, arsa ve diğer gayrimenkuller için en iyi fiyatlar.{% endblock %}">
+    <title>{% block title %}{% if seo_settings and seo_settings.meta_title %}{{ seo_settings.meta_title }}{% else %}Emlak{% endif %}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{% if seo_settings and seo_settings.meta_description %}{{ seo_settings.meta_description }}{% else %}Profesyonel emlak hizmetleri. Daire, villa, arsa ve diğer gayrimenkuller için en iyi fiyatlar.{% endif %}{% endblock %}">
+    
+    <!-- Open Graph Meta Tags -->
+    {% if seo_settings %}
+        {% if seo_settings.og_title %}
+        <meta property="og:title" content="{{ seo_settings.og_title }}">
+        {% endif %}
+        {% if seo_settings.og_description %}
+        <meta property="og:description" content="{{ seo_settings.og_description }}">
+        {% endif %}
+        {% if seo_settings.og_image %}
+        <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ seo_settings.og_image.url }}">
+        {% endif %}
+        {% if seo_settings.og_image_alt %}
+        <meta property="og:image:alt" content="{{ seo_settings.og_image_alt }}">
+        {% endif %}
+    {% endif %}
     
     <!-- Favicon -->
     {% if global_site_settings and global_site_settings.favicon %}
@@ -74,6 +90,9 @@
       }
     }
     </script>
+    {% if seo_settings and seo_settings.structured_data %}
+    {{ seo_settings.structured_data|safe }}
+    {% endif %}
     {% endblock %}
 </head>
 <body>
@@ -96,12 +115,12 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Ana Sayfa</a>
                         </li>
-                        {% if about.show_listings_page %}
+                        {% if about.show_listings_page and listings_count > 0 %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'listings' %}active{% endif %}" href="{% url 'listings' %}">İlanlar</a>
                         </li>
                         {% endif %}
-                        {% if about.show_construction_page %}
+                        {% if about.show_construction_page and constructions_count > 0 %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'construction' %}active{% endif %}" href="{% url 'construction' %}">İnşaatlar</a>
                         </li>
@@ -178,10 +197,10 @@
                     <h5>Hızlı Linkler</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'home' %}"><i class="bi bi-chevron-right"></i> Ana Sayfa</a></li>
-                        {% if about.show_listings_page %}
+                        {% if about.show_listings_page and listings_count > 0 %}
                         <li><a href="{% url 'listings' %}"><i class="bi bi-chevron-right"></i> İlanlar</a></li>
                         {% endif %}
-                        {% if about.show_construction_page %}
+                        {% if about.show_construction_page and constructions_count > 0 %}
                         <li><a href="{% url 'construction' %}"><i class="bi bi-chevron-right"></i> İnşaatlar</a></li>
                         {% endif %}
                         {% if about.show_references_page %}

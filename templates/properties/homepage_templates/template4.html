@@ -273,7 +273,9 @@
                           "Emlak ekibi sayesinde hayalimdeki eve kavuldum. Profesyonel yaklaşımı ve detaylı danışmanlığı gerçekten takdire şayan."
                       </p>
                       <div class="client">
-                          <img src="{% static 'images/placeholder.jpg' %}" alt="Müşteri">
+                          <div class="client-icon">
+                              <i class="bi bi-person-circle fs-1"></i>
+                          </div>
                           <div class="client-info">
                               <h6>Ahmet Yılmaz</h6>
                               <p class="mb-0">İstanbul</p>
@@ -287,7 +289,9 @@
                           "Yatırım amaçlı aradığım gayrimenkulu çok hızlı ve uygun fiyata buldum. Her zaman için güvenilir ve profesyonel bir hizmet."
                       </p>
                       <div class="client">
-                          <img src="{% static 'images/placeholder.jpg' %}" alt="Müşteri">
+                          <div class="client-icon">
+                              <i class="bi bi-person-circle fs-1"></i>
+                          </div>
                           <div class="client-info">
                               <h6>Mehmet Demir</h6>
                               <p class="mb-0">Ankara</p>
@@ -300,7 +304,7 @@
   </section>
   {% endif %}
 
-  {% if about.show_recent_listings %}
+  {% if about.show_recent_listings and recent_listings %}
   <!-- Recent Listings -->
   <section class="recent-section py-5 bg-light">
       <div class="container">
@@ -383,7 +387,7 @@
   </section>
   {% endif %}
 
-  {% if about.show_social_media %}
+  {% if about.show_social_media and global_site_settings and global_site_settings.facebook_url or global_site_settings.instagram_url or global_site_settings.twitter_url or global_site_settings.linkedin_url %}
   <!-- Social Media -->
   <section class="social-section py-5">
       <div class="container text-center">
@@ -392,18 +396,26 @@
               <p>Sosyal medya hesaplarımızdan güncel ilanlardan haberdar olun</p>
           </div>
           <div class="social-links">
-              <a href="#" target="_blank" aria-label="Facebook">
+              {% if global_site_settings.facebook_url %}
+              <a href="{{ global_site_settings.facebook_url }}" target="_blank" aria-label="Facebook">
                   <i class="bi bi-facebook"></i>
               </a>
-              <a href="#" target="_blank" aria-label="Instagram">
+              {% endif %}
+              {% if global_site_settings.instagram_url %}
+              <a href="{{ global_site_settings.instagram_url }}" target="_blank" aria-label="Instagram">
                   <i class="bi bi-instagram"></i>
               </a>
-              <a href="#" target="_blank" aria-label="Twitter">
+              {% endif %}
+              {% if global_site_settings.twitter_url %}
+              <a href="{{ global_site_settings.twitter_url }}" target="_blank" aria-label="Twitter">
                   <i class="bi bi-twitter"></i>
               </a>
-              <a href="#" target="_blank" aria-label="LinkedIn">
+              {% endif %}
+              {% if global_site_settings.linkedin_url %}
+              <a href="{{ global_site_settings.linkedin_url }}" target="_blank" aria-label="LinkedIn">
                   <i class="bi bi-linkedin"></i>
               </a>
+              {% endif %}
           </div>
       </div>
   </section>
