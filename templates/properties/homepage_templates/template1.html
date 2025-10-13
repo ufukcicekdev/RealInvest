@@ -1,27 +1,187 @@
 {% load static %}
-<!-- Template 1: Large Banner -->
+{% load banner_filters %}
 
-<!-- Debug information -->
-<!--
-Banner images count: {{ banner_images.count }}
-Banner images exists: {{ banner_images.exists }}
-{% for banner in banner_images.all %}
-Banner {{ forloop.counter }}: {{ banner.image.url }}
-{% endfor %}
--->
+<style>
+/* === Hero Section === */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* === Carousel Ana Yapı === */
+#bannerCarousel1 {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* === Slide Alanı === */
+#bannerCarousel1 .carousel-item {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 600px;
+    overflow: hidden;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+#bannerCarousel1 .carousel-item.active {
+    display: flex;
+}
+
+/* === Görseller === */
+#bannerCarousel1 .hero-carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* === İçerik Alanı === */
+#bannerCarousel1 .hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* === Alt Metin === */
+#bannerCarousel1 .alt-text {
+    position: absolute;
+    font-size: 1.2rem;
+    font-weight: 600;
+    z-index: 15;
+    padding: 0.5rem 1rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* === Banner Butonu === */
+#bannerCarousel1 .btn-banner {
+    font-size: 1.1rem;
+    padding: 0.9rem 1.8rem;
+    border-radius: 40px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+    transition: all 0.3s ease;
+    position: absolute;
+    z-index: 20;
+    border: none;
+}
+
+#bannerCarousel1 .btn-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(37, 117, 252, 0.6);
+}
+
+/* === Carousel Okları === */
+#bannerCarousel1 .carousel-control-prev,
+#bannerCarousel1 .carousel-control-next {
+    z-index: 30;
+    width: 5%;
+}
+
+#bannerCarousel1 .carousel-control-prev-icon,
+#bannerCarousel1 .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* === Göstergeler === */
+#bannerCarousel1 .carousel-indicators {
+    bottom: 1rem;
+    z-index: 30;
+}
+
+/* === Tablet Uyum (992px altı) === */
+@media (max-width: 992px) {
+    .hero-section { height: 80vh; min-height: 500px; }
+    #bannerCarousel1 .carousel-item { height: 80vh; min-height: 400px; }
+    #bannerCarousel1 .btn-banner { font-size: 1rem; padding: 0.8rem 1.5rem; }
+    #bannerCarousel1 .alt-text { font-size: 1.1rem; }
+    #bannerCarousel1 .hero-carousel-image {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* === Mobil Uyum (768px altı) === */
+@media (max-width: 768px) {
+    .hero-section { height: 70vh; min-height: 350px; }
+    #bannerCarousel1 .carousel-item { height: 70vh; min-height: 350px; }
+    #bannerCarousel1 .btn-banner { font-size: 0.9rem; padding: 0.7rem 1.3rem; }
+    #bannerCarousel1 .alt-text { font-size: 1rem; }
+    #bannerCarousel1 .hero-carousel-image {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* === Küçük Ekranlar (576px altı) === */
+@media (max-width: 576px) {
+    .hero-section { height: 60vh; min-height: 300px; }
+    #bannerCarousel1 .carousel-item { height: 60vh; min-height: 30px; }
+    #bannerCarousel1 .btn-banner { font-size: 0.85rem; padding: 0.6rem 1.2rem; }
+    #bannerCarousel1 .alt-text { font-size: 0.9rem; }
+    #bannerCarousel1 .hero-carousel-image {
+       max-height: 60vh;
+       max-width: 60vh;
+    }
+}
+
+/* === En Küçük Ekranlar (400px altı) === */
+@media (max-width: 400px) {
+    .hero-section { height: 55vh; min-height: 280px; }
+    #bannerCarousel1 .carousel-item { height: 55vh; min-height: 280px; }
+    #bannerCarousel1 .btn-banner { font-size: 0.8rem; padding: 0.5rem 1rem; }
+    #bannerCarousel1 .alt-text { font-size: 0.8rem; }
+    #bannerCarousel1 .hero-carousel-image {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+</style>
 
 <div class="homepage-template template1">
-  <!-- Hero Section with Large Banner -->
   <section class="hero-section">
-      {% if banner_images.exists %}
+      {% if banner_images %}
       <div id="bannerCarousel1" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
           <div class="carousel-inner">
-              {% for banner in banner_images.all %}
+              {% for banner in banner_images %}
               <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                  <img src="{{ banner.image.url }}" class="d-block w-100 hero-carousel-image" alt="{{ banner.alt_text|default:'Banner image' }}">
+                  <img src="{{ banner.image.url }}" 
+                       class="hero-carousel-image" 
+                       alt="{{ banner.alt_text|default:'Banner image' }}">
+                  
                   <div class="hero-content">
+                      {% if banner.alt_text %}
+                      <div class="alt-text" style="color: {{ banner.alt_text_color|default:'#ffffff' }}; {{ banner.alt_text_position|get_alt_text_position_style }}">
+                          {{ banner.alt_text }}
+                      </div>
+                      {% endif %}
+                      
                       {% if banner.button_text %}
-                      <a href="{{ banner.button_link }}" class="btn btn-banner {{ banner.button_position }}">
+                      <a href="{{ banner.button_link }}" 
+                         class="btn btn-banner" 
+                         style="background: {{ banner.button_background_color|default:'#6a11cb' }}; color: {{ banner.button_text_color|default:'#ffffff' }}; {{ banner.button_position|get_position_style }}">
                           {{ banner.button_text }}
                       </a>
                       {% endif %}
@@ -29,25 +189,26 @@ Banner {{ forloop.counter }}: {{ banner.image.url }}
               </div>
               {% endfor %}
           </div>
-          {% if banner_images.count > 1 %}
+
+          {% if banner_images|length > 1 %}
           <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel1" data-bs-slide="prev">
               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
+              <span class="visually-hidden">Önceki</span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel1" data-bs-slide="next">
               <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
+              <span class="visually-hidden">Sonraki</span>
           </button>
+
           <div class="carousel-indicators">
-              {% for banner in banner_images.all %}
-              <button type="button" data-bs-target="#bannerCarousel1" data-bs-slide-to="{{ forloop.counter0 }}" 
-                      {% if forloop.first %}class="active"{% endif %} aria-current="true" aria-label="Slide {{ forloop.counter }}"></button>
+              {% for banner in banner_images %}
+              <button type="button" data-bs-target="#bannerCarousel1" data-bs-slide-to="{{ forloop.counter0 }}"
+                      {% if forloop.first %}class="active"{% endif %}
+                      aria-label="Slide {{ forloop.counter }}"></button>
               {% endfor %}
           </div>
           {% endif %}
       </div>
       {% endif %}
   </section>
-
-  <!-- Sections will be rendered dynamically in home.html based on ordering -->
 </div>

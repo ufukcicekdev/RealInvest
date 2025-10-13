@@ -359,6 +359,17 @@ class BannerImage(models.Model):
         verbose_name="Alternatif Metin",
         help_text="Görsel için erişilebilirlik metni"
     )
+    alt_text_position = models.CharField(
+        max_length=20,
+        choices=[
+            ('left', 'Sol'),
+            ('center', 'Orta'),
+            ('right', 'Sağ'),
+        ],
+        default='center',
+        verbose_name="Alternatif Metin Konumu",
+        help_text="Alternatif metnin banner üzerindeki konumu"
+    )
     
     # Button options
     button_text = models.CharField(
@@ -375,19 +386,36 @@ class BannerImage(models.Model):
     button_position = models.CharField(
         max_length=20,
         choices=[
-            ('top-left', 'Üst Sol'),
-            ('top-center', 'Üst Orta'),
-            ('top-right', 'Üst Sağ'),
-            ('middle-left', 'Orta Sol'),
-            ('middle-center', 'Orta'),
-            ('middle-right', 'Orta Sağ'),
-            ('bottom-left', 'Alt Sol'),
-            ('bottom-center', 'Alt Orta'),
-            ('bottom-right', 'Alt Sağ'),
+            ('left', 'Sol'),
+            ('center', 'Orta'),
+            ('right', 'Sağ'),
         ],
-        default='middle-center',
+        default='center',
         verbose_name="Buton Konumu",
         help_text="Butonun banner üzerindeki konumu"
+    )
+    
+    # Color customization options
+    button_background_color = models.CharField(
+        max_length=7,
+        blank=True,
+        default="#6a11cb",
+        verbose_name="Buton Arka Plan Rengi",
+        help_text="Butonun arka plan rengi (HEX formatında, örn: #6a11cb)"
+    )
+    button_text_color = models.CharField(
+        max_length=7,
+        blank=True,
+        default="#ffffff",
+        verbose_name="Buton Metin Rengi",
+        help_text="Butonun metin rengi (HEX formatında, örn: #ffffff)"
+    )
+    alt_text_color = models.CharField(
+        max_length=7,
+        blank=True,
+        default="#ffffff",
+        verbose_name="Alternatif Metin Rengi",
+        help_text="Alternatif metin rengi (HEX formatında, örn: #ffffff)"
     )
     
     # Display options

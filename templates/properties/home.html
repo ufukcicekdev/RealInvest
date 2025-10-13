@@ -4,19 +4,19 @@
 {% block content %}
   {% if about %}
     {% if about.homepage_template == 'template1' %}
-      {% include 'properties/homepage_templates/template1.html' %}
+      {% include 'properties/homepage_templates/template1.html' with banner_images=banner_images %}
     {% elif about.homepage_template == 'template2' %}
-      {% include 'properties/homepage_templates/template2.html' %}
+      {% include 'properties/homepage_templates/template2.html' with banner_images=banner_images %}
     {% elif about.homepage_template == 'template3' %}
-      {% include 'properties/homepage_templates/template3.html' %}
+      {% include 'properties/homepage_templates/template3.html' with banner_images=banner_images %}
     {% elif about.homepage_template == 'template4' %}
-      {% include 'properties/homepage_templates/template4.html' %}
+      {% include 'properties/homepage_templates/template4.html' with banner_images=banner_images %}
     {% else %}
-      {% include 'properties/homepage_templates/template1.html' %}
+      {% include 'properties/homepage_templates/template1.html' with banner_images=banner_images %}
     {% endif %}
   {% else %}
     <!-- Default template if no settings configured -->
-    {% include 'properties/homepage_templates/template1.html' %}
+    {% include 'properties/homepage_templates/template1.html' with banner_images=banner_images %}
   {% endif %}
 
   <!-- Custom Sections with dynamic ordering -->

@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection
+from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection, BannerImage
 from .forms import ContactForm
 
 # Create your views here.
@@ -21,6 +21,8 @@ def home(request):
     except About.DoesNotExist:
         about_content = None
     
+    # Get banner images for homepage
+    banner_images = about_content.banner_images.filter(is_active=True) if about_content else BannerImage.objects.none()
     # Get visible custom sections for homepage with ordering
     custom_sections = CustomSection.objects.none()
     if about_content:
@@ -100,6 +102,7 @@ def home(request):
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,
         'about': about_content,
+        'banner_images': banner_images,  # Add banner images to context
         'custom_sections': custom_sections,
         'sections': sections,
         'page_title': page_title,

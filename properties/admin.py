@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django import forms
 from .widgets import ColorPickerWidget, CustomSectionForm
 from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, ReferenceVideo, SEOSettings, VisibleCustomSection
 
@@ -162,11 +163,27 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         return False
 
 
+class BannerImageForm(forms.ModelForm):
+    """
+    Custom form for BannerImage model with color picker widgets
+    """
+    class Meta:
+        model = BannerImage
+        fields = '__all__'
+        widgets = {
+            'button_background_color': ColorPickerWidget(),
+            'button_text_color': ColorPickerWidget(),
+            'alt_text_color': ColorPickerWidget(),
+        }
+
+
 @admin.register(BannerImage)
 class BannerImageAdmin(admin.ModelAdmin):
     """
     Banner image admin configuration
     """
+    form = BannerImageForm  # Use custom form with color pickers
+    
     list_display = ('image_preview', 'alt_text', 'button_text', 'is_active', 'order', 'created_date')
     list_filter = ('is_active', 'created_date')
     search_fields = ('alt_text', 'button_text')
@@ -175,14 +192,14 @@ class BannerImageAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Görsel', {
-            'fields': ('image', 'alt_text'),
+            'fields': ('image', 'alt_text', 'alt_text_position', 'alt_text_color'),
             'description': 'Önerilen boyut: 1920x1080 piksel (16:9 en-boy oranı). Tüm banner görselleri aynı boyutta olmalıdır.'
         }),
         ('Buton Ayarları', {
-            'fields': ('button_text', 'button_link', 'button_position'),
+            'fields': ('button_text', 'button_link', 'button_position', 'button_background_color', 'button_text_color'),
             'description': 'Banner üzerinde buton göstermek istiyorsanız bu alanları doldurun.'
         }),
-        ('Görüntüleme Seçenekleri', {
+        ('Görünüm Ayarları', {
             'fields': ('is_active', 'order')
         }),
     )
