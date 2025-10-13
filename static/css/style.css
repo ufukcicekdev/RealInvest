@@ -1306,30 +1306,66 @@ img {
 /* Position Classes - Fixed to viewport */
 .floating-left {
     left: 25px;
-    bottom: 25px;
+    bottom: 100px;
 }
 
 .floating-right {
     right: 25px;
-    bottom: 25px;
+    bottom: 100px;
 }
 
-/* Multiple Icons on Same Side - Stack Vertically */
+/* WhatsApp specific positioning - same height as phone */
+.whatsapp-icon {
+    bottom: 100px !important;
+}
+
+/* Phone specific positioning */
+.phone-icon {
+    bottom: 100px !important;
+}
+
+/* If WhatsApp is on left, phone on right - keep same height */
+.whatsapp-icon.floating-left {
+    left: 25px;
+    bottom: 100px !important;
+}
+
+.phone-icon.floating-right {
+    right: 25px;
+    bottom: 100px !important;
+}
+
+/* If both on same side, position them next to each other horizontally */
+.whatsapp-icon.floating-left + .phone-icon.floating-left {
+    left: 120px; /* 25px + 85px icon width + 10px gap */
+    bottom: 100px !important;
+}
+
+.whatsapp-icon.floating-right + .phone-icon.floating-right {
+    right: 120px; /* 25px + 85px icon width + 10px gap */
+    bottom: 100px !important;
+}
+
+/* Multiple Icons on Same Side - Keep at same height, position horizontally */
 .floating-left:nth-of-type(2) {
-    bottom: 125px;
+    left: 120px; /* Move second icon to the right */
+    bottom: 100px !important; /* Same height */
 }
 
 .floating-right:nth-of-type(2) {
-    bottom: 125px;
+    right: 120px; /* Move second icon to the left */
+    bottom: 100px !important; /* Same height */
 }
 
 /* If both icons are on the same side */
 .floating-left + .floating-left {
-    bottom: 125px;
+    left: 120px;
+    bottom: 100px !important;
 }
 
 .floating-right + .floating-right {
-    bottom: 125px;
+    right: 120px;
+    bottom: 100px !important;
 }
 
 /* Tablet Responsive */
@@ -1342,22 +1378,29 @@ img {
     
     .floating-left {
         left: 22px;
-        bottom: 22px;
+        bottom: 90px;
     }
     
     .floating-right {
         right: 22px;
-        bottom: 22px;
+        bottom: 90px;
+    }
+    
+    .whatsapp-icon,
+    .phone-icon {
+        bottom: 90px !important;
     }
     
     .floating-left:nth-of-type(2),
     .floating-left + .floating-left {
-        bottom: 112px;
+        left: 110px; /* 22px + 75px + 13px gap */
+        bottom: 90px !important;
     }
     
     .floating-right:nth-of-type(2),
     .floating-right + .floating-right {
-        bottom: 112px;
+        right: 110px;
+        bottom: 90px !important;
     }
 }
 
@@ -1371,22 +1414,29 @@ img {
     
     .floating-left {
         left: 18px;
-        bottom: 18px;
+        bottom: 80px;
     }
     
     .floating-right {
         right: 18px;
-        bottom: 18px;
+        bottom: 80px;
+    }
+    
+    .whatsapp-icon,
+    .phone-icon {
+        bottom: 80px !important;
     }
     
     .floating-left:nth-of-type(2),
     .floating-left + .floating-left {
-        bottom: 102px;
+        left: 100px; /* 18px + 70px + 12px gap */
+        bottom: 80px !important;
     }
     
     .floating-right:nth-of-type(2),
     .floating-right + .floating-right {
-        bottom: 102px;
+        right: 100px;
+        bottom: 80px !important;
     }
 }
 
@@ -1400,22 +1450,29 @@ img {
     
     .floating-left {
         left: 15px;
-        bottom: 15px;
+        bottom: 70px;
     }
     
     .floating-right {
         right: 15px;
-        bottom: 15px;
+        bottom: 70px;
+    }
+    
+    .whatsapp-icon,
+    .phone-icon {
+        bottom: 70px !important;
     }
     
     .floating-left:nth-of-type(2),
     .floating-left + .floating-left {
-        bottom: 92px;
+        left: 92px; /* 15px + 65px + 12px gap */
+        bottom: 70px !important;
     }
     
     .floating-right:nth-of-type(2),
     .floating-right + .floating-right {
-        bottom: 92px;
+        right: 92px;
+        bottom: 70px !important;
     }
 }
 
@@ -1429,22 +1486,29 @@ img {
     
     .floating-left {
         left: 12px;
-        bottom: 12px;
+        bottom: 60px;
     }
     
     .floating-right {
         right: 12px;
-        bottom: 12px;
+        bottom: 60px;
+    }
+    
+    .whatsapp-icon,
+    .phone-icon {
+        bottom: 60px !important;
     }
     
     .floating-left:nth-of-type(2),
     .floating-left + .floating-left {
-        bottom: 84px;
+        left: 84px; /* 12px + 60px + 12px gap */
+        bottom: 60px !important;
     }
     
     .floating-right:nth-of-type(2),
     .floating-right + .floating-right {
-        bottom: 84px;
+        right: 84px;
+        bottom: 60px !important;
     }
 }
 
