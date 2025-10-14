@@ -544,13 +544,14 @@ def newsletter_subscribe(request):
     """
     email = request.POST.get('email', '').strip()
     name = request.POST.get('name', '').strip()
+    phone = request.POST.get('phone', '').strip()
     dont_show_again = request.POST.get('dont_show_again') == 'on'
     
     # Basic validation
     if not email or not name:
         return JsonResponse({
             'success': False,
-            'message': 'Lütfen tüm alanları doldurun.'
+            'message': 'Lütfen tüm zorunlu alanları doldurun.'
         }, status=400)
     
     # Validate email format
@@ -576,21 +577,26 @@ def newsletter_subscribe(request):
         email=email,
         defaults={
             'name': name,
+            'phone': phone,
             'ip_address': ip_address,
             'is_active': True
         }
     )
     
     if not created:
-        # Email exists - reactivate if inactive
+        # Email exists - update info and reactivate if inactive
         if not subscriber.is_active:
             subscriber.is_active = True
-            subscriber.name = name  # Update name
+            subscriber.name = name
+            subscriber.phone = phone
             subscriber.unsubscribed_date = None
             subscriber.save()
             message = 'Bülten aboneliğiniz yeniden aktifleştirildi!'
         else:
-            # Already active - just return success without error
+            # Already active - update phone if provided
+            if phone and phone != subscriber.phone:
+                subscriber.phone = phone
+                subscriber.save()
             message = 'Teşekkürler! Zaten bülten listemizdesiniz.'
     else:
         message = 'Bültenimize başarıyla abone oldunuz!'

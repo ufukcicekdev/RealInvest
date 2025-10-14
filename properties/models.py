@@ -745,6 +745,7 @@ class NewsletterSubscriber(models.Model):
     """
     email = models.EmailField(unique=True, verbose_name="E-posta")
     name = models.CharField(max_length=100, verbose_name="Ad Soyad")
+    phone = models.CharField(max_length=20, blank=True, verbose_name="Telefon", help_text="Opsiyonel telefon numarası")
     is_active = models.BooleanField(default=True, verbose_name="Aktif", help_text="Abonelik aktif mi?")
     subscribed_date = models.DateTimeField(auto_now_add=True, verbose_name="Abone Olma Tarihi")
     unsubscribed_date = models.DateTimeField(null=True, blank=True, verbose_name="Abonelikten Çıkma Tarihi")

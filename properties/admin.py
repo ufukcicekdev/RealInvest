@@ -442,16 +442,16 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     """
     Newsletter subscribers admin
     """
-    list_display = ('email', 'name', 'is_active', 'subscribed_date', 'subscriber_status')
+    list_display = ('email', 'name', 'phone', 'is_active', 'subscribed_date', 'subscriber_status')
     list_filter = ('is_active', 'subscribed_date')
-    search_fields = ('email', 'name')
+    search_fields = ('email', 'name', 'phone')
     readonly_fields = ('subscribed_date', 'unsubscribed_date', 'ip_address', 'unsubscribe_token')
     list_editable = ('is_active',)
     date_hierarchy = 'subscribed_date'
     
     fieldsets = (
         ('Abone Bilgileri', {
-            'fields': ('email', 'name', 'is_active')
+            'fields': ('email', 'name', 'phone', 'is_active')
         }),
         ('Tarihler', {
             'fields': ('subscribed_date', 'unsubscribed_date')
