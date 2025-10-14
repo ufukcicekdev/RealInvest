@@ -99,10 +99,16 @@
                                 <i class="bi bi-geo-alt-fill"></i> {{ listing.address|default:listing.location }}
                             </p>
                         </div>
+                        {% if listing.price > 0 %}
                         <div class="text-end">
-                            <h2 class="text-primary mb-0">${{ listing.price|floatformat:0 }}</h2>
+                            <h2 class="text-primary mb-0">{{ listing.get_formatted_price }}</h2>
                             <span class="badge bg-primary">{{ listing.get_status_display }}</span>
                         </div>
+                        {% else %}
+                        <div class="text-end">
+                            <span class="badge bg-primary">{{ listing.get_status_display }}</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -118,6 +124,8 @@
                                     <p class="text-muted mb-0">{{ listing.get_property_type_display }}</p>
                                 </div>
                             </div>
+                            {% if listing.property_type not in 'land,commercial' %}
+                            {% if listing.bedrooms > 0 %}
                             <div class="col-md-3 col-6">
                                 <div class="feature-box text-center p-3 bg-light rounded">
                                     <i class="bi bi-door-open fs-3 text-primary"></i>
@@ -125,6 +133,8 @@
                                     <p class="text-muted mb-0">{{ listing.bedrooms }}</p>
                                 </div>
                             </div>
+                            {% endif %}
+                            {% if listing.bathrooms > 0 %}
                             <div class="col-md-3 col-6">
                                 <div class="feature-box text-center p-3 bg-light rounded">
                                     <i class="bi bi-droplet fs-3 text-primary"></i>
@@ -132,6 +142,8 @@
                                     <p class="text-muted mb-0">{{ listing.bathrooms }}</p>
                                 </div>
                             </div>
+                            {% endif %}
+                            {% endif %}
                             <div class="col-md-3 col-6">
                                 <div class="feature-box text-center p-3 bg-light rounded">
                                     <i class="bi bi-arrows-fullscreen fs-3 text-primary"></i>
@@ -139,6 +151,7 @@
                                     <p class="text-muted mb-0">{{ listing.area }} m²</p>
                                 </div>
                             </div>
+                            {% if listing.property_type not in 'land,commercial' %}
                             {% if listing.floor %}
                             <div class="col-md-3 col-6">
                                 <div class="feature-box text-center p-3 bg-light rounded">
@@ -156,6 +169,7 @@
                                     <p class="text-muted mb-0">{{ listing.building_age }} yıl</p>
                                 </div>
                             </div>
+                            {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -190,6 +204,14 @@
                             <li class="mb-2">
                                 <strong>Tip:</strong> {{ listing.get_property_type_display }}
                             </li>
+                            {% if listing.price > 0 %}
+                            <li class="mb-2">
+                                <strong>Fiyat:</strong> {{ listing.get_formatted_price }}
+                            </li>
+                            <li class="mb-2">
+                                <strong>Para Birimi:</strong> {{ listing.get_currency_display }}
+                            </li>
+                            {% endif %}
                             <li class="mb-2">
                                 <strong>Yayınlanma:</strong> {{ listing.created_date|date:"d M Y" }}
                             </li>
@@ -236,12 +258,12 @@
                         </form>
                         <hr>
                         <div class="contact-info">
-                            {% if global_about_info %}
-                                {% if global_about_info.phone %}
-                                <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> {{ global_about_info.phone }}</p>
+                            {% if global_site_settings %}
+                                {% if global_site_settings.phone %}
+                                <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> {{ global_site_settings.phone }}</p>
                                 {% endif %}
-                                {% if global_about_info.email %}
-                                <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> {{ global_about_info.email }}</p>
+                                {% if global_site_settings.email %}
+                                <p class="mb-2"><i class="bi bi-envelope-fill text-primary"></i> {{ global_site_settings.email }}</p>
                                 {% endif %}
                             {% else %}
                             <p class="mb-2"><i class="bi bi-telephone-fill text-primary"></i> +1 234 567 8900</p>
@@ -272,7 +294,11 @@
                             <p class="text-muted small mb-2">
                                 <i class="bi bi-geo-alt"></i> {{ related.location }}
                             </p>
-                            <h5 class="text-primary mb-2">₺{{ related.price|floatformat:0 }}</h5>
+                            {% if related.price > 0 %}
+                            <h5 class="text-primary mb-2">{{ related.get_formatted_price }}</h5>
+                            {% else %}
+                            <p class="text-muted mb-2">Fiyat Belirtilmedi</p>
+                            {% endif %}
                             <a href="{% url 'listing_detail' related.slug %}" class="btn btn-sm btn-outline-primary w-100">Detayları Gör</a>
                         </div>
                     </div>
@@ -296,7 +322,7 @@
   "url": "{{ request.build_absolute_uri }}",
   "image": "{% if listing.main_image %}{{ request.scheme }}://{{ request.get_host }}{{ listing.main_image.url }}{% endif %}",
   "price": "{{ listing.price }}",
-  "priceCurrency": "USD",
+  "priceCurrency": "{{ listing.currency }}",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "{{ listing.location }}"

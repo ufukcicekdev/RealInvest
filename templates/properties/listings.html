@@ -105,19 +105,25 @@
                         
                         <div class="property-features mb-3">
                             <div class="row text-center g-2">
+                                {% if listing.property_type not in 'land,commercial' %}
+                                {% if listing.bedrooms > 0 %}
                                 <div class="col-4">
                                     <small class="text-muted">
                                         <i class="bi bi-house"></i><br>
                                         {{ listing.bedrooms }} Oda
                                     </small>
                                 </div>
+                                {% endif %}
+                                {% if listing.bathrooms > 0 %}
                                 <div class="col-4">
                                     <small class="text-muted">
                                         <i class="bi bi-droplet"></i><br>
                                         {{ listing.bathrooms }} Banyo
                                     </small>
                                 </div>
-                                <div class="col-4">
+                                {% endif %}
+                                {% endif %}
+                                <div class="{% if listing.property_type in 'land,commercial' %}col-12{% else %}col-4{% endif %}">
                                     <small class="text-muted">
                                         <i class="bi bi-arrows-fullscreen"></i><br>
                                         {{ listing.area }} m²
@@ -129,7 +135,11 @@
                         <hr>
                         
                         <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="price mb-0">₺{{ listing.price|floatformat:0 }}</h4>
+                            {% if listing.price > 0 %}
+                            <h4 class="price mb-0">{{ listing.get_formatted_price }}</h4>
+                            {% else %}
+                            <span class="text-muted">Fiyat Belirtilmedi</span>
+                            {% endif %}
                             <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-outline-primary btn-sm">
                                 Detaylar <i class="bi bi-arrow-right"></i>
                             </a>

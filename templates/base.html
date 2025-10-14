@@ -238,6 +238,7 @@
 
 
     <!-- Footer -->
+    {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'contact' %}
     <footer class="footer-section">
         <div class="container">
             <div class="row">
@@ -338,6 +339,7 @@
             </div>
         </div>
     </footer>
+    {% endif %}
 
     <!-- Newsletter Popup Modal -->
     {% if popup_settings and popup_settings.enabled %}

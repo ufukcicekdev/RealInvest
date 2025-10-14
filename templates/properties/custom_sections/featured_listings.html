@@ -26,12 +26,22 @@
                         </p>
                         <p class="card-text text-truncate">{{ listing.description|truncatewords:15 }}</p>
                         <div class="d-flex justify-content-between align-items-center mb-3">
+                            {% if listing.property_type not in 'land,commercial' %}
+                            {% if listing.bedrooms > 0 %}
                             <span class="text-muted"><i class="bi bi-house"></i> {{ listing.bedrooms }} oda</span>
+                            {% endif %}
+                            {% if listing.bathrooms > 0 %}
                             <span class="text-muted"><i class="bi bi-droplet"></i> {{ listing.bathrooms }} banyo</span>
+                            {% endif %}
+                            {% endif %}
                             <span class="text-muted"><i class="bi bi-arrows-fullscreen"></i> {{ listing.area }} m²</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="price mb-0">₺{{ listing.price|floatformat:0 }}</h4>
+                            {% if listing.price > 0 %}
+                            <h4 class="price mb-0">{{ listing.get_formatted_price }}</h4>
+                            {% else %}
+                            <span class="text-muted">Fiyat Belirtilmedi</span>
+                            {% endif %}
                             <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-outline-primary btn-sm">Detayları Gör</a>
                         </div>
                     </div>

@@ -10,7 +10,7 @@ from django.utils import timezone
 from .models import (
     Listing, Construction, About, ContactMessage, Reference, 
     SEOSettings, CustomSection, BannerImage, SiteSettings,
-    NewsletterSubscriber, Newsletter, PopupSettings
+    NewsletterSubscriber, Newsletter, PopupSettings, VisibleCustomSection
 )
 from .forms import ContactForm, NewsletterSubscribeForm
 
@@ -20,8 +20,21 @@ def home(request):
     """
     Home page view displaying featured listings, hero section, and about info
     """
-    featured_listings = Listing.objects.filter(is_active=True, is_featured=True)[:6]
-    recent_listings = Listing.objects.filter(is_active=True)[:8]
+    # Get querysets for featured and recent listings
+    featured_listings_qs = Listing.objects.filter(is_active=True, is_featured=True)
+    featured_listings = featured_listings_qs[:6]  # Sliced for display
+    
+    recent_listings_qs = Listing.objects.filter(is_active=True)
+    recent_listings = recent_listings_qs[:8]  # Sliced for display
+    
+    # DEBUG: Print featured listings info
+    print("\n=== DEBUG: Featured Listings ===")
+    print(f"Featured listings count: {featured_listings_qs.count()}")
+    print(f"Featured listings exist: {featured_listings_qs.exists()}")
+    if featured_listings_qs.exists():
+        for listing in featured_listings:
+            print(f"  - {listing.title} (is_featured={listing.is_featured}, is_active={listing.is_active})")
+    print("================================\n")
     
     # Get about content for homepage
     try:
@@ -52,54 +65,67 @@ def home(request):
     # Create a list of sections with their order and visibility
     sections = []
     if about_content:
-        # Add fixed sections only if they are in the ordering (visible in section management)
-        # Search Bar
-        if hasattr(about_content, 'search_bar_order') and about_content.show_search_bar:
-            sections.append({'type': 'search_bar', 'order': about_content.search_bar_order})
+        # Get all visible custom sections including fixed sections
+        visible_sections = VisibleCustomSection.objects.filter(about=about_content).select_related('custom_section')
         
-        # Stats Section
-        if hasattr(about_content, 'stats_section_order') and about_content.show_stats_section:
-            sections.append({'type': 'stats_section', 'order': about_content.stats_section_order})
+        # Create a dictionary to track which fixed sections are added via VisibleCustomSection
+        fixed_sections_added = {}
         
-        # Featured Listings
-        if hasattr(about_content, 'featured_listings_order') and about_content.show_featured_listings and featured_listings:
-            sections.append({'type': 'featured_listings', 'order': about_content.featured_listings_order, 'data': featured_listings})
-        
-        # Features Section
-        if hasattr(about_content, 'features_section_order') and about_content.show_features_section:
-            sections.append({'type': 'features_section', 'order': about_content.features_section_order})
-        
-        # Testimonials
-        if hasattr(about_content, 'testimonials_order') and about_content.show_testimonials:
-            sections.append({'type': 'testimonials', 'order': about_content.testimonials_order})
-        
-        # Recent Listings
-        if hasattr(about_content, 'recent_listings_order') and about_content.show_recent_listings and recent_listings:
-            sections.append({'type': 'recent_listings', 'order': about_content.recent_listings_order, 'data': recent_listings})
-        
-        # Contact Info
-        if hasattr(about_content, 'contact_info_order') and about_content.show_contact_info:
-            sections.append({'type': 'contact_info', 'order': about_content.contact_info_order})
-        
-        # Social Media
-        if hasattr(about_content, 'social_media_order') and about_content.show_social_media:
-            sections.append({'type': 'social_media', 'order': about_content.social_media_order})
-        
-        # Add custom sections with their order from VisibleCustomSection
-        for custom_section in custom_sections:
-            # Get the order from the through model
-            visible_custom_section = custom_section.visiblecustomsection_set.filter(about=about_content).first()
-            if visible_custom_section:
+        for visible_section in visible_sections:
+            custom_section = visible_section.custom_section
+            
+            # Check if this is a fixed section type
+            if custom_section.layout == 'search_bar' and about_content.show_search_bar:
+                sections.append({'type': 'search_bar', 'order': visible_section.order})
+                fixed_sections_added['search_bar'] = True
+            elif custom_section.layout == 'stats_section' and about_content.show_stats_section:
+                sections.append({'type': 'stats_section', 'order': visible_section.order})
+                fixed_sections_added['stats_section'] = True
+            elif custom_section.layout == 'featured_listings' and about_content.show_featured_listings and featured_listings_qs.exists():
+                sections.append({'type': 'featured_listings', 'order': visible_section.order, 'data': featured_listings})
+                fixed_sections_added['featured_listings'] = True
+                print(f"✅ Featured listings ADDED from VisibleCustomSection with order: {visible_section.order}")
+            elif custom_section.layout == 'featured_listings' and not about_content.show_featured_listings:
+                print(f"❌ Featured listings SKIPPED - show_featured_listings is False")
+            elif custom_section.layout == 'features_section' and about_content.show_features_section:
+                sections.append({'type': 'features_section', 'order': visible_section.order})
+                fixed_sections_added['features_section'] = True
+            elif custom_section.layout == 'testimonials' and about_content.show_testimonials:
+                sections.append({'type': 'testimonials', 'order': visible_section.order})
+                fixed_sections_added['testimonials'] = True
+            elif custom_section.layout == 'recent_listings' and about_content.show_recent_listings and recent_listings_qs.exists():
+                sections.append({'type': 'recent_listings', 'order': visible_section.order, 'data': recent_listings})
+                fixed_sections_added['recent_listings'] = True
+            elif custom_section.layout == 'contact_info' and about_content.show_contact_info:
+                sections.append({'type': 'contact_info', 'order': visible_section.order})
+                fixed_sections_added['contact_info'] = True
+            elif custom_section.layout == 'social_media' and about_content.show_social_media:
+                sections.append({'type': 'social_media', 'order': visible_section.order})
+                fixed_sections_added['social_media'] = True
+            elif custom_section.is_active:
+                # Regular custom section
                 section_data = {
                     'type': 'custom_section',
-                    'order': visible_custom_section.order,
+                    'order': visible_section.order,
                     'custom_section': custom_section
                 }
                 sections.append(section_data)
     
     # Sort sections by order
     sections.sort(key=lambda x: x['order'])
-
+    
+    # DEBUG: Print final sections list
+    print("\n=== Final Sections List ===")
+    print(f"Total sections: {len(sections)}")
+    for section in sections:
+        section_type = section.get('type', 'unknown')
+        section_order = section.get('order', 'no order')
+        if section_type == 'featured_listings':
+            data_count = len(section.get('data', []))
+            print(f"  - Type: {section_type}, Order: {section_order}, Data Count: {data_count}")
+        else:
+            print(f"  - Type: {section_type}, Order: {section_order}")
+    print("===========================\n")
     context = {
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,

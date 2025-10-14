@@ -30,7 +30,6 @@ def about_info(request):
         template_class = f"{about_content.homepage_template}-active"
     else:
         template_class = 'template1-active'  # Default template
-    
     return {
         'about': about_content,
         'global_site_settings': site_settings,

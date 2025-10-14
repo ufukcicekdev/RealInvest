@@ -23,12 +23,23 @@ class Listing(models.Model):
         ('rent', 'Kiralık'),
     )
     
+    CURRENCY_CHOICES = (
+        ('TRY', '₺ Türk Lirası'),
+        ('USD', '$ Amerikan Doları'),
+        ('EUR', '€ Euro'),
+        ('GBP', '£ İngiliz Sterlini'),
+        ('AED', 'د.إ Birleşik Arap Emirlikleri Dirhemi'),
+        ('SAR', 'ر.س Suudi Arabistan Riyali'),
+        ('RUB', '₽ Rus Rublesi'),
+    )
+    
     title = models.CharField(max_length=255, verbose_name="Başlık", help_text="SEO için optimize edilmiş emlak başlığı")
     slug = models.SlugField(max_length=255, unique=True, blank=True, verbose_name="URL Yolu")
     description = models.TextField(verbose_name="Açıklama", help_text="Detaylı emlak açıklaması")
     property_type = models.CharField(max_length=50, choices=PROPERTY_TYPES, default='apartment', verbose_name="Emlak Tipi")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='sale', verbose_name="Durum")
-    price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Fiyat", help_text="Türk Lirası cinsinden fiyat")
+    price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Fiyat", help_text="Emlak fiyatı")
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='TRY', verbose_name="Para Birimi", help_text="Fiyat para birimi")
     location = models.CharField(max_length=255, verbose_name="Konum", help_text="Emlak konumu (şehir, ilçe)")
     address = models.CharField(max_length=500, blank=True, null=True, verbose_name="Adres")
     
@@ -71,6 +82,28 @@ class Listing(models.Model):
     
     def get_absolute_url(self):
         return reverse('listing_detail', kwargs={'slug': self.slug})
+    
+    def get_currency_symbol(self):
+        """Return just the currency symbol"""
+        currency_symbols = {
+            'TRY': '₺',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'AED': 'د.إ',
+            'SAR': 'ر.س',
+            'RUB': '₽',
+        }
+        return currency_symbols.get(self.currency, '₺')
+    
+    def get_formatted_price(self):
+        """Return formatted price with currency symbol"""
+        symbol = self.get_currency_symbol()
+        price_str = f"{self.price:,.0f}"
+        # For Arabic currencies, put symbol after the price
+        if self.currency in ['AED', 'SAR']:
+            return f"{price_str} {symbol}"
+        return f"{symbol}{price_str}"
     
     def __str__(self):
         return self.title

@@ -39,16 +39,17 @@ class ListingAdmin(admin.ModelAdmin):
     inlines = [ListingImageInline]
     
     def price_display(self, obj):
-        return f"₺{obj.price:,.0f}"
+        return obj.get_formatted_price()
     price_display.short_description = 'Fiyat'
     price_display.admin_order_field = 'price'
     
     fieldsets = (
         ('Temel Bilgiler', {
-            'fields': ('title', 'slug', 'description', 'property_type', 'status', 'price', 'location', 'address')
+            'fields': ('title', 'slug', 'description', 'property_type', 'status', 'price', 'currency', 'location', 'address')
         }),
         ('Gayrimenkul Detayları', {
-            'fields': ('bedrooms', 'bathrooms', 'area', 'floor', 'building_age')
+            'fields': ('bedrooms', 'bathrooms', 'area', 'floor', 'building_age'),
+            'description': 'NOT: Yatak odası, banyo, kat ve bina yaşı alanları arsa ve ticari gayrimenkuller için boş bırakılabilir. Bu alanlar sadece daire, ev, villa ve ofis için doldurulmalıdır.'
         }),
         ('Medya', {
             'fields': ('main_image', 'image_alt_text')
