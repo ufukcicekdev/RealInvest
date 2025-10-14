@@ -162,13 +162,92 @@ def listings(request):
 
 def listing_detail(request, slug):
     """
-    Individual listing detail page
+    Individual listing detail page with inquiry form
     """
     listing = get_object_or_404(Listing, slug=slug, is_active=True)
     related_listings = Listing.objects.filter(
         is_active=True,
         location=listing.location
     ).exclude(id=listing.id)[:3]
+    
+    # Handle inquiry form submission
+    if request.method == 'POST':
+        name = request.POST.get('name', '')
+        email = request.POST.get('email', '')
+        phone = request.POST.get('phone', '')
+        message = request.POST.get('message', '')
+        
+        if name and email and message:
+            # Save inquiry as contact message
+            contact_message = ContactMessage(
+                name=name,
+                email=email,
+                phone=phone,
+                subject=f"İlan Sorgusu: {listing.title}",
+                message=message
+            )
+            contact_message.save()
+            
+            # Send email notification
+            try:
+                site_settings = SiteSettings.objects.first()
+                
+                # Get email recipients
+                recipient_emails = []
+                if site_settings and site_settings.contact_email_recipients:
+                    recipient_emails = [email.strip() for email in site_settings.contact_email_recipients.split(',') if email.strip()]
+                
+                if not recipient_emails and site_settings and site_settings.email:
+                    recipient_emails = [site_settings.email]
+                
+                # Send email if SMTP configured
+                if recipient_emails and site_settings and site_settings.smtp_username and site_settings.smtp_password:
+                    from django.core.mail import EmailMessage
+                    import smtplib
+                    
+                    subject = f"İlan Sorgusu: {listing.title}"
+                    message_body = f"""
+Yeni bir ilan sorgusu alındı:
+
+İlan: {listing.title}
+İlan Linki: {request.build_absolute_uri(listing.get_absolute_url() if hasattr(listing, 'get_absolute_url') else '')}
+
+Müşteri Bilgileri:
+Ad Soyad: {name}
+E-posta: {email}
+Telefon: {phone}
+
+Mesaj:
+{message}
+
+---
+Bu mesaj web sitenizin ilan detay sayfasından gönderilmiştir.
+                    """
+                    
+                    try:
+                        email_msg = EmailMessage(
+                            subject=subject,
+                            body=message_body,
+                            from_email=site_settings.email_from or site_settings.smtp_username,
+                            to=recipient_emails,
+                        )
+                        
+                        smtp_host = site_settings.smtp_host or 'smtp.gmail.com'
+                        smtp_port = site_settings.smtp_port or 587
+                        
+                        connection = smtplib.SMTP(smtp_host, smtp_port)
+                        if site_settings.smtp_use_tls:
+                            connection.starttls()
+                        connection.login(site_settings.smtp_username, site_settings.smtp_password)
+                        connection.send_message(email_msg.message())
+                        connection.quit()
+                    except Exception as smtp_error:
+                        print(f"SMTP Email gönderme hatası: {smtp_error}")
+            except Exception as e:
+                print(f"Email gönderme hatası: {e}")
+            
+            messages.success(request, 'Sorgunuz başarıyla gönderildi! En kısa sürede size dönüş yapacağız.')
+            return redirect('listing_detail', slug=slug)
     
     context = {
         'listing': listing,
