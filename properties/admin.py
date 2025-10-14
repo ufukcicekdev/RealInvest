@@ -5,7 +5,12 @@ from django.utils.safestring import mark_safe
 from django import forms
 from django.db import models
 from .widgets import ColorPickerWidget, CustomSectionForm
-from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, ReferenceVideo, SEOSettings, VisibleCustomSection
+from .models import (
+    Listing, ListingImage, Construction, ConstructionImage, ContactMessage, 
+    About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, 
+    ReferenceVideo, SEOSettings, VisibleCustomSection, NewsletterSubscriber, 
+    Newsletter, PopupSettings, NewsletterLog
+)
 
 # Register your models here.
 
@@ -430,3 +435,392 @@ class SEOSettingsAdmin(admin.ModelAdmin):
         return obj.get_page_type_display()
     page_type_display.short_description = 'Sayfa Türü'
     page_type_display.admin_order_field = 'page_type'
+
+
+@admin.register(NewsletterSubscriber)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    """
+    Newsletter subscribers admin
+    """
+    list_display = ('email', 'name', 'is_active', 'subscribed_date', 'subscriber_status')
+    list_filter = ('is_active', 'subscribed_date')
+    search_fields = ('email', 'name')
+    readonly_fields = ('subscribed_date', 'unsubscribed_date', 'ip_address', 'unsubscribe_token')
+    list_editable = ('is_active',)
+    date_hierarchy = 'subscribed_date'
+    
+    fieldsets = (
+        ('Abone Bilgileri', {
+            'fields': ('email', 'name', 'is_active')
+        }),
+        ('Tarihler', {
+            'fields': ('subscribed_date', 'unsubscribed_date')
+        }),
+        ('Teknik Bilgiler', {
+            'fields': ('ip_address', 'unsubscribe_token'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def subscriber_status(self, obj):
+        if obj.is_active:
+            return format_html('<span style="color: green;">✓ Aktif</span>')
+        else:
+            return format_html('<span style="color: red;">✗ Pasif</span>')
+    subscriber_status.short_description = 'Durum'
+    
+    actions = ['activate_subscribers', 'deactivate_subscribers']
+    
+    def activate_subscribers(self, request, queryset):
+        updated = queryset.update(is_active=True, unsubscribed_date=None)
+        self.message_user(request, f'{updated} abone aktifleştirildi.')
+    activate_subscribers.short_description = 'Seçili aboneleri aktifleştir'
+    
+    def deactivate_subscribers(self, request, queryset):
+        from django.utils import timezone
+        for subscriber in queryset:
+            subscriber.is_active = False
+            subscriber.unsubscribed_date = timezone.now()
+            subscriber.save()
+        self.message_user(request, f'{queryset.count()} abone pasifleştirildi.')
+    deactivate_subscribers.short_description = 'Seçili aboneleri pasifleştir'
+
+
+class NewsletterLogInline(admin.TabularInline):
+    """
+    Inline admin for newsletter logs
+    """
+    model = NewsletterLog
+    extra = 0
+    readonly_fields = ('log_type', 'message', 'subscriber_email', 'error_details', 'created_date')
+    can_delete = False
+    max_num = 0  # Prevent adding new logs through admin
+    
+    fields = ('created_date', 'log_type', 'message', 'subscriber_email')
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Newsletter)
+class NewsletterAdmin(admin.ModelAdmin):
+    """
+    Newsletter campaigns admin with send functionality
+    """
+    list_display = ('title', 'status', 'scheduled_date', 'sent_date', 'total_recipients', 'sent_count', 'status_badge')
+    list_filter = ('status', 'scheduled_date', 'sent_date')
+    search_fields = ('title', 'subject', 'content')
+    readonly_fields = ('sent_date', 'total_recipients', 'sent_count', 'failed_count', 'created_date', 'updated_date')
+    date_hierarchy = 'created_date'
+    inlines = [NewsletterLogInline]  # Add log inline
+    
+    fieldsets = (
+        ('Bülten Bilgileri', {
+            'fields': ('title', 'subject', 'content')
+        }),
+        ('Zamanlama', {
+            'fields': ('status', 'scheduled_date', 'sent_date'),
+            'description': 'Gönderim zamanı boş bırakılırsa "Gönder" butonuna basıldığında hemen gönderilir.'
+        }),
+        ('İstatistikler', {
+            'fields': ('total_recipients', 'sent_count', 'failed_count'),
+            'classes': ('collapse',)
+        }),
+        ('Tarihler', {
+            'fields': ('created_date', 'updated_date'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def status_badge(self, obj):
+        colors = {
+            'draft': 'gray',
+            'scheduled': 'blue',
+            'sending': 'orange',
+            'sent': 'green',
+            'failed': 'red'
+        }
+        color = colors.get(obj.status, 'gray')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px;">{}</span>',
+            color,
+            obj.get_status_display()
+        )
+    status_badge.short_description = 'Durum'
+    
+    actions = ['send_newsletter']
+    
+    def send_newsletter(self, request, queryset):
+        from django.core.mail import EmailMultiAlternatives, get_connection
+        from django.template.loader import render_to_string
+        from django.utils import timezone
+        
+        for newsletter in queryset:
+            if newsletter.status in ['sent', 'sending']:
+                self.message_user(request, f'"{newsletter.title}" zaten gönderilmiş veya gönderiliyor.', level='warning')
+                continue
+            
+            # Log: Starting newsletter send
+            NewsletterLog.log_info(newsletter, f'Bülten gönderimi başlatıldı: {newsletter.title}')
+            
+            # Get active subscribers
+            subscribers = NewsletterSubscriber.objects.filter(is_active=True)
+            newsletter.total_recipients = subscribers.count()
+            
+            if newsletter.total_recipients == 0:
+                NewsletterLog.log_error(newsletter, 'Aktif abone bulunamadı')
+                self.message_user(request, 'Aktif abone bulunamadı!', level='error')
+                continue
+            
+            NewsletterLog.log_info(newsletter, f'Toplam {newsletter.total_recipients} aboneye gönderilecek')
+            
+            newsletter.status = 'sending'
+            newsletter.save()
+            
+            sent_count = 0
+            failed_count = 0
+            
+            # Get SMTP settings from SiteSettings
+            site_settings = SiteSettings.objects.first()
+            
+            if not site_settings:
+                NewsletterLog.log_error(newsletter, 'Site ayarları bulunamadı')
+                self.message_user(request, 'Site ayarları bulunamadı! Lütfen önce Site Ayarlarını yapılandırın.', level='error')
+                newsletter.status = 'failed'
+                newsletter.save()
+                continue
+            
+            # Check if SMTP settings are configured
+            if not site_settings.smtp_host or not site_settings.smtp_username:
+                NewsletterLog.log_error(newsletter, 'SMTP ayarları yapılandırılmamış')
+                self.message_user(
+                    request, 
+                    'SMTP ayarları yapılandırılmamış! Lütfen Site Ayarları > Email SMTP Ayarları bölümünü doldurun.',
+                    level='error'
+                )
+                newsletter.status = 'failed'
+                newsletter.save()
+                continue
+            
+            # Create custom email connection with SiteSettings SMTP config
+            try:
+                connection = get_connection(
+                    backend='django.core.mail.backends.smtp.EmailBackend',
+                    host=site_settings.smtp_host,
+                    port=site_settings.smtp_port,
+                    username=site_settings.smtp_username,
+                    password=site_settings.smtp_password,
+                    use_tls=site_settings.smtp_use_tls,
+                    fail_silently=False,
+                )
+                NewsletterLog.log_success(newsletter, f'SMTP bağlantısı kuruldu: {site_settings.smtp_host}:{site_settings.smtp_port}')
+            except Exception as e:
+                error_msg = f'SMTP bağlantısı kurulamadı: {str(e)}'
+                NewsletterLog.log_error(newsletter, error_msg, error_details=str(e))
+                self.message_user(request, error_msg, level='error')
+                newsletter.status = 'failed'
+                newsletter.save()
+                continue
+            
+            for subscriber in subscribers:
+                try:
+                    # Prepare unsubscribe link
+                    unsubscribe_url = request.build_absolute_uri(
+                        reverse('newsletter_unsubscribe', args=[subscriber.unsubscribe_token])
+                    )
+                    
+                    # Generate absolute logo URL for email
+                    logo_url = None
+                    if site_settings.logo:
+                        # Logo URL is already absolute from CDN, use it directly
+                        logo_url = site_settings.logo.url
+                        NewsletterLog.log_info(newsletter, f'Logo URL from storage: {logo_url}')
+                        # If it's a relative path, make it absolute
+                        if not logo_url.startswith('http'):
+                            logo_url = request.build_absolute_uri(logo_url)
+                            NewsletterLog.log_info(newsletter, f'Logo URL converted to absolute: {logo_url}')
+                        else:
+                            NewsletterLog.log_info(newsletter, f'Logo URL is already absolute: {logo_url}')
+                    
+                    # Render email template with context
+                    import datetime
+                    context = {
+                        'newsletter': newsletter,
+                        'subscriber': subscriber,
+                        'site_settings': site_settings,
+                        'unsubscribe_url': unsubscribe_url,
+                        'logo_url': logo_url,
+                        'current_year': datetime.datetime.now().year,
+                    }
+                    
+                    html_content = render_to_string('emails/newsletter.html', context)
+                    
+                    # Plain text version (strip HTML tags)
+                    from django.utils.html import strip_tags
+                    plain_content = strip_tags(newsletter.content)
+                    
+                    # Send email using custom SMTP connection
+                    email = EmailMultiAlternatives(
+                        subject=newsletter.subject,
+                        body=plain_content,
+                        from_email=site_settings.email_from if site_settings.email_from else site_settings.email,
+                        to=[subscriber.email],
+                        connection=connection  # Use custom SMTP connection
+                    )
+                    email.attach_alternative(html_content, "text/html")
+                    email.send()
+                    
+                    sent_count += 1
+                    NewsletterLog.log_success(
+                        newsletter, 
+                        f'Email başarıyla gönderildi', 
+                        subscriber_email=subscriber.email
+                    )
+                    
+                except Exception as e:
+                    failed_count += 1
+                    error_msg = f'Email gönderilemedi: {str(e)}'
+                    NewsletterLog.log_error(
+                        newsletter,
+                        error_msg,
+                        subscriber_email=subscriber.email,
+                        error_details=str(e)
+                    )
+                    print(f"Failed to send to {subscriber.email}: {str(e)}")
+            
+            # Close connection
+            try:
+                connection.close()
+            except:
+                pass
+            
+            # Update newsletter stats and status
+            newsletter.sent_count = sent_count
+            newsletter.failed_count = failed_count
+            newsletter.sent_date = timezone.now()
+            
+            # Determine final status
+            if sent_count == 0:
+                # No emails sent at all
+                newsletter.status = 'failed'
+                status_message = f'❌ "{newsletter.title}" bülteni hiçbir aboneye gönderilemedi! ({failed_count} başarısız)'
+                message_level = 'error'
+                NewsletterLog.log_error(newsletter, f'Bülten gönderimi başarısız: Hiçbir email gönderilemedi ({failed_count} hata)')
+            elif failed_count == 0:
+                # All emails sent successfully
+                newsletter.status = 'sent'
+                status_message = f'✅ "{newsletter.title}" bülteni {sent_count}/{newsletter.total_recipients} aboneye başarıyla gönderildi!'
+                message_level = 'success'
+                NewsletterLog.log_success(newsletter, f'Bülten başarıyla gönderildi: {sent_count}/{newsletter.total_recipients} email')
+            else:
+                # Partial success
+                newsletter.status = 'sent'  # Mark as sent if at least some went through
+                status_message = f'⚠️ "{newsletter.title}" bülteni {sent_count}/{newsletter.total_recipients} aboneye gönderildi. ({failed_count} başarısız)'
+                message_level = 'warning'
+                NewsletterLog.log_warning(newsletter, f'Kısmi başarı: {sent_count} başarılı, {failed_count} başarısız')
+            
+            newsletter.save()
+            
+            self.message_user(request, status_message, level=message_level)
+    
+    send_newsletter.short_description = 'Seçili bültenleri gönder'
+
+
+@admin.register(PopupSettings)
+class PopupSettingsAdmin(admin.ModelAdmin):
+    """
+    Newsletter popup settings admin (singleton)
+    """
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'class': 'vTextField'})},
+        models.TextField: {'widget': forms.Textarea(attrs={'rows': 3})},
+    }
+    
+    fieldsets = (
+        ('Popup Ayarları', {
+            'fields': ('enabled', 'title', 'description')
+        }),
+        ('Görüntüleme Ayarları', {
+            'fields': ('delay_seconds', 'show_on_mobile')
+        }),
+        ('Stil Ayarları', {
+            'fields': ('button_text', 'button_color'),
+            'description': 'Buton rengi için hex kod kullanın (orn: #007bff)'
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        # Only allow one instance
+        return not PopupSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # Don't allow deletion
+        return False
+
+
+class NewsletterLogInline(admin.TabularInline):
+    """
+    Inline admin for newsletter logs
+    """
+    model = NewsletterLog
+    extra = 0
+    readonly_fields = ('log_type', 'message', 'subscriber_email', 'error_details', 'created_date')
+    can_delete = False
+    max_num = 0  # Prevent adding new logs through admin
+    
+    fields = ('created_date', 'log_type', 'message', 'subscriber_email')
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(NewsletterLog)
+class NewsletterLogAdmin(admin.ModelAdmin):
+    """
+    Newsletter log admin for viewing send history
+    """
+    list_display = ('created_date', 'newsletter', 'log_type_badge', 'message_preview', 'subscriber_email')
+    list_filter = ('log_type', 'created_date', 'newsletter')
+    search_fields = ('message', 'subscriber_email', 'error_details', 'newsletter__title')
+    readonly_fields = ('newsletter', 'log_type', 'message', 'subscriber_email', 'error_details', 'created_date')
+    date_hierarchy = 'created_date'
+    
+    fieldsets = (
+        ('Log Bilgileri', {
+            'fields': ('newsletter', 'log_type', 'created_date')
+        }),
+        ('Mesaj', {
+            'fields': ('message', 'subscriber_email')
+        }),
+        ('Hata Detayları', {
+            'fields': ('error_details',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def log_type_badge(self, obj):
+        colors = {
+            'info': '#17a2b8',
+            'success': '#28a745',
+            'warning': '#ffc107',
+            'error': '#dc3545'
+        }
+        color = colors.get(obj.log_type, 'gray')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px;">{}</span>',
+            color,
+            obj.get_log_type_display()
+        )
+    log_type_badge.short_description = 'Tip'
+    
+    def message_preview(self, obj):
+        return obj.message[:100] + '...' if len(obj.message) > 100 else obj.message
+    message_preview.short_description = 'Mesaj'
+    
+    def has_add_permission(self, request):
+        # Don't allow manual log creation
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        # Allow deletion for cleanup
+        return True

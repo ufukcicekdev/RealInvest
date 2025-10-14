@@ -2,11 +2,17 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection, BannerImage, SiteSettings
-from .forms import ContactForm
+from django.views.decorators.http import require_POST
+from django.utils import timezone
+from .models import (
+    Listing, Construction, About, ContactMessage, Reference, 
+    SEOSettings, CustomSection, BannerImage, SiteSettings,
+    NewsletterSubscriber, Newsletter, PopupSettings
+)
+from .forms import ContactForm, NewsletterSubscribeForm
 
 # Create your views here.
 
@@ -529,3 +535,106 @@ def custom_server_error(request):
     Custom 500 error handler
     """
     return render(request, 'errors/500.html', status=500)
+
+
+@require_POST
+def newsletter_subscribe(request):
+    """
+    AJAX endpoint for newsletter subscription
+    """
+    email = request.POST.get('email', '').strip()
+    name = request.POST.get('name', '').strip()
+    dont_show_again = request.POST.get('dont_show_again') == 'on'
+    
+    # Basic validation
+    if not email or not name:
+        return JsonResponse({
+            'success': False,
+            'message': 'Lütfen tüm alanları doldurun.'
+        }, status=400)
+    
+    # Validate email format
+    from django.core.validators import validate_email
+    from django.core.exceptions import ValidationError
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Geçerli bir e-posta adresi girin.'
+        }, status=400)
+    
+    # Get IP address
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip_address = x_forwarded_for.split(',')[0]
+    else:
+        ip_address = request.META.get('REMOTE_ADDR')
+    
+    # Check if email already exists
+    subscriber, created = NewsletterSubscriber.objects.get_or_create(
+        email=email,
+        defaults={
+            'name': name,
+            'ip_address': ip_address,
+            'is_active': True
+        }
+    )
+    
+    if not created:
+        # Email exists - reactivate if inactive
+        if not subscriber.is_active:
+            subscriber.is_active = True
+            subscriber.name = name  # Update name
+            subscriber.unsubscribed_date = None
+            subscriber.save()
+            message = 'Bülten aboneliğiniz yeniden aktifleştirildi!'
+        else:
+            # Already active - just return success without error
+            message = 'Teşekkürler! Zaten bülten listemizdesiniz.'
+    else:
+        message = 'Bültenimize başarıyla abone oldunuz!'
+    
+    # Create response
+    response = JsonResponse({
+        'success': True,
+        'message': message
+    })
+    
+    # Always set cookie after successful interaction (subscriber won't see popup again)
+    # Cookie expires in 365 days
+    response.set_cookie(
+        'newsletter_dismissed', 
+        'true', 
+        max_age=365*24*60*60,  # 365 days in seconds
+        httponly=False,  # Allow JavaScript to read it
+        samesite='Lax'
+    )
+    
+    return response
+
+
+def newsletter_unsubscribe(request, token):
+    """
+    Unsubscribe from newsletter using unique token
+    """
+    try:
+        subscriber = NewsletterSubscriber.objects.get(unsubscribe_token=token)
+        
+        if request.method == 'POST':
+            subscriber.is_active = False
+            subscriber.unsubscribed_date = timezone.now()
+            subscriber.save()
+            
+            messages.success(request, 'Bülten aboneliğinizden başarıyla çıktınız.')
+            return redirect('home')
+        
+        context = {
+            'subscriber': subscriber,
+            'page_title': 'Bülten Aboneliğinden Çık',
+        }
+        return render(request, 'properties/newsletter_unsubscribe.html', context)
+        
+    except NewsletterSubscriber.DoesNotExist:
+        messages.error(request, 'Geçersiz abonelik iptali bağlantısı.')
+        return redirect('home')

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ newsletter.subject }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .email-header img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        
+        .email-header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .email-content {
+            padding: 40px 30px;
+            background-color: #ffffff;
+        }
+        
+        .email-content h2 {
+            color: #2d3748;
+            font-size: 22px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .email-content p {
+            color: #4a5568;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        .newsletter-body {
+            margin: 20px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        
+        .email-footer {
+            background-color: #2d3748;
+            color: #cbd5e0;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        
+        .contact-info {
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .contact-info p {
+            margin: 8px 0;
+            color: #cbd5e0;
+        }
+        
+        .contact-info a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+        
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-links {
+            margin: 25px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ffffff;
+            background-color: #4a5568;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: #667eea;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: #4a5568;
+            margin: 20px 0;
+        }
+        
+        .unsubscribe {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 20px;
+        }
+        
+        .unsubscribe a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+        
+        .unsubscribe a:hover {
+            text-decoration: underline;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .email-content {
+                padding: 30px 20px;
+            }
+            
+            .email-header h1 {
+                font-size: 20px;
+            }
+            
+            .email-content h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <!-- Header with Logo -->
+        <div class="email-header">
+            {% if logo_url %}
+                <img src="{{ logo_url }}" alt="Logo" class="header-logo">
+            {% endif %}
+            <h1>Bülten</h1>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="email-content">
+            <h2>{{ newsletter.subject }}</h2>
+            
+            <div class="newsletter-body">
+                {{ newsletter.content|safe }}
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            {% if logo_url %}
+                <img src="{{ logo_url }}" alt="Logo" class="footer-logo">
+            {% endif %}
+            
+            <div class="contact-info">
+                {% if site_settings.address %}
+                <p>
+                    <strong>📍 Adres:</strong><br>
+                    {{ site_settings.address }}
+                </p>
+                {% endif %}
+                
+                {% if site_settings.phone %}
+                <p>
+                    <strong>📞 Telefon:</strong><br>
+                    <a href="tel:{{ site_settings.phone }}">{{ site_settings.phone }}</a>
+                </p>
+                {% endif %}
+                
+                {% if site_settings.email %}
+                <p>
+                    <strong>📧 E-posta:</strong><br>
+                    <a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a>
+                </p>
+                {% endif %}
+            </div>
+            
+            <!-- Social Media Links -->
+            {% if site_settings.facebook_url or site_settings.instagram_url or site_settings.twitter_url or site_settings.linkedin_url %}
+            <div class="divider"></div>
+            <div class="social-links">
+                {% if site_settings.facebook_url %}
+                <a href="{{ site_settings.facebook_url }}" title="Facebook" target="_blank">f</a>
+                {% endif %}
+                
+                {% if site_settings.instagram_url %}
+                <a href="{{ site_settings.instagram_url }}" title="Instagram" target="_blank">📷</a>
+                {% endif %}
+                
+                {% if site_settings.twitter_url %}
+                <a href="{{ site_settings.twitter_url }}" title="Twitter" target="_blank">🐦</a>
+                {% endif %}
+                
+                {% if site_settings.linkedin_url %}
+                <a href="{{ site_settings.linkedin_url }}" title="LinkedIn" target="_blank">in</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div class="divider"></div>
+            
+            <!-- Unsubscribe Link -->
+            <div class="unsubscribe">
+                <p>
+                    Bu e-postayı almak istemiyorsanız, 
+                    <a href="{{ unsubscribe_url }}">buraya tıklayarak</a> 
+                    aboneliğinizden çıkabilirsiniz.
+                </p>
+                <p style="margin-top: 10px;">
+                    © {{ current_year }} Tüm hakları saklıdır.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

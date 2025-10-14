@@ -260,6 +260,10 @@ else:
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Your email password or app password
     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@yourdomain.com')
 
+# Site Domain for Newsletter Unsubscribe Links (used in cron jobs)
+SITE_PROTOCOL = os.getenv('SITE_PROTOCOL', 'https' if not DEBUG else 'http')
+SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'www.realinvestgayrimenkul.com' if not DEBUG else 'localhost:8000')
+
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
@@ -367,16 +371,21 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["auth", "properties"],
+    "order_with_respect_to": [
+        "auth",
+        "properties",
+    ],
 
     # Custom links to append to app groups, keyed on app name
     "custom_links": {
-        "properties": [{
-            "name": "İstatistikler", 
-            "url": "admin:index", 
-            "icon": "fas fa-chart-bar",
-            "permissions": ["properties.view_listing"]
-        }]
+        "properties": [
+            {
+                "name": "📊 İstatistikler", 
+                "url": "admin:index", 
+                "icon": "fas fa-chart-bar",
+                "permissions": ["properties.view_listing"]
+            },
+        ]
     },
 
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.5.0,5.6.0,5.6.1,5.6.3,5.7.0,5.7.1,5.7.2,5.8.0,5.8.1,5.8.2,5.9.0,5.10.0,5.10.1,5.10.2,5.11.0,5.11.1,5.11.2,5.12.0,5.12.1,5.13.0,5.13.1,5.14.0,5.15.0,5.15.1,5.15.2,5.15.3,5.15.4&s=solid
@@ -391,6 +400,10 @@ JAZZMIN_SETTINGS = {
         "properties.ConstructionImage": "fas fa-camera",
         "properties.ContactMessage": "fas fa-envelope",
         "properties.About": "fas fa-info-circle",
+        "properties.Newsletter": "fas fa-newspaper",
+        "properties.NewsletterSubscriber": "fas fa-users",
+        "properties.NewsletterLog": "fas fa-list-alt",
+        "properties.PopupSettings": "fas fa-window-restore",
     },
     # Icons that are used when one is not manually specified
     "default_icon_parents": "fas fa-chevron-circle-right",

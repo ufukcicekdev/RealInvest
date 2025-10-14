@@ -738,3 +738,326 @@ class VisibleCustomSection(models.Model):
     def __str__(self):
         return f"{self.about} - {self.custom_section} (Sıra: {self.order})"
 
+
+class NewsletterSubscriber(models.Model):
+    """
+    Newsletter subscribers - email bülteni aboneleri
+    """
+    email = models.EmailField(unique=True, verbose_name="E-posta")
+    name = models.CharField(max_length=100, verbose_name="Ad Soyad")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif", help_text="Abonelik aktif mi?")
+    subscribed_date = models.DateTimeField(auto_now_add=True, verbose_name="Abone Olma Tarihi")
+    unsubscribed_date = models.DateTimeField(null=True, blank=True, verbose_name="Abonelikten Çıkma Tarihi")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP Adresi")
+    
+    # Unsubscribe token for secure unsubscribe links
+    unsubscribe_token = models.CharField(max_length=64, unique=True, blank=True, verbose_name="Abonelik İptal Tokeni")
+    
+    class Meta:
+        verbose_name = 'Bülten Abonesi'
+        verbose_name_plural = 'Bülten Aboneleri'
+        ordering = ['-subscribed_date']
+    
+    def __str__(self):
+        return f"{self.name} ({self.email})"
+    
+    def save(self, *args, **kwargs):
+        # Generate unsubscribe token if not exists
+        if not self.unsubscribe_token:
+            import secrets
+            self.unsubscribe_token = secrets.token_urlsafe(32)
+        super().save(*args, **kwargs)
+
+
+class Newsletter(models.Model):
+    """
+    Newsletter campaigns - bülten kampanyaları
+    """
+    STATUS_CHOICES = (
+        ('draft', 'Taslak'),
+        ('scheduled', 'Zamanlanmış'),
+        ('sending', 'Gönderiliyor'),
+        ('sent', 'Gönderildi'),
+        ('failed', 'Başarısız'),
+    )
+    
+    title = models.CharField(max_length=200, verbose_name="Başlık")
+    subject = models.CharField(max_length=200, verbose_name="E-posta Konusu")
+    content = models.TextField(verbose_name="İçerik", help_text="HTML içerik kullanabilirsiniz")
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', verbose_name="Durum")
+    
+    # Scheduling
+    scheduled_date = models.DateTimeField(null=True, blank=True, verbose_name="Gönderim Zamanı", help_text="Boş bırakılırsa hemen gönderilir")
+    sent_date = models.DateTimeField(null=True, blank=True, verbose_name="Gönderilme Tarihi")
+    
+    # Statistics
+    total_recipients = models.IntegerField(default=0, verbose_name="Toplam Alıcı")
+    sent_count = models.IntegerField(default=0, verbose_name="Gönderilen")
+    failed_count = models.IntegerField(default=0, verbose_name="Başarısız")
+    
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturma Tarihi")
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        verbose_name = 'Bülten'
+        verbose_name_plural = 'Bültenler'
+        ordering = ['-created_date']
+    
+    def __str__(self):
+        return self.title
+    
+    def _send_newsletter_background(self):
+        """
+        Send newsletter in background (called by APScheduler)
+        """
+        from django.core.mail import EmailMultiAlternatives, get_connection
+        from django.urls import reverse
+        from django.conf import settings
+        from django.utils import timezone
+        from django.template.loader import render_to_string
+        import datetime
+        
+        # Log start
+        NewsletterLog.log_info(self, f'Zamanlanmış bülten gönderimi başlatıldı (APScheduler): {self.title}')
+        
+        # Get active subscribers
+        subscribers = NewsletterSubscriber.objects.filter(is_active=True)
+        self.total_recipients = subscribers.count()
+        
+        if self.total_recipients == 0:
+            NewsletterLog.log_warning(self, 'Aktif abone bulunamadı. Bülten gönderimi atlandı.')
+            self.status = 'failed'
+            self.save()
+            return
+        
+        # Update status to sending
+        self.status = 'sending'
+        self.save()
+        
+        sent_count = 0
+        failed_count = 0
+        
+        # Get SMTP settings
+        site_settings = SiteSettings.objects.first()
+        
+        if not site_settings or not site_settings.smtp_host or not site_settings.smtp_username:
+            NewsletterLog.log_error(self, 'SMTP ayarları bulunamadı veya yapılandırılmamış.')
+            self.status = 'failed'
+            self.save()
+            return
+        
+        # Create SMTP connection
+        try:
+            connection = get_connection(
+                backend='django.core.mail.backends.smtp.EmailBackend',
+                host=site_settings.smtp_host,
+                port=site_settings.smtp_port,
+                username=site_settings.smtp_username,
+                password=site_settings.smtp_password,
+                use_tls=site_settings.smtp_use_tls,
+                fail_silently=False,
+            )
+            NewsletterLog.log_success(self, f'SMTP bağlantısı kuruldu: {site_settings.smtp_host}:{site_settings.smtp_port}')
+        except Exception as e:
+            NewsletterLog.log_error(self, f'SMTP bağlantısı başarısız', error_details=str(e))
+            self.status = 'failed'
+            self.save()
+            return
+        
+        # Send to each subscriber
+        site_domain = getattr(settings, 'SITE_DOMAIN', 'localhost:8000')
+        site_protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
+        
+        for subscriber in subscribers:
+            try:
+                # Generate unsubscribe URL
+                unsubscribe_path = reverse('newsletter_unsubscribe', args=[subscriber.unsubscribe_token])
+                unsubscribe_url = f"{site_protocol}://{site_domain}{unsubscribe_path}"
+                
+                # Generate absolute logo URL for email
+                logo_url = None
+                if site_settings.logo:
+                    # Logo URL is already absolute from CDN, use it directly
+                    logo_url = site_settings.logo.url
+                    NewsletterLog.log_info(self, f'Logo URL from storage: {logo_url}')
+                    # If it's a relative path, make it absolute
+                    if not logo_url.startswith('http'):
+                        logo_url = f"{site_protocol}://{site_domain}{logo_url}"
+                        NewsletterLog.log_info(self, f'Logo URL converted to absolute: {logo_url}')
+                    else:
+                        NewsletterLog.log_info(self, f'Logo URL is already absolute: {logo_url}')
+                
+                # Render email template with context
+                context = {
+                    'newsletter': self,
+                    'subscriber': subscriber,
+                    'site_settings': site_settings,
+                    'unsubscribe_url': unsubscribe_url,
+                    'logo_url': logo_url,
+                    'current_year': datetime.datetime.now().year,
+                }
+                
+                html_content = render_to_string('emails/newsletter.html', context)
+                
+                # Plain text version (strip HTML tags)
+                from django.utils.html import strip_tags
+                plain_content = strip_tags(self.content)
+                
+                # Send email
+                email = EmailMultiAlternatives(
+                    subject=self.subject,
+                    body=plain_content,
+                    from_email=site_settings.email_from if site_settings.email_from else site_settings.email,
+                    to=[subscriber.email],
+                    connection=connection
+                )
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+                
+                sent_count += 1
+                NewsletterLog.log_success(self, 'Email başarıyla gönderildi', subscriber_email=subscriber.email)
+                
+            except Exception as e:
+                failed_count += 1
+                NewsletterLog.log_error(self, 'Email gönderimi başarısız', subscriber_email=subscriber.email, error_details=str(e))
+        
+        # Close connection
+        try:
+            connection.close()
+        except:
+            pass
+        
+        # Update stats and status
+        self.sent_count = sent_count
+        self.failed_count = failed_count
+        self.sent_date = timezone.now()
+        
+        if sent_count == 0:
+            self.status = 'failed'
+            NewsletterLog.log_error(self, f'Bülten gönderimi başarısız: Hiçbir email gönderilemedi ({failed_count} hata)')
+        elif failed_count == 0:
+            self.status = 'sent'
+            NewsletterLog.log_success(self, f'Bülten başarıyla gönderildi: {sent_count}/{self.total_recipients} email')
+        else:
+            self.status = 'sent'
+            NewsletterLog.log_warning(self, f'Kısmi başarı: {sent_count} başarılı, {failed_count} başarısız')
+        
+        self.save()
+
+
+class PopupSettings(models.Model):
+    """
+    Newsletter popup settings - singleton model
+    """
+    enabled = models.BooleanField(default=True, verbose_name="Popup Aktif", help_text="Newsletter popup'ını göster")
+    title = models.CharField(max_length=100, default="Bültenimize Abone Olun", verbose_name="Popup Başlığı")
+    description = models.TextField(default="En son emlak fırsatları ve haberlerden haberdar olun.", verbose_name="Popup Açıklaması")
+    
+    # Display settings
+    delay_seconds = models.IntegerField(default=3, verbose_name="Gecikme (saniye)", help_text="Popup kaç saniye sonra açılsın")
+    show_on_mobile = models.BooleanField(default=True, verbose_name="Mobilde Göster")
+    
+    # Styling
+    button_text = models.CharField(max_length=50, default="Abone Ol", verbose_name="Buton Metni")
+    button_color = models.CharField(max_length=7, default="#007bff", verbose_name="Buton Rengi")
+    
+    class Meta:
+        verbose_name = 'Newsletter Popup Ayarları'
+        verbose_name_plural = 'Newsletter Popup Ayarları'
+    
+    def __str__(self):
+        return "Newsletter Popup Ayarları"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists (singleton)
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_settings(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class NewsletterLog(models.Model):
+    """
+    Newsletter send logs for tracking and debugging
+    """
+    LOG_TYPE_CHOICES = (
+        ('info', 'Bilgi'),
+        ('success', 'Başarılı'),
+        ('warning', 'Uyarı'),
+        ('error', 'Hata'),
+    )
+    
+    newsletter = models.ForeignKey(
+        Newsletter, 
+        on_delete=models.CASCADE, 
+        related_name='logs',
+        verbose_name="Bülten"
+    )
+    log_type = models.CharField(max_length=10, choices=LOG_TYPE_CHOICES, default='info', verbose_name="Log Tipi")
+    message = models.TextField(verbose_name="Mesaj")
+    
+    # Optional fields for detailed tracking
+    subscriber_email = models.EmailField(null=True, blank=True, verbose_name="Abone Email")
+    error_details = models.TextField(null=True, blank=True, verbose_name="Hata Detayları")
+    
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturma Tarihi")
+    
+    class Meta:
+        verbose_name = 'Bülten Logu'
+        verbose_name_plural = 'Bülten Logları'
+        ordering = ['-created_date']
+        indexes = [
+            models.Index(fields=['-created_date']),
+            models.Index(fields=['newsletter', '-created_date']),
+            models.Index(fields=['log_type']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_log_type_display()} - {self.newsletter.title} - {self.created_date.strftime('%Y-%m-%d %H:%M')}"
+    
+    @classmethod
+    def log_info(cls, newsletter, message, subscriber_email=None):
+        """Log an info message"""
+        return cls.objects.create(
+            newsletter=newsletter,
+            log_type='info',
+            message=message,
+            subscriber_email=subscriber_email
+        )
+    
+    @classmethod
+    def log_success(cls, newsletter, message, subscriber_email=None):
+        """Log a success message"""
+        return cls.objects.create(
+            newsletter=newsletter,
+            log_type='success',
+            message=message,
+            subscriber_email=subscriber_email
+        )
+    
+    @classmethod
+    def log_warning(cls, newsletter, message, subscriber_email=None, error_details=None):
+        """Log a warning message"""
+        return cls.objects.create(
+            newsletter=newsletter,
+            log_type='warning',
+            message=message,
+            subscriber_email=subscriber_email,
+            error_details=error_details
+        )
+    
+    @classmethod
+    def log_error(cls, newsletter, message, subscriber_email=None, error_details=None):
+        """Log an error message"""
+        return cls.objects.create(
+            newsletter=newsletter,
+            log_type='error',
+            message=message,
+            subscriber_email=subscriber_email,
+            error_details=error_details
+        )
+

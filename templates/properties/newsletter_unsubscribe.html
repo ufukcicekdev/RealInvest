@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="py-5" style="min-height: 60vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-envelope-x" style="font-size: 4rem; color: #dc3545;"></i>
+                        <h2 class="mt-4 mb-3">Bülten Aboneliğinden Çık</h2>
+                        
+                        {% if subscriber %}
+                        <p class="text-muted">
+                            <strong>{{ subscriber.name }}</strong> ({{ subscriber.email }})
+                        </p>
+                        
+                        {% if subscriber.is_active %}
+                        <p class="mb-4">
+                            Bültenimizden ayrılmak istediğinizden emin misiniz? 
+                            Artık en son emlak fırsatları ve haberlerden haberdar olamayacaksınız.
+                        </p>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-x-circle"></i> Evet, Abonelikten Çık
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary btn-lg ms-2">
+                                <i class="bi bi-arrow-left"></i> İptal
+                            </a>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Aboneliğiniz zaten pasif durumda.
+                        </div>
+                        <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+                            Ana Sayfaya Dön
+                        </a>
+                        {% endif %}
+                        
+                        {% else %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Geçersiz abonelik iptali bağlantısı.
+                        </div>
+                        <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+                            Ana Sayfaya Dön
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

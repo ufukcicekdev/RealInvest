@@ -339,6 +339,47 @@
         </div>
     </footer>
 
+    <!-- Newsletter Popup Modal -->
+    {% if popup_settings and popup_settings.enabled %}
+    <div class="modal fade" id="newsletterModal" tabindex="-1" aria-labelledby="newsletterModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="newsletterModalLabel">
+                        <i class="bi bi-envelope-heart"></i> {{ popup_settings.title }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">{{ popup_settings.description }}</p>
+                    
+                    <form id="newsletterForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="newsletter_name" class="form-label">Adınız Soyadınız</label>
+                            <input type="text" class="form-control" id="newsletter_name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newsletter_email" class="form-label">E-posta Adresiniz</label>
+                            <input type="email" class="form-control" id="newsletter_email" name="email" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="dont_show_again" name="dont_show_again">
+                            <label class="form-check-label" for="dont_show_again">
+                                Bir daha gösterme
+                            </label>
+                        </div>
+                        <div id="newsletterMessage" class="alert" style="display: none;"></div>
+                        <button type="submit" class="btn w-100" style="background-color: {{ popup_settings.button_color }}; color: white;">
+                            <i class="bi bi-envelope-check"></i> {{ popup_settings.button_text }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -347,6 +388,114 @@
     
     <!-- Custom JS -->
     <script src="{% static 'js/script.js' %}"></script>
+    
+    <!-- Newsletter Popup Script -->
+    {% if popup_settings and popup_settings.enabled %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if user has dismissed the popup
+        const newsletterDismissed = getCookie('newsletter_dismissed');
+        
+        if (!newsletterDismissed) {
+            // Show popup after delay
+            setTimeout(function() {
+                {% if popup_settings.show_on_mobile or 'not a mobile device' %}
+                const newsletterModal = new bootstrap.Modal(document.getElementById('newsletterModal'));
+                newsletterModal.show();
+                {% endif %}
+            }, {{ popup_settings.delay_seconds }}000);
+        }
+        
+        // Handle modal close button - check if "don't show again" is checked
+        const newsletterModalEl = document.getElementById('newsletterModal');
+        if (newsletterModalEl) {
+            newsletterModalEl.addEventListener('hide.bs.modal', function (event) {
+                // Check if "don't show again" checkbox is checked
+                const dontShowAgain = document.getElementById('dont_show_again');
+                if (dontShowAgain && dontShowAgain.checked) {
+                    setCookie('newsletter_dismissed', 'true', 365);
+                }
+            });
+        }
+        
+        // Handle form submission
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(newsletterForm);
+                const messageDiv = document.getElementById('newsletterMessage');
+                const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+                
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Gönderiliyor...';
+                
+                fetch('{% url "newsletter_subscribe" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (messageDiv) {
+                            messageDiv.className = 'alert alert-success';
+                            messageDiv.style.display = 'block';
+                            messageDiv.textContent = data.message;
+                        }
+                        
+                        // Cookie is now set by backend, but also set it here for immediate effect
+                        setCookie('newsletter_dismissed', 'true', 365);
+                        
+                        // Close modal after 2 seconds
+                        setTimeout(function() {
+                            const newsletterModal = bootstrap.Modal.getInstance(document.getElementById('newsletterModal'));
+                            if (newsletterModal) {
+                                newsletterModal.hide();
+                            }
+                        }, 2000);
+                    } else {
+                        if (messageDiv) {
+                            messageDiv.className = 'alert alert-danger';
+                            messageDiv.style.display = 'block';
+                            messageDiv.textContent = data.message;
+                        }
+                    }
+                })
+                .catch(error => {
+                    if (messageDiv) {
+                        messageDiv.className = 'alert alert-danger';
+                        messageDiv.style.display = 'block';
+                        messageDiv.textContent = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+                    }
+                })
+                .finally(() => {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="bi bi-envelope-check"></i> {{ popup_settings.button_text }}';
+                });
+            });
+        }
+        
+        // Cookie helper functions
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+        }
+    });
+    </script>
+    {% endif %}
     
     {% block extra_js %}{% endblock %}
 </body>

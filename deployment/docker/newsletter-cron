@@ -1,0 +1,12 @@
+# Newsletter Cron Entry for Docker
+# Bu dosyayı Dockerfile'a ekleyin
+
+# Dockerfile içinde:
+# COPY deployment/docker/newsletter-cron /etc/cron.d/newsletter-cron
+# RUN chmod 0644 /etc/cron.d/newsletter-cron
+# RUN crontab /etc/cron.d/newsletter-cron
+
+# Her dakika çalış
+* * * * * cd /app && python manage.py send_scheduled_newsletters >> /app/logs/cron_newsletter.log 2>&1
+
+# Boş satır gerekli (cron dosyası standardı)
