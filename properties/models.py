@@ -680,12 +680,33 @@ class SEOSettings(models.Model):
     )
     
     page_type = models.CharField(max_length=20, choices=PAGE_TYPES, unique=True, verbose_name="Sayfa Türü")
+    
+    # Basic Meta Tags
     meta_title = models.CharField(max_length=60, blank=True, verbose_name="Meta Başlık", help_text="Tarayıcı sekmesinde görünen başlık (en fazla 60 karakter)")
     meta_description = models.CharField(max_length=160, blank=True, verbose_name="Meta Açıklama", help_text="Arama motorlarında görünen açıklama (en fazla 160 karakter)")
+    meta_keywords = models.CharField(max_length=255, blank=True, verbose_name="Meta Anahtar Kelimeler", help_text="Virgülle ayrılmış anahtar kelimeler (örn: emlak, gayrimenkul, satılık)")
+    canonical_url = models.URLField(blank=True, verbose_name="Canonical URL", help_text="Sayfanın kanonik URL'si (opsiyonel, otomatik oluşturulur)")
+    
+    # Robots Meta Tag
+    ROBOTS_CHOICES = (
+        ('index,follow', 'Index, Follow - Sayfa indexlensin ve linkler takip edilsin'),
+        ('noindex,follow', 'No Index, Follow - Sayfa indexlenmesin ama linkler takip edilsin'),
+        ('index,nofollow', 'Index, No Follow - Sayfa indexlensin ama linkler takip edilmesin'),
+        ('noindex,nofollow', 'No Index, No Follow - Sayfa indexlenmesin ve linkler takip edilmesin'),
+    )
+    robots = models.CharField(max_length=30, choices=ROBOTS_CHOICES, default='index,follow', verbose_name="Robots Meta Tag", help_text="Arama motoru botları için talimatlar")
+    
+    # Open Graph Tags
     og_title = models.CharField(max_length=60, blank=True, verbose_name="Open Graph Başlık", help_text="Sosyal medya platformlarında paylaşıldığında görünen başlık")
     og_description = models.CharField(max_length=255, blank=True, verbose_name="Open Graph Açıklama", help_text="Sosyal medya platformlarında paylaşıldığında görünen açıklama")
-    og_image = models.ImageField(upload_to='seo/', blank=True, null=True, verbose_name="Open Graph Görseli", help_text="Sosyal medya platformlarında paylaşıldığında görünen görsel")
+    og_image = models.ImageField(upload_to='seo/', blank=True, null=True, verbose_name="Open Graph Görseli", help_text="Sosyal medya platformlarında paylaşıldığında görünen görsel (1200x630px önerilir)")
     og_image_alt = models.CharField(max_length=255, blank=True, verbose_name="Open Graph Görsel Açıklaması", help_text="Open Graph görseli için alternatif metin")
+    og_type = models.CharField(max_length=50, default='website', verbose_name="Open Graph Type", help_text="İçerik tipi (örn: website, article)")
+    
+    # Twitter Card Tags
+    twitter_card = models.CharField(max_length=50, default='summary_large_image', verbose_name="Twitter Card Tipi", help_text="Twitter kartı tipi (summary, summary_large_image, player, app)")
+    twitter_site = models.CharField(max_length=50, blank=True, verbose_name="Twitter Site", help_text="Twitter kullanıcı adı (örn: @emlak)")
+    twitter_creator = models.CharField(max_length=50, blank=True, verbose_name="Twitter Creator", help_text="İçerik oluşturan Twitter kullanıcı adı")
     
     # JSON-LD structured data
     structured_data = models.TextField(blank=True, verbose_name="Yapılandırılmış Veri (JSON-LD)", help_text="Sayfa için özel JSON-LD yapılandırılmış veri")

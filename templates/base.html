@@ -4,10 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
+    
+    <!-- Primary Meta Tags -->
     <title>{% block title %}{% if seo_settings and seo_settings.meta_title %}{{ seo_settings.meta_title }}{% else %}Emlak{% endif %}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{% if seo_settings and seo_settings.meta_description %}{{ seo_settings.meta_description }}{% else %}Profesyonel emlak hizmetleri. Daire, villa, arsa ve diğer gayrimenkuller için en iyi fiyatlar.{% endif %}{% endblock %}">
+    {% if seo_settings and seo_settings.meta_keywords %}
+    <meta name="keywords" content="{{ seo_settings.meta_keywords }}">
+    {% endif %}
+    {% if seo_settings and seo_settings.robots %}
+    <meta name="robots" content="{{ seo_settings.robots }}">
+    {% else %}
+    <meta name="robots" content="index,follow">
+    {% endif %}
+    
+    <!-- Canonical URL -->
+    {% if seo_settings and seo_settings.canonical_url %}
+    <link rel="canonical" href="{{ seo_settings.canonical_url }}">
+    {% else %}
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+    {% endif %}
     
     <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="{% if seo_settings and seo_settings.og_type %}{{ seo_settings.og_type }}{% else %}website{% endif %}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+    <meta property="og:locale" content="tr_TR">
     {% if seo_settings %}
         {% if seo_settings.og_title %}
         <meta property="og:title" content="{{ seo_settings.og_title }}">
@@ -17,9 +37,32 @@
         {% endif %}
         {% if seo_settings.og_image %}
         <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ seo_settings.og_image.url }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
         {% endif %}
         {% if seo_settings.og_image_alt %}
         <meta property="og:image:alt" content="{{ seo_settings.og_image_alt }}">
+        {% endif %}
+    {% endif %}
+    
+    <!-- Twitter Card Meta Tags -->
+    {% if seo_settings %}
+        <meta name="twitter:card" content="{% if seo_settings.twitter_card %}{{ seo_settings.twitter_card }}{% else %}summary_large_image{% endif %}">
+        {% if seo_settings.twitter_site %}
+        <meta name="twitter:site" content="{{ seo_settings.twitter_site }}">
+        {% endif %}
+        {% if seo_settings.twitter_creator %}
+        <meta name="twitter:creator" content="{{ seo_settings.twitter_creator }}">
+        {% endif %}
+        {% if seo_settings.og_title %}
+        <meta name="twitter:title" content="{{ seo_settings.og_title }}">
+        {% endif %}
+        {% if seo_settings.og_description %}
+        <meta name="twitter:description" content="{{ seo_settings.og_description }}">
+        {% endif %}
+        {% if seo_settings.og_image %}
+        <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ seo_settings.og_image.url }}">
+        <meta name="twitter:image:alt" content="{{ seo_settings.og_image_alt }}">
         {% endif %}
     {% endif %}
     

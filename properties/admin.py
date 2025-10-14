@@ -405,14 +405,24 @@ class SEOSettingsAdmin(admin.ModelAdmin):
         ('Sayfa Türü', {
             'fields': ('page_type',)
         }),
-        ('Meta Etiketleri', {
-            'fields': ('meta_title', 'meta_description')
+        ('Temel Meta Etiketleri', {
+            'fields': ('meta_title', 'meta_description', 'meta_keywords')
         }),
-        ('Open Graph (Sosyal Medya)', {
-            'fields': ('og_title', 'og_description', 'og_image', 'og_image_alt')
+        ('Sayfa Ayarları', {
+            'fields': ('canonical_url', 'robots'),
+            'description': 'Canonical URL ve arama motoru bot ayarları'
+        }),
+        ('Open Graph (Facebook, LinkedIn)', {
+            'fields': ('og_type', 'og_title', 'og_description', 'og_image', 'og_image_alt'),
+            'description': 'Sosyal medya platformlarında paylaşım için Open Graph ayarları. İdeal görsel boyutu: 1200x630px'
+        }),
+        ('Twitter Card', {
+            'fields': ('twitter_card', 'twitter_site', 'twitter_creator'),
+            'description': 'Twitter paylaşımları için özel ayarlar'
         }),
         ('Yapılandırılmış Veri', {
-            'fields': ('structured_data',)
+            'fields': ('structured_data',),
+            'description': 'JSON-LD formatında yapılandırılmış veri (gelişmiş kullanıcılar için)'
         }),
     )
     
