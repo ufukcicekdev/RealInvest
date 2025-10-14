@@ -1,0 +1,46 @@
+{% load static %}
+
+<style>
+/* Template 2 - Minimal Header Styles */
+.template2-active .navbar {
+    padding: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.template2-active .navbar-brand {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.template2-active .navbar-brand .logo-img {
+    height: 35px !important;
+    width: 120px !important;
+}
+
+.template2-active .nav-link {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0 0.5rem;
+    padding: 0.4rem 0.8rem;
+    color: #555;
+    letter-spacing: 0.5px;
+}
+
+.template2-active .nav-link:hover,
+.template2-active .nav-link.active {
+    color: #667eea;
+}
+
+.template2-active .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 1px;
+    background: #667eea;
+}
+</style>

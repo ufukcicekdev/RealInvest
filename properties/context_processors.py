@@ -19,9 +19,17 @@ def about_info(request):
     listings_count = Listing.objects.filter(is_active=True).count()
     constructions_count = Construction.objects.filter(is_active=True).count()
     
+    # Get template class for body
+    template_class = ''
+    if about_content and about_content.homepage_template:
+        template_class = f"{about_content.homepage_template}-active"
+    else:
+        template_class = 'template1-active'  # Default template
+    
     return {
         'about': about_content,
         'global_site_settings': site_settings,
         'listings_count': listings_count,
-        'constructions_count': constructions_count
+        'constructions_count': constructions_count,
+        'template_class': template_class,  # Add template class globally
     }

@@ -2,375 +2,392 @@
 {% load banner_filters %}
 
 <style>
-/* Template 1 - Large Banner: Prominent full-height banner with contained carousel */
-.template1 {
+/* Template 3 - Bold Header Styles */
+.template3-active .navbar {
+    padding: 1rem 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.template3-active .navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff !important;
+}
+
+.template3-active .navbar-brand .logo-img {
+    height: 55px !important;
+    width: 200px !important;
+}
+
+.template3-active .nav-link {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 1rem;
+    padding: 0.7rem 1.2rem;
+    color: rgba(255,255,255,0.9) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.template3-active .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: #ff6b35;
+    transition: width 0.3s ease;
+}
+
+.template3-active .nav-link:hover,
+.template3-active .nav-link.active {
+    color: #ff6b35 !important;
+}
+
+.template3-active .nav-link:hover::before,
+.template3-active .nav-link.active::before {
+    width: 100%;
+}
+
+.template3-active .navbar-toggler {
+    border-color: rgba(255,255,255,0.3);
+}
+
+.template3-active .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Template 3 - Featured Focus: High-impact visuals with enhanced text readability */
+.template3 {
     position: relative;
     width: 100%;
 }
 
-/* Hero Section Container - ULTRA STRICT CONTAINMENT */
-.template1 .hero-section {
+/* Hero Section Container - MEDIUM HEIGHT WITH STRONG FOCUS */
+.template3 .hero-section {
     position: relative;
-    width: 100vw;
+    width: 100%;
     max-width: 100%;
-    height: 100vh;
-    min-height: 600px;
-    max-height: 100vh;
+    height: 75vh;
+    min-height: 500px;
+    max-height: 700px;
     overflow: hidden !important;
-    background: #000;
+    background: #1a1a2e;
     contain: layout style size !important;
     isolation: isolate;
-    transform: translateZ(0);
 }
 
-/* Carousel Container - ABSOLUTE CONTAINMENT */
-.template1 #bannerCarousel1 {
+/* Carousel Container */
+.template3 #bannerCarousel3 {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
     z-index: 1;
     overflow: hidden !important;
-    contain: layout style size !important;
-    clip-path: inset(0);
 }
 
-/* Carousel Inner Container - BOOTSTRAP COMPATIBLE */
-.template1 .carousel-inner {
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    overflow: hidden !important;
-    display: block !important;
-    visibility: visible !important;
-}
-
-/* Individual Carousel Items - BOOTSTRAP COMPATIBLE */
-.template1 .carousel-item {
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    overflow: hidden !important;
-    display: none !important;
-    align-items: center;
-    justify-content: center;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-}
-
-.template1 .carousel-item.active {
-    display: block !important;
-}
-
-/* Banner Images - VISIBLE AND CONTAINED */
-.template1 .hero-carousel-image {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    z-index: 1 !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Content Overlay - CONTAINED */
-.template1 .hero-content {
+/* Dark Overlay for Better Text Readability */
+.template3 .carousel-item::after {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    padding: 2rem;
-    overflow: hidden;
-    box-sizing: border-box;
+    background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 100%);
+    z-index: 2;
 }
 
-/* Alternative Text Styling - NO OVERFLOW */
-.template1 .alt-text {
-    position: absolute;
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-    z-index: 15;
-    max-width: 80%;
-    text-align: center;
-    overflow: hidden;
-    word-wrap: break-word;
+/* Carousel Inner */
+.template3 .carousel-inner {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    display: block !important;
 }
 
-/* Banner Button Styling - CONTAINED */
-.template1 .btn-banner {
-    position: absolute;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    text-decoration: none;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: all 0.4s ease;
-    z-index: 20;
-    backdrop-filter: blur(10px);
-    max-width: 80%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+/* Carousel Items */
+.template3 .carousel-item {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    display: none !important;
 }
 
-.template1 .btn-banner:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-    text-decoration: none;
+.template3 .carousel-item.active {
+    display: block !important;
 }
 
-/* Carousel Controls */
-.template1 .carousel-control-prev,
-.template1 .carousel-control-next {
+/* Banner Images - STRONG VISUAL IMPACT */
+.template3 .hero-carousel-image {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    z-index: 1 !important;
+    transform: scale(1.05);
+    transition: transform 8s ease-out;
+}
+
+.template3 .carousel-item.active .hero-carousel-image {
+    transform: scale(1);
+}
+
+/* Content Overlay - LEFT ALIGNED FOR IMPACT */
+.template3 .hero-content {
     position: absolute;
     top: 0;
-    width: 8%;
+    left: 0;
+    width: 100%;
     height: 100%;
-    z-index: 25;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 10;
+    padding: 3rem 5rem;
 }
 
-.template1 .carousel-control-prev:hover,
-.template1 .carousel-control-next:hover {
-    opacity: 1;
-}
-
-.template1 .carousel-control-prev-icon,
-.template1 .carousel-control-next-icon {
-    width: 3rem;
-    height: 3rem;
-    background-color: rgba(0,0,0,0.6);
-    border-radius: 50%;
-    backdrop-filter: blur(10px);
-}
-
-/* Carousel Indicators */
-.template1 .carousel-indicators {
+/* Alternative Text - BOLD & READABLE */
+.template3 .alt-text {
     position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 25;
-    margin: 0;
+    font-size: 3rem;
+    font-weight: 800;
+    text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
+    z-index: 15;
+    max-width: 600px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    padding: 1.5rem;
+    border-left: 5px solid currentColor;
+    backdrop-filter: blur(5px);
 }
 
-.template1 .carousel-indicators button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin: 0 0.5rem;
-    background-color: rgba(255,255,255,0.5);
-    border: 2px solid rgba(255,255,255,0.8);
+/* Banner Button - PROMINENT CTA */
+.template3 .btn-banner {
+    position: absolute;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 1.2rem 3rem;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    transition: all 0.4s ease;
+    z-index: 20;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    overflow: hidden;
+}
+
+.template3 .btn-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.template3 .btn-banner:hover::before {
+    left: 100%;
+}
+
+.template3 .btn-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+}
+
+/* Carousel Controls - MODERN DESIGN */
+.template3 .carousel-control-prev,
+.template3 .carousel-control-next {
+    width: 60px;
+    height: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.7;
     transition: all 0.3s ease;
 }
 
-.template1 .carousel-indicators button.active {
-    background-color: rgba(255,255,255,0.9);
-    transform: scale(1.2);
+.template3 .carousel-control-prev {
+    left: 30px;
+}
+
+.template3 .carousel-control-next {
+    right: 30px;
+}
+
+.template3 .carousel-control-prev:hover,
+.template3 .carousel-control-next:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.template3 .carousel-control-prev-icon,
+.template3 .carousel-control-next-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+/* Carousel Indicators - MODERN BAR STYLE */
+.template3 .carousel-indicators {
+    bottom: 2rem;
+    margin: 0;
+    left: 5rem;
+    justify-content: flex-start;
+}
+
+.template3 .carousel-indicators button {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    margin: 0 0.3rem;
+    background-color: rgba(255,255,255,0.4);
+    border: none;
+    transition: all 0.4s ease;
+}
+
+.template3 .carousel-indicators button.active {
+    width: 60px;
+    background-color: rgba(255,255,255,0.95);
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .template1 .hero-section {
-        height: 90vh;
-        min-height: 500px;
+    .template3 .hero-content {
+        padding: 2.5rem 4rem;
     }
-    .template1 .alt-text {
-        font-size: 1.3rem;
-    }
-    .template1 .btn-banner {
-        font-size: 1.1rem;
-        padding: 0.9rem 1.8rem;
+    .template3 .alt-text {
+        font-size: 2.5rem;
     }
 }
 
 @media (max-width: 992px) {
-    .template1 .hero-section {
-        height: 80vh;
+    .template3 .hero-section {
+        height: 65vh;
         min-height: 450px;
     }
-    .template1 .alt-text {
-        font-size: 1.2rem;
+    .template3 .hero-content {
+        padding: 2rem 3rem;
     }
-    .template1 .btn-banner {
+    .template3 .alt-text {
+        font-size: 2rem;
+        max-width: 500px;
+    }
+    .template3 .btn-banner {
         font-size: 1rem;
-        padding: 0.8rem 1.6rem;
-    }
-    .template1 .carousel-control-prev,
-    .template1 .carousel-control-next {
-        width: 10%;
+        padding: 1rem 2.5rem;
     }
 }
 
 @media (max-width: 768px) {
-    .template1 .hero-section {
-        height: 70vh;
+    .template3 .hero-section {
+        height: 55vh;
         min-height: 400px;
     }
-    .template1 .hero-content {
-        padding: 1.5rem;
+    .template3 .hero-content {
+        padding: 1.5rem 2rem;
+        justify-content: center;
+        text-align: center;
     }
-    .template1 .alt-text {
-        font-size: 1.1rem;
-        max-width: 90%;
+    .template3 .alt-text {
+        font-size: 1.7rem;
+        border-left: none;
+        border-top: 3px solid currentColor;
+        padding: 1rem;
     }
-    .template1 .btn-banner {
-        font-size: 0.9rem;
-        padding: 0.7rem 1.4rem;
-    }
-    .template1 .carousel-control-prev-icon,
-    .template1 .carousel-control-next-icon {
-        width: 2.5rem;
-        height: 2.5rem;
+    .template3 .carousel-indicators {
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
     }
 }
 
 @media (max-width: 576px) {
-    .template1 .hero-section {
-        height: 60vh;
+    .template3 .hero-section {
+        height: 50vh;
         min-height: 350px;
     }
-    .template1 .hero-content {
-        padding: 1rem;
+    .template3 .hero-content {
+        padding: 1rem 1.5rem;
     }
-    .template1 .alt-text {
-        font-size: 1rem;
-        max-width: 95%;
+    .template3 .alt-text {
+        font-size: 1.4rem;
     }
-    .template1 .btn-banner {
-        font-size: 0.85rem;
-        padding: 0.6rem 1.2rem;
-    }
-    .template1 .carousel-indicators {
-        bottom: 1rem;
-    }
-    .template1 .carousel-indicators button {
-        width: 10px;
-        height: 10px;
-        margin: 0 0.3rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .template1 .hero-section {
-        height: 55vh;
-        min-height: 300px;
-    }
-    .template1 .alt-text {
+    .template3 .btn-banner {
         font-size: 0.9rem;
+        padding: 0.9rem 2rem;
+        letter-spacing: 1px;
     }
-    .template1 .btn-banner {
-        font-size: 0.8rem;
-        padding: 0.5rem 1rem;
-    }
-}
-
-/* Ensure no overflow outside hero-section - CRITICAL CONTAINMENT */
-.template1 * {
-    box-sizing: border-box;
-}
-
-.template1 .hero-section * {
-    max-width: 100% !important;
-    max-height: 100% !important;
-}
-
-.template1 .carousel-item {
-    transform: none !important;
-    will-change: auto;
-}
-
-.template1 .carousel-item.active {
-    display: flex !important;
-}
-
-.template1 .carousel-item:not(.active) {
-    display: none !important;
-}
-
-/* Force containment for all carousel elements */
-.template1 .carousel-inner,
-.template1 .carousel-item,
-.template1 .hero-carousel-image,
-.template1 .hero-content {
-    contain: layout style size !important;
 }
 </style>
 
-<div class="homepage-template template1">
+<div class="homepage-template template3">
     <section class="hero-section">
         {% if banner_images %}
-        <div id="bannerCarousel1" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div id="bannerCarousel3" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
             <div class="carousel-inner">
                 {% for banner in banner_images %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
                     <img src="{{ banner.image.url }}" 
                          class="hero-carousel-image" 
-                         alt="{{ banner.alt_text|default:'Banner image' }}">
+                         alt="{% if banner.alt_text %}{{ banner.alt_text }}{% endif %}">
                     
                     <div class="hero-content">
-                        {% if banner.alt_text %}
-                        <div class="alt-text" 
-                             style="color: {{ banner.alt_text_color|default:'#ffffff' }}; {{ banner.alt_text_position|get_alt_text_position_style }}">
-                            {{ banner.alt_text }}
+                        <div>
+                            {% if banner.alt_text %}
+                            <div class="alt-text" 
+                                 style="color: {{ banner.alt_text_color|default:'#ffffff' }}; {{ banner.alt_text_position|get_alt_text_position_style }}">
+                                {{ banner.alt_text }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if banner.button_text %}
+                            <a href="{{ banner.button_link }}" 
+                               class="btn btn-banner" 
+                               style="background: {{ banner.button_background_color|default:'#ff6b35' }}; 
+                                      color: {{ banner.button_text_color|default:'#ffffff' }}; 
+                                      {{ banner.button_position|get_position_style }}">
+                                {{ banner.button_text }}
+                            </a>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                        
-                        {% if banner.button_text %}
-                        <a href="{{ banner.button_link }}" 
-                           class="btn btn-banner" 
-                           style="background: {{ banner.button_background_color|default:'#6a11cb' }}; 
-                                  color: {{ banner.button_text_color|default:'#ffffff' }}; 
-                                  {{ banner.button_position|get_position_style }}">
-                            {{ banner.button_text }}
-                        </a>
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
             </div>
 
             {% if banner_images|length > 1 %}
-            <!-- Carousel Navigation Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel1" data-bs-slide="prev">
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel3" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Önceki</span>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel1" data-bs-slide="next">
+            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel3" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Sonraki</span>
             </button>
 
-            <!-- Carousel Indicators -->
             <div class="carousel-indicators">
                 {% for banner in banner_images %}
                 <button type="button" 
-                        data-bs-target="#bannerCarousel1" 
+                        data-bs-target="#bannerCarousel3" 
                         data-bs-slide-to="{{ forloop.counter0 }}"
                         {% if forloop.first %}class="active" aria-current="true"{% endif %}
                         aria-label="Slide {{ forloop.counter }}"></button>
@@ -379,10 +396,9 @@
             {% endif %}
         </div>
         {% else %}
-        <!-- Fallback content when no banner images -->
         <div class="hero-content">
             <div class="alt-text" style="color: #ffffff;">
-                Hoşgeldiniz - Banner görüntüleri yükleyin
+                Featured Focus Design
             </div>
         </div>
         {% endif %}

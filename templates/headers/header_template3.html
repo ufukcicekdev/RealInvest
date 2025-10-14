@@ -1,0 +1,63 @@
+{% load static %}
+
+<style>
+/* Template 3 - Bold Header Styles */
+.template3-active .navbar {
+    padding: 1rem 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.template3-active .navbar-brand {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff !important;
+}
+
+.template3-active .navbar-brand .logo-img {
+    height: 55px !important;
+    width: 200px !important;
+}
+
+.template3-active .nav-link {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 1rem;
+    padding: 0.7rem 1.2rem;
+    color: rgba(255,255,255,0.9) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.template3-active .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: #ff6b35;
+    transition: width 0.3s ease;
+}
+
+.template3-active .nav-link:hover,
+.template3-active .nav-link.active {
+    color: #ff6b35 !important;
+}
+
+.template3-active .nav-link:hover::before,
+.template3-active .nav-link.active::before {
+    width: 100%;
+}
+
+.template3-active .navbar-toggler {
+    border-color: rgba(255,255,255,0.3);
+}
+
+.template3-active .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+</style>

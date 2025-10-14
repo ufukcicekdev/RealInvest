@@ -62,6 +62,19 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
+    <!-- Template-Specific Header Styles -->
+    {% if about.homepage_template == 'template1' %}
+        {% include 'headers/header_template1.html' %}
+    {% elif about.homepage_template == 'template2' %}
+        {% include 'headers/header_template2.html' %}
+    {% elif about.homepage_template == 'template3' %}
+        {% include 'headers/header_template3.html' %}
+    {% elif about.homepage_template == 'template4' %}
+        {% include 'headers/header_template4.html' %}
+    {% else %}
+        {% include 'headers/header_template1.html' %}
+    {% endif %}
+    
     {% block extra_css %}{% endblock %}
     
     <!-- Structured Data -->
@@ -95,7 +108,8 @@
     {% endif %}
     {% endblock %}
 </head>
-<body>
+<body class="{{ template_class }}{% block body_class %}{% endblock %}">
+    <!-- DEBUG: Template Class = {{ template_class }} -->
     <!-- Header / Navigation -->
     <header class="header-section">
         <nav class="navbar navbar-expand-lg navbar-light sticky-top">

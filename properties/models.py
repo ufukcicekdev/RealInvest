@@ -476,13 +476,13 @@ class BannerImage(models.Model):
         verbose_name_plural = 'Banner Görselleri'
     
     def save(self, *args, **kwargs):
-        if not self.alt_text and self.image:
-            # Generate alt text from image name if not provided
-            self.alt_text = self.image.name.split('/')[-1].split('.')[0].replace('-', ' ').replace('_', ' ').title()
+        # Don't auto-generate alt_text - let user decide if they want it
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Banner Görseli - {self.alt_text}"
+        if self.alt_text:
+            return f"Banner Görseli - {self.alt_text}"
+        return f"Banner Görseli #{self.id}"
 
 
 class CustomSection(models.Model):

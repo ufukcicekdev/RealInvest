@@ -331,7 +331,7 @@
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
                     <img src="{{ banner.image.url }}" 
                          class="hero-carousel-image" 
-                         alt="{{ banner.alt_text|default:'Banner image' }}">
+                         alt="{% if banner.alt_text %}{{ banner.alt_text }}{% endif %}">
                     
                     <div class="hero-content">
                         {% if banner.alt_text %}

@@ -2,336 +2,274 @@
 {% load banner_filters %}
 
 <style>
-/* Template 1 - Large Banner: Prominent full-height banner with contained carousel */
-.template1 {
+/* Template 2 - Minimal Header Styles */
+.template2-active .navbar {
+    padding: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.template2-active .navbar-brand {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.template2-active .navbar-brand .logo-img {
+    height: 35px !important;
+    width: 120px !important;
+}
+
+.template2-active .nav-link {
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin: 0 0.5rem;
+    padding: 0.4rem 0.8rem;
+    color: #555;
+    text-transform: lowercase;
+    letter-spacing: 0.5px;
+}
+
+.template2-active .nav-link:hover,
+.template2-active .nav-link.active {
+    color: #667eea;
+}
+
+.template2-active .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 1px;
+    background: #667eea;
+}
+
+/* Template 2 - Minimal: Clean, compact design with subtle elements */
+.template2 {
     position: relative;
     width: 100%;
 }
 
-/* Hero Section Container - ULTRA STRICT CONTAINMENT */
-.template1 .hero-section {
+/* Hero Section Container - COMPACT & MINIMAL */
+.template2 .hero-section {
     position: relative;
-    width: 100vw;
+    width: 100%;
     max-width: 100%;
-    height: 100vh;
-    min-height: 600px;
-    max-height: 100vh;
+    height: 50vh;
+    min-height: 400px;
+    max-height: 500px;
     overflow: hidden !important;
-    background: #000;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     contain: layout style size !important;
     isolation: isolate;
-    transform: translateZ(0);
 }
 
-/* Carousel Container - ABSOLUTE CONTAINMENT */
-.template1 #bannerCarousel1 {
+/* Carousel Container - MINIMAL */
+.template2 #bannerCarousel2 {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
     z-index: 1;
     overflow: hidden !important;
     contain: layout style size !important;
-    clip-path: inset(0);
 }
 
-/* Carousel Inner Container - BOOTSTRAP COMPATIBLE */
-.template1 .carousel-inner {
+/* Carousel Inner Container */
+.template2 .carousel-inner {
     position: relative !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
     overflow: hidden !important;
     display: block !important;
-    visibility: visible !important;
 }
 
-/* Individual Carousel Items - BOOTSTRAP COMPATIBLE */
-.template1 .carousel-item {
+/* Individual Carousel Items */
+.template2 .carousel-item {
     position: relative !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
     overflow: hidden !important;
     display: none !important;
-    align-items: center;
-    justify-content: center;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
 }
 
-.template1 .carousel-item.active {
+.template2 .carousel-item.active {
     display: block !important;
 }
 
-/* Banner Images - VISIBLE AND CONTAINED */
-.template1 .hero-carousel-image {
+/* Banner Images - SUBTLE OPACITY */
+.template2 .hero-carousel-image {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
     object-fit: cover !important;
     object-position: center !important;
     z-index: 1 !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    opacity: 0.85 !important;
+    filter: brightness(0.9);
 }
 
-/* Content Overlay - CONTAINED */
-.template1 .hero-content {
+/* Content Overlay - CENTERED & MINIMAL */
+.template2 .hero-content {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    max-width: 100%;
-    max-height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
     padding: 2rem;
-    overflow: hidden;
-    box-sizing: border-box;
 }
 
-/* Alternative Text Styling - NO OVERFLOW */
-.template1 .alt-text {
+/* Alternative Text Styling - CLEAN & CENTERED */
+.template2 .alt-text {
     position: absolute;
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     z-index: 15;
-    max-width: 80%;
-    text-align: center;
-    overflow: hidden;
-    word-wrap: break-word;
+    max-width: 700px;
+    line-height: 1.4;
 }
 
-/* Banner Button Styling - CONTAINED */
-.template1 .btn-banner {
+/* Banner Button Styling - MINIMAL & ELEGANT */
+.template2 .btn-banner {
     position: absolute;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 1rem 2rem;
-    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.75rem 2rem;
+    border-radius: 30px;
     text-decoration: none;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: all 0.4s ease;
-    z-index: 20;
+    border: 2px solid rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.1);
     backdrop-filter: blur(10px);
-    max-width: 80%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    z-index: 20;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-.template1 .btn-banner:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-    text-decoration: none;
+.template2 .btn-banner:hover {
+    background: rgba(255,255,255,0.95);
+    color: #667eea !important;
+    border-color: #fff;
+    transform: translateY(-2px);
 }
 
-/* Carousel Controls */
-.template1 .carousel-control-prev,
-.template1 .carousel-control-next {
-    position: absolute;
-    top: 0;
-    width: 8%;
-    height: 100%;
-    z-index: 25;
-    opacity: 0.8;
+/* Carousel Controls - MINIMAL */
+.template2 .carousel-control-prev,
+.template2 .carousel-control-next {
+    width: 50px;
+    height: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.6;
     transition: opacity 0.3s ease;
 }
 
-.template1 .carousel-control-prev:hover,
-.template1 .carousel-control-next:hover {
+.template2 .carousel-control-prev {
+    left: 20px;
+}
+
+.template2 .carousel-control-next {
+    right: 20px;
+}
+
+.template2 .carousel-control-prev:hover,
+.template2 .carousel-control-next:hover {
     opacity: 1;
 }
 
-.template1 .carousel-control-prev-icon,
-.template1 .carousel-control-next-icon {
-    width: 3rem;
-    height: 3rem;
-    background-color: rgba(0,0,0,0.6);
+.template2 .carousel-control-prev-icon,
+.template2 .carousel-control-next-icon {
+    width: 2rem;
+    height: 2rem;
+    background-color: rgba(255,255,255,0.3);
     border-radius: 50%;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
 }
 
-/* Carousel Indicators */
-.template1 .carousel-indicators {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 25;
+/* Carousel Indicators - MINIMALIST DOTS */
+.template2 .carousel-indicators {
+    bottom: 1rem;
     margin: 0;
 }
 
-.template1 .carousel-indicators button {
-    width: 12px;
-    height: 12px;
+.template2 .carousel-indicators button {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    margin: 0 0.5rem;
-    background-color: rgba(255,255,255,0.5);
-    border: 2px solid rgba(255,255,255,0.8);
+    margin: 0 0.4rem;
+    background-color: rgba(255,255,255,0.4);
+    border: none;
     transition: all 0.3s ease;
 }
 
-.template1 .carousel-indicators button.active {
+.template2 .carousel-indicators button.active {
+    width: 24px;
+    border-radius: 4px;
     background-color: rgba(255,255,255,0.9);
-    transform: scale(1.2);
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-    .template1 .hero-section {
-        height: 90vh;
-        min-height: 500px;
-    }
-    .template1 .alt-text {
-        font-size: 1.3rem;
-    }
-    .template1 .btn-banner {
-        font-size: 1.1rem;
-        padding: 0.9rem 1.8rem;
-    }
-}
-
 @media (max-width: 992px) {
-    .template1 .hero-section {
-        height: 80vh;
-        min-height: 450px;
+    .template2 .hero-section {
+        height: 45vh;
+        min-height: 350px;
     }
-    .template1 .alt-text {
-        font-size: 1.2rem;
-    }
-    .template1 .btn-banner {
-        font-size: 1rem;
-        padding: 0.8rem 1.6rem;
-    }
-    .template1 .carousel-control-prev,
-    .template1 .carousel-control-next {
-        width: 10%;
+    .template2 .alt-text {
+        font-size: 1.7rem;
     }
 }
 
 @media (max-width: 768px) {
-    .template1 .hero-section {
-        height: 70vh;
-        min-height: 400px;
+    .template2 .hero-section {
+        height: 40vh;
+        min-height: 320px;
     }
-    .template1 .hero-content {
-        padding: 1.5rem;
+    .template2 .alt-text {
+        font-size: 1.4rem;
+        letter-spacing: 1px;
     }
-    .template1 .alt-text {
-        font-size: 1.1rem;
-        max-width: 90%;
-    }
-    .template1 .btn-banner {
-        font-size: 0.9rem;
-        padding: 0.7rem 1.4rem;
-    }
-    .template1 .carousel-control-prev-icon,
-    .template1 .carousel-control-next-icon {
-        width: 2.5rem;
-        height: 2.5rem;
+    .template2 .btn-banner {
+        font-size: 0.85rem;
+        padding: 0.65rem 1.5rem;
     }
 }
 
 @media (max-width: 576px) {
-    .template1 .hero-section {
-        height: 60vh;
-        min-height: 350px;
+    .template2 .hero-section {
+        height: 35vh;
+        min-height: 280px;
     }
-    .template1 .hero-content {
-        padding: 1rem;
+    .template2 .alt-text {
+        font-size: 1.2rem;
     }
-    .template1 .alt-text {
-        font-size: 1rem;
-        max-width: 95%;
-    }
-    .template1 .btn-banner {
-        font-size: 0.85rem;
-        padding: 0.6rem 1.2rem;
-    }
-    .template1 .carousel-indicators {
-        bottom: 1rem;
-    }
-    .template1 .carousel-indicators button {
-        width: 10px;
-        height: 10px;
-        margin: 0 0.3rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .template1 .hero-section {
-        height: 55vh;
-        min-height: 300px;
-    }
-    .template1 .alt-text {
-        font-size: 0.9rem;
-    }
-    .template1 .btn-banner {
+    .template2 .btn-banner {
         font-size: 0.8rem;
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1.3rem;
     }
-}
-
-/* Ensure no overflow outside hero-section - CRITICAL CONTAINMENT */
-.template1 * {
-    box-sizing: border-box;
-}
-
-.template1 .hero-section * {
-    max-width: 100% !important;
-    max-height: 100% !important;
-}
-
-.template1 .carousel-item {
-    transform: none !important;
-    will-change: auto;
-}
-
-.template1 .carousel-item.active {
-    display: flex !important;
-}
-
-.template1 .carousel-item:not(.active) {
-    display: none !important;
-}
-
-/* Force containment for all carousel elements */
-.template1 .carousel-inner,
-.template1 .carousel-item,
-.template1 .hero-carousel-image,
-.template1 .hero-content {
-    contain: layout style size !important;
 }
 </style>
 
-<div class="homepage-template template1">
+<div class="homepage-template template2">
     <section class="hero-section">
         {% if banner_images %}
-        <div id="bannerCarousel1" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div id="bannerCarousel2" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
             <div class="carousel-inner">
                 {% for banner in banner_images %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
                     <img src="{{ banner.image.url }}" 
                          class="hero-carousel-image" 
-                         alt="{{ banner.alt_text|default:'Banner image' }}">
+                         alt="{% if banner.alt_text %}{{ banner.alt_text }}{% endif %}">
                     
                     <div class="hero-content">
                         {% if banner.alt_text %}
@@ -344,7 +282,7 @@
                         {% if banner.button_text %}
                         <a href="{{ banner.button_link }}" 
                            class="btn btn-banner" 
-                           style="background: {{ banner.button_background_color|default:'#6a11cb' }}; 
+                           style="background: {{ banner.button_background_color|default:'#667eea' }}; 
                                   color: {{ banner.button_text_color|default:'#ffffff' }}; 
                                   {{ banner.button_position|get_position_style }}">
                             {{ banner.button_text }}
@@ -356,21 +294,19 @@
             </div>
 
             {% if banner_images|length > 1 %}
-            <!-- Carousel Navigation Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel1" data-bs-slide="prev">
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel2" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Önceki</span>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel1" data-bs-slide="next">
+            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel2" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Sonraki</span>
             </button>
 
-            <!-- Carousel Indicators -->
             <div class="carousel-indicators">
                 {% for banner in banner_images %}
                 <button type="button" 
-                        data-bs-target="#bannerCarousel1" 
+                        data-bs-target="#bannerCarousel2" 
                         data-bs-slide-to="{{ forloop.counter0 }}"
                         {% if forloop.first %}class="active" aria-current="true"{% endif %}
                         aria-label="Slide {{ forloop.counter }}"></button>
@@ -379,10 +315,9 @@
             {% endif %}
         </div>
         {% else %}
-        <!-- Fallback content when no banner images -->
         <div class="hero-content">
             <div class="alt-text" style="color: #ffffff;">
-                Hoşgeldiniz - Banner görüntüleri yükleyin
+                Minimal & Elegant Design
             </div>
         </div>
         {% endif %}

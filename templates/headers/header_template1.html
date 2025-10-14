@@ -1,0 +1,50 @@
+{% load static %}
+
+<style>
+/* Template 1 - Classic Header Styles */
+.template1-active .navbar {
+    padding: 1rem 0;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.template1-active .navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.template1-active .navbar-brand .logo-img {
+    height: 50px !important;
+    width: 180px !important;
+}
+
+.template1-active .nav-link {
+    font-weight: 600;
+    margin: 0 0.7rem;
+    color: #2c3e50;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: all 0.3s ease;
+}
+
+.template1-active .nav-link:hover,
+.template1-active .nav-link.active {
+    color: #ff6b35;
+}
+
+.template1-active .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    border-radius: 3px;
+}
+</style>
