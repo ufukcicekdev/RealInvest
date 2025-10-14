@@ -3,8 +3,9 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import render
-from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection, BannerImage
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import Listing, Construction, About, ContactMessage, Reference, SEOSettings, CustomSection, BannerImage, SiteSettings
 from .forms import ContactForm
 
 # Create your views here.
@@ -262,6 +263,77 @@ def contact(request):
                 message=form.cleaned_data['message']
             )
             contact_message.save()
+            
+            # Send email notification to admin
+            try:
+                # Get admin emails and SMTP settings from SiteSettings
+                site_settings = SiteSettings.objects.first()
+                
+                # Get email recipients from contact_email_recipients field
+                recipient_emails = []
+                if site_settings and site_settings.contact_email_recipients:
+                    # Split by comma and clean whitespace
+                    recipient_emails = [email.strip() for email in site_settings.contact_email_recipients.split(',') if email.strip()]
+                
+                # Fallback to regular email field if no recipients specified
+                if not recipient_emails and site_settings and site_settings.email:
+                    recipient_emails = [site_settings.email]
+                
+                # Check if SMTP settings are configured
+                if recipient_emails and site_settings and site_settings.smtp_username and site_settings.smtp_password:
+                    # Use custom SMTP settings from admin panel
+                    from django.core.mail import EmailMessage
+                    import smtplib
+                    from email.mime.text import MIMEText
+                    
+                    subject = f"Yeni İletişim Mesajı: {form.cleaned_data.get('subject', 'Genel')}"
+                    message_body = f"""
+Yeni bir iletişim mesajı alındı:
+
+Ad Soyad: {form.cleaned_data['name']}
+E-posta: {form.cleaned_data['email']}
+Telefon: {form.cleaned_data.get('phone', 'Belirtilmemiş')}
+Konu: {form.cleaned_data.get('subject', 'Genel')}
+
+Mesaj:
+{form.cleaned_data['message']}
+
+---
+Bu mesaj web sitenizin iletişim formu üzerinden gönderilmiştir.
+                    """
+                    
+                    try:
+                        # Create email message
+                        email = EmailMessage(
+                            subject=subject,
+                            body=message_body,
+                            from_email=site_settings.email_from or site_settings.smtp_username,
+                            to=recipient_emails,
+                        )
+                        
+                        # Configure SMTP connection
+                        smtp_host = site_settings.smtp_host or 'smtp.gmail.com'
+                        smtp_port = site_settings.smtp_port or 587
+                        
+                        connection = smtplib.SMTP(smtp_host, smtp_port)
+                        if site_settings.smtp_use_tls:
+                            connection.starttls()
+                        connection.login(site_settings.smtp_username, site_settings.smtp_password)
+                        connection.send_message(email.message())
+                        connection.quit()
+                    except Exception as smtp_error:
+                        print(f"SMTP Email gönderme hatası: {smtp_error}")
+                        # Fallback to Django's default email backend
+                        send_mail(
+                            subject=subject,
+                            message=message_body,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=recipient_emails,
+                            fail_silently=True,
+                        )
+            except Exception as e:
+                # Log error but don't show to user
+                print(f"Email gönderme hatası: {e}")
             
             messages.success(request, 'Bizimle iletişime geçtiğiniz için teşekkür ederiz! En kısa sürede size dönüş yapacağız.')
             return redirect('contact')

@@ -208,7 +208,49 @@ class SiteSettings(models.Model):
     # Contact information
     phone = models.CharField(max_length=200, blank=True, verbose_name="Telefon")
     email = models.EmailField(blank=True, verbose_name="E-posta")
+    contact_email_recipients = models.TextField(
+        blank=True,
+        verbose_name="İletişim Formu Alıcı E-postaları",
+        help_text="İletişim formundan gelen mesajların gönderileceği e-posta adresleri. Birden fazla e-posta için virgül ile ayırın (örn: email1@example.com, email2@example.com)"
+    )
     address = models.CharField(max_length=500, blank=True, verbose_name="Adres")
+    
+    # Email SMTP Settings
+    smtp_host = models.CharField(
+        max_length=100,
+        blank=True,
+        default='smtp.gmail.com',
+        verbose_name="SMTP Sunucu",
+        help_text="Email gönderimi için SMTP sunucu adresi (örn: smtp.gmail.com)"
+    )
+    smtp_port = models.IntegerField(
+        blank=True,
+        null=True,
+        default=587,
+        verbose_name="SMTP Port",
+        help_text="SMTP sunucu portu (Gmail için: 587)"
+    )
+    smtp_username = models.EmailField(
+        blank=True,
+        verbose_name="SMTP Kullanıcı Adı (Email)",
+        help_text="Email gönderimi için kullanılacak email adresi"
+    )
+    smtp_password = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="SMTP Şifre (App Password)",
+        help_text="Gmail için: Google Hesabı → Güvenlik → 2 Adımlı Doğrulama → Uygulama Şifreleri ile oluşturun"
+    )
+    smtp_use_tls = models.BooleanField(
+        default=True,
+        verbose_name="TLS Kullan",
+        help_text="Email güvenliği için TLS kullan (Gmail için: Açık)"
+    )
+    email_from = models.EmailField(
+        blank=True,
+        verbose_name="Gönderen Email Adresi",
+        help_text="Gönderilen emaillerde görünecek gönderen adresi (genellikle SMTP kullanıcı adı ile aynı)"
+    )
     
     # Tax information
     tax_number = models.CharField(max_length=20, blank=True, verbose_name="Vergi Numarası")

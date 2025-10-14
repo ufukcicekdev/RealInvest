@@ -3,6 +3,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django import forms
+from django.db import models
 from .widgets import ColorPickerWidget, CustomSectionForm
 from .models import Listing, ListingImage, Construction, ConstructionImage, ContactMessage, About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, ReferenceVideo, SEOSettings, VisibleCustomSection
 
@@ -131,14 +132,28 @@ class SiteSettingsAdmin(admin.ModelAdmin):
     """
     Site-wide settings configuration (singleton)
     """
+    formfield_overrides = {
+        models.TextField: {'widget': forms.Textarea(attrs={'rows': 3, 'cols': 60})},
+    }
+    
     fieldsets = (
         ('Marka ve Kimlik', {
             'fields': ('logo', 'favicon'),
             'description': 'Sitenizin logosunu ve faviconunu buraya yükleyin.'
         }),
         ('İletişim Bilgileri', {
-            'fields': ('phone', 'email', 'address', 'tax_number', 'tax_office'),
-            'description': 'Şirketinizin iletişim bilgilerini buraya girin. Bu bilgiler web sitenizin farklı bölümlerinde gösterilecektir.'
+            'fields': ('phone', 'email', 'address', 'contact_email_recipients', 'tax_number', 'tax_office'),
+            'description': 'Şirketinizin iletişim bilgilerini buraya girin. Bu bilgiler web sitenizin farklı bölümlerinde gösterilecektir. İletişim formu alıcı e-postaları: Birden fazla e-posta için virgül ile ayırın.'
+        }),
+        ('Email SMTP Ayarları', {
+            'fields': (
+                ('smtp_host', 'smtp_port'),
+                'smtp_username',
+                'smtp_password',
+                ('smtp_use_tls', 'email_from')
+            ),
+            'description': 'İletişim formundan email göndermek için SMTP ayarlarını buraya girin. Gmail kullanıyorsanız: Google Hesabı → Güvenlik → 2 Adımlı Doğrulama → Uygulama Şifreleri ile 16 haneli şifre oluşturun.',
+            'classes': ('collapse',)
         }),
         ('Harita Konumu', {
             'fields': ('map_embed_code', 'map_latitude', 'map_longitude', 'google_maps_api_key'),
