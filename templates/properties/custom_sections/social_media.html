@@ -8,22 +8,22 @@
         </div>
         <div class="social-links">
             {% if global_site_settings.facebook_url %}
-            <a href="{{ global_site_settings.facebook_url }}" class="social-link" target="_blank">
+            <a href="{{ global_site_settings.facebook_url }}" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Facebook'ta takip edin" title="Facebook">
                 <i class="bi bi-facebook"></i>
             </a>
             {% endif %}
             {% if global_site_settings.instagram_url %}
-            <a href="{{ global_site_settings.instagram_url }}" class="social-link" target="_blank">
+            <a href="{{ global_site_settings.instagram_url }}" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram'da takip edin" title="Instagram">
                 <i class="bi bi-instagram"></i>
             </a>
             {% endif %}
             {% if global_site_settings.twitter_url %}
-            <a href="{{ global_site_settings.twitter_url }}" class="social-link" target="_blank">
+            <a href="{{ global_site_settings.twitter_url }}" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Twitter'da takip edin" title="Twitter">
                 <i class="bi bi-twitter"></i>
             </a>
             {% endif %}
             {% if global_site_settings.linkedin_url %}
-            <a href="{{ global_site_settings.linkedin_url }}" class="social-link" target="_blank">
+            <a href="{{ global_site_settings.linkedin_url }}" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn'de takip edin" title="LinkedIn">
                 <i class="bi bi-linkedin"></i>
             </a>
             {% endif %}
