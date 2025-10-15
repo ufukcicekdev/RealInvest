@@ -4,7 +4,11 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django import forms
 from django.db import models
+from django.contrib import admin
+from django.shortcuts import render, redirect
+from django.urls import path
 from .widgets import ColorPickerWidget, CustomSectionForm
+from .forms import ListingImageUploadForm, ConstructionImageUploadForm, ReferenceImageUploadForm
 from .models import (
     Listing, ListingImage, Construction, ConstructionImage, ContactMessage, 
     About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, 
@@ -42,6 +46,48 @@ class ListingAdmin(admin.ModelAdmin):
         return obj.get_formatted_price()
     price_display.short_description = 'Fiyat'
     price_display.admin_order_field = 'price'
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:listing_id>/upload-multiple-images/',
+                self.admin_site.admin_view(self.upload_multiple_images),
+                name='listing_upload_multiple_images',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def upload_multiple_images(self, request, listing_id):
+        """Handle multiple image upload"""
+        listing = Listing.objects.get(pk=listing_id)
+        
+        if request.method == 'POST':
+            form = ListingImageUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                files = request.FILES.getlist('images')
+                for f in files:
+                    ListingImage.objects.create(
+                        listing=listing,
+                        image=f
+                    )
+                self.message_user(request, f'{len(files)} resim başarıyla yüklendi.')
+                return redirect('admin:properties_listing_change', listing_id)
+        else:
+            form = ListingImageUploadForm()
+        
+        context = {
+            'form': form,
+            'listing': listing,
+            'opts': self.model._meta,
+            'site_header': 'Çoklu Resim Yükleme',
+        }
+        return render(request, 'admin/properties/listing/upload_multiple_images.html', context)
+    
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_upload_button'] = True
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
     
     fieldsets = (
         ('Temel Bilgiler', {
@@ -87,6 +133,43 @@ class ConstructionAdmin(admin.ModelAdmin):
     list_editable = ('is_active',)
     date_hierarchy = 'start_date'
     inlines = [ConstructionImageInline]
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:construction_id>/upload-multiple-images/',
+                self.admin_site.admin_view(self.upload_multiple_images),
+                name='construction_upload_multiple_images',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def upload_multiple_images(self, request, construction_id):
+        """Handle multiple image upload"""
+        construction = Construction.objects.get(pk=construction_id)
+        
+        if request.method == 'POST':
+            form = ConstructionImageUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                files = request.FILES.getlist('images')
+                for f in files:
+                    ConstructionImage.objects.create(
+                        construction=construction,
+                        image=f
+                    )
+                self.message_user(request, f'{len(files)} resim başarıyla yüklendi.')
+                return redirect('admin:properties_construction_change', construction_id)
+        else:
+            form = ConstructionImageUploadForm()
+        
+        context = {
+            'form': form,
+            'construction': construction,
+            'opts': self.model._meta,
+            'site_header': 'Çoklu Resim Yükleme',
+        }
+        return render(request, 'admin/properties/construction/upload_multiple_images.html', context)
     
     fieldsets = (
         ('Proje Bilgileri', {
@@ -386,6 +469,43 @@ class ReferenceAdmin(admin.ModelAdmin):
     list_editable = ('is_active', 'order')
     date_hierarchy = 'created_date'
     inlines = [ReferenceImageInline, ReferenceVideoInline]
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:reference_id>/upload-multiple-images/',
+                self.admin_site.admin_view(self.upload_multiple_images),
+                name='reference_upload_multiple_images',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def upload_multiple_images(self, request, reference_id):
+        """Handle multiple image upload"""
+        reference = Reference.objects.get(pk=reference_id)
+        
+        if request.method == 'POST':
+            form = ReferenceImageUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                files = request.FILES.getlist('images')
+                for f in files:
+                    ReferenceImage.objects.create(
+                        reference=reference,
+                        image=f
+                    )
+                self.message_user(request, f'{len(files)} resim başarıyla yüklendi.')
+                return redirect('admin:properties_reference_change', reference_id)
+        else:
+            form = ReferenceImageUploadForm()
+        
+        context = {
+            'form': form,
+            'reference': reference,
+            'opts': self.model._meta,
+            'site_header': 'Çoklu Resim Yükleme',
+        }
+        return render(request, 'admin/properties/reference/upload_multiple_images.html', context)
     
     fieldsets = (
         ('Temel Bilgiler', {

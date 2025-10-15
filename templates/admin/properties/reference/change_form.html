@@ -1,0 +1,15 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block submit_buttons_bottom %}
+{{ block.super }}
+{% if original %}
+<div class="submit-row" style="margin-top: 10px;">
+    <a href="{% url 'admin:reference_upload_multiple_images' original.pk %}" 
+       class="button" 
+       style="background: #417690; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">
+        📁 Çoklu Resim Yükle
+    </a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Çoklu Resim Yükleme - {{ reference.title }}{% endblock %}
+
+{% block extrahead %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .upload-area {
+        border: 3px dashed #ddd;
+        border-radius: 8px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin: 20px 0;
+    }
+    
+    .upload-area.dragover {
+        border-color: #417690;
+        background: #f0f8ff;
+    }
+    
+    .upload-icon {
+        font-size: 64px;
+        color: #417690;
+        margin-bottom: 20px;
+    }
+    
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .file-input-wrapper input[type=file] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .btn-upload {
+        background: #417690;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        border: none;
+    }
+    
+    .btn-upload:hover {
+        background: #305566;
+    }
+    
+    .preview-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .preview-item {
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .preview-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+    
+    .preview-item .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+    }
+    
+    .file-name {
+        padding: 5px;
+        font-size: 12px;
+        text-align: center;
+        background: #f5f5f5;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .submit-btn {
+        background: #28a745;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 4px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    
+    .submit-btn:hover {
+        background: #218838;
+    }
+    
+    .cancel-btn {
+        background: #6c757d;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 4px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    
+    .cancel-btn:hover {
+        background: #5a6268;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h1>{{ reference.title }} - Çoklu Resim Yükleme</h1>
+    <p>Birden fazla resmi aynı anda yükleyebilirsiniz. Resimleri sürükleyip bırakabilir veya dosya seçici ile seçebilirsiniz.</p>
+    
+    <form method="post" enctype="multipart/form-data" id="upload-form">
+        {% csrf_token %}
+        
+        <div class="upload-area" id="upload-area">
+            <div class="upload-icon">📁</div>
+            <h3>Resimleri buraya sürükleyin veya</h3>
+            <div class="file-input-wrapper">
+                <button type="button" class="btn-upload">Dosya Seç</button>
+                <input type="file" 
+                       name="images" 
+                       id="file-input" 
+                       multiple 
+                       accept="image/*">
+            </div>
+            <p style="margin-top: 15px; color: #666;">
+                <small>JPG, PNG, GIF veya WebP formatında birden fazla resim seçebilirsiniz</small>
+            </p>
+        </div>
+        
+        <div class="preview-container" id="preview-container"></div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="submit" class="submit-btn" id="submit-btn" style="display: none;">
+                <strong>Yükle</strong> (<span id="file-count">0</span> resim)
+            </button>
+            <a href="{% url 'admin:properties_reference_change' reference.id %}" class="cancel-btn">İptal</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const fileCountSpan = document.getElementById('file-count');
+    
+    let selectedFiles = [];
+    
+    // Drag and drop handlers
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('dragover');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('dragover');
+        }, false);
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }, false);
+    
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+    
+    function handleFiles(files) {
+        selectedFiles = [...files];
+        updatePreview();
+        updateSubmitButton();
+    }
+    
+    function updatePreview() {
+        previewContainer.innerHTML = '';
+        
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" alt="${file.name}">
+                    <button type="button" class="remove-btn" onclick="removeFile(${index})">×</button>
+                    <div class="file-name" title="${file.name}">${file.name}</div>
+                `;
+                previewContainer.appendChild(previewItem);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        
+        // Update file input
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => {
+            dt.items.add(file);
+        });
+        fileInput.files = dt.files;
+        
+        updatePreview();
+        updateSubmitButton();
+    }
+    
+    function updateSubmitButton() {
+        fileCountSpan.textContent = selectedFiles.length;
+        if (selectedFiles.length > 0) {
+            submitBtn.style.display = 'inline-block';
+        } else {
+            submitBtn.style.display = 'none';
+        }
+    }
+    
+    // Form submission
+    document.getElementById('upload-form').addEventListener('submit', (e) => {
+        if (selectedFiles.length === 0) {
+            e.preventDefault();
+            alert('Lütfen en az bir resim seçin');
+            return false;
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<strong>Yükleniyor...</strong> Lütfen bekleyin';
+    });
+</script>
+{% endblock %}

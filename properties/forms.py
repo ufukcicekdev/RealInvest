@@ -1,5 +1,5 @@
 from django import forms
-from .models import ContactMessage, NewsletterSubscriber, Newsletter
+from .models import ContactMessage, NewsletterSubscriber, Newsletter, ListingImage, ConstructionImage, ReferenceImage
 
 
 class ContactForm(forms.Form):
@@ -97,3 +97,62 @@ class NewsletterForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
             'scheduled_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
         }
+
+
+# Multiple file upload widgets and forms
+
+class MultipleFileInput(forms.ClearableFileInput):
+    """
+    Custom widget for uploading multiple files at once
+    """
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    """
+    Custom field for handling multiple file uploads
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+
+class ListingImageUploadForm(forms.Form):
+    """
+    Form for uploading multiple listing images at once
+    """
+    images = MultipleFileField(
+        label='İlan Resimleri',
+        help_text='Birden fazla resim seçebilirsiniz (Ctrl/Cmd tuşuna basılı tutarak)',
+        required=False
+    )
+
+
+class ConstructionImageUploadForm(forms.Form):
+    """
+    Form for uploading multiple construction images at once
+    """
+    images = MultipleFileField(
+        label='İnşaat Resimleri',
+        help_text='Birden fazla resim seçebilirsiniz (Ctrl/Cmd tuşuna basılı tutarak)',
+        required=False
+    )
+
+
+class ReferenceImageUploadForm(forms.Form):
+    """
+    Form for uploading multiple reference images at once
+    """
+    images = MultipleFileField(
+        label='Referans Resimleri',
+        help_text='Birden fazla resim seçebilirsiniz (Ctrl/Cmd tuşuna basılı tutarak)',
+        required=False
+    )
