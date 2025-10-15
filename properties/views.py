@@ -114,9 +114,6 @@ def home(request):
     # Sort sections by order
     sections.sort(key=lambda x: x['order'])
     
-    # DEBUG: Print final sections list
-    print("\n=== Final Sections List ===")
-    print(f"Total sections: {len(sections)}")
     for section in sections:
         section_type = section.get('type', 'unknown')
         section_order = section.get('order', 'no order')
@@ -125,7 +122,6 @@ def home(request):
             print(f"  - Type: {section_type}, Order: {section_order}, Data Count: {data_count}")
         else:
             print(f"  - Type: {section_type}, Order: {section_order}")
-    print("===========================\n")
     context = {
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,

@@ -10,8 +10,11 @@ class PropertiesConfig(AppConfig):
     
     def ready(self):
         """
-        Called when Django starts - initialize the newsletter scheduler
+        Called when Django starts - initialize the newsletter scheduler and signals
         """
+        # Import signals to register them
+        import properties.signals  # noqa
+        
         # Import here to avoid AppRegistryNotReady error
         from properties.scheduler import start_scheduler
         
