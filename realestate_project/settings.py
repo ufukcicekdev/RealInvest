@@ -72,6 +72,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this for static files
+    "properties.middleware.PerformanceCacheMiddleware",  # Custom cache middleware
+    "properties.middleware.SecurityHeadersMiddleware",  # Custom security headers
     "corsheaders.middleware.CorsMiddleware",  # Add this for CORS support
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
