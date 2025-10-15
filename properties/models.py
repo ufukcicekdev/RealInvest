@@ -1014,6 +1014,63 @@ class PopupSettings(models.Model):
         return obj
 
 
+class NavigationSettings(models.Model):
+    """
+    Navigation menu labels - singleton model
+    """
+    # Menu labels
+    home_label = models.CharField(
+        max_length=50, 
+        default="Ana Sayfa", 
+        verbose_name="Ana Sayfa Menü Etiketi",
+        help_text="Ana sayfa menü bağlantısı için görünen metin"
+    )
+    listings_label = models.CharField(
+        max_length=50, 
+        default="İlanlar", 
+        verbose_name="İlanlar Menü Etiketi",
+        help_text="İlanlar sayfası menü bağlantısı için görünen metin"
+    )
+    construction_label = models.CharField(
+        max_length=50, 
+        default="İnşaatlar", 
+        verbose_name="İnşaatlar Menü Etiketi",
+        help_text="İnşaatlar sayfası menü bağlantısı için görünen metin"
+    )
+    references_label = models.CharField(
+        max_length=50, 
+        default="Referanslar", 
+        verbose_name="Referanslar Menü Etiketi",
+        help_text="Referanslar sayfası menü bağlantısı için görünen metin"
+    )
+    contact_label = models.CharField(
+        max_length=50, 
+        default="İletişim", 
+        verbose_name="İletişim Menü Etiketi",
+        help_text="İletişim sayfası menü bağlantısı için görünen metin"
+    )
+    
+    updated_date = models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")
+    
+    class Meta:
+        verbose_name = 'Menü Etiketleri'
+        verbose_name_plural = 'Menü Etiketleri'
+    
+    def __str__(self):
+        return "Menü Etiketleri Ayarları"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists (singleton)
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create the singleton instance"""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class NewsletterLog(models.Model):
     """
     Newsletter send logs for tracking and debugging

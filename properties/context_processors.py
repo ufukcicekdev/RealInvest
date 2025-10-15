@@ -1,4 +1,4 @@
-from .models import About, SiteSettings, PopupSettings
+from .models import About, SiteSettings, PopupSettings, NavigationSettings
 from .models import Listing, Construction
 
 def about_info(request):
@@ -20,6 +20,11 @@ def about_info(request):
     except:
         popup_settings = None
     
+    try:
+        nav_settings = NavigationSettings.get_settings()
+    except:
+        nav_settings = None
+    
     # Get counts for listings and constructions
     listings_count = Listing.objects.filter(is_active=True).count()
     constructions_count = Construction.objects.filter(is_active=True).count()
@@ -34,6 +39,7 @@ def about_info(request):
         'about': about_content,
         'global_site_settings': site_settings,
         'popup_settings': popup_settings,
+        'nav_settings': nav_settings,
         'listings_count': listings_count,
         'constructions_count': constructions_count,
         'template_class': template_class,  # Add template class globally

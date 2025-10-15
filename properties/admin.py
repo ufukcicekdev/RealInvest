@@ -13,7 +13,7 @@ from .models import (
     Listing, ListingImage, Construction, ConstructionImage, ContactMessage, 
     About, SiteSettings, CustomSection, BannerImage, Reference, ReferenceImage, 
     ReferenceVideo, SEOSettings, VisibleCustomSection, NewsletterSubscriber, 
-    Newsletter, PopupSettings, NewsletterLog
+    Newsletter, PopupSettings, NewsletterLog,NavigationSettings
 )
 
 # Register your models here.
@@ -945,3 +945,30 @@ class NewsletterLogAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Allow deletion for cleanup
         return True
+
+
+@admin.register(NavigationSettings)
+class NavigationSettingsAdmin(admin.ModelAdmin):
+    """
+    Navigation menu labels configuration (singleton)
+    """
+    fieldsets = (
+        ('Menü Etiketleri', {
+            'fields': (
+                'home_label',
+                'listings_label',
+                'construction_label',
+                'references_label',
+                'contact_label'
+            ),
+            'description': 'Navigasyon menüsünde görünecek etiketleri özelleştirin. Bu etiketler header menüsünde kullanılacaktır.'
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        # Only allow adding if no instance exists
+        return not NavigationSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # Don't allow deletion
+        return False

@@ -170,27 +170,27 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Ana Sayfa</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">{{ nav_settings.home_label|default:"Ana Sayfa" }}</a>
                         </li>
                         {% if about.show_listings_page and listings_count > 0 %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'listings' %}active{% endif %}" href="{% url 'listings' %}">İlanlar</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'listings' %}active{% endif %}" href="{% url 'listings' %}">{{ nav_settings.listings_label|default:"İlanlar" }}</a>
                         </li>
                         {% endif %}
                         {% if about.show_construction_page and constructions_count > 0 %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'construction' %}active{% endif %}" href="{% url 'construction' %}">İnşaatlar</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'construction' %}active{% endif %}" href="{% url 'construction' %}">{{ nav_settings.construction_label|default:"İnşaatlar" }}</a>
                         </li>
                         {% endif %}
                         {% if about.show_references_page %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'references' %}active{% endif %}" href="{% url 'references' %}">Referanslar</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'references' %}active{% endif %}" href="{% url 'references' %}">{{ nav_settings.references_label|default:"Referanslar" }}</a>
                         </li>
                         {% endif %}
                         <!-- Hakkımızda linki kaldırıldı, içerik ana sayfada -->
                         {% if about.show_contact_page %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">İletişim</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">{{ nav_settings.contact_label|default:"İletişim" }}</a>
                         </li>
                         {% endif %}
                     </ul>
