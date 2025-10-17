@@ -2,8 +2,20 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 from django.utils.text import slugify
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
+import os
 
 # Create your models here.
+
+def validate_favicon(file):
+    """
+    Validator to ensure only .ico files are uploaded for favicon
+    """
+    ext = os.path.splitext(file.name)[1].lower()
+    valid_extensions = ['.ico']
+    if ext not in valid_extensions:
+        raise ValidationError('Favicon dosyası sadece .ico formatında olmalıdır.')
 
 class Listing(models.Model):
     """
@@ -231,11 +243,12 @@ class SiteSettings(models.Model):
         verbose_name="Site Logosu",
         help_text="Sitenizin logosunu yükleyin"
     )
-    favicon = models.ImageField(
+    favicon = models.FileField(
         upload_to='site/', 
         blank=True, 
+        validators=[validate_favicon],
         verbose_name="Favicon",
-        help_text="Tarayıcı sekmesinde görünen favicon (genellikle 32x32 piksel)"
+        help_text="Tarayıcı sekmesinde görünen favicon - Sadece .ico formatı kabul edilir (genellikle 32x32 piksel)"
     )
     
     # Contact information

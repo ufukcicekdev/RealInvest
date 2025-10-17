@@ -128,7 +128,7 @@ def optimize_seo_og_image(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=SiteSettings)
 def optimize_site_settings_images(sender, instance, **kwargs):
-    """Convert site settings images (logo, favicon) to WebP"""
+    """Convert site settings images (logo only) to WebP - Skip favicon (.ico files)"""
     # Logo
     if instance.logo and hasattr(instance.logo, 'file'):
         if not instance.logo.name.endswith('.webp'):
@@ -139,12 +139,6 @@ def optimize_site_settings_images(sender, instance, **kwargs):
                 quality=90
             )
     
-    # Favicon
-    if instance.favicon and hasattr(instance.favicon, 'file'):
-        if not instance.favicon.name.endswith('.webp'):
-            instance.favicon = optimize_image(
-                instance.favicon,
-                max_width=256,
-                max_height=256,
-                quality=90
-            )
+    # Favicon - DO NOT convert .ico files to WebP
+    # .ico files should remain in their original format for browser compatibility
+    # No conversion needed for favicon

@@ -228,7 +228,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Marka ve Kimlik', {
             'fields': ('logo', 'favicon'),
-            'description': 'Sitenizin logosunu ve faviconunu buraya yükleyin.'
+            'description': '<strong>Logo:</strong> Sitenizin logosunu yükleyin (PNG, JPG veya WebP formatında).<br><strong>Favicon:</strong> Tarayıcı sekmesinde görünen ikonu yükleyin. <strong>Sadece .ico formatı kabul edilir</strong> (32x32 veya 16x16 piksel önerilir).'
         }),
         ('İletişim Bilgileri', {
             'fields': ('phone', 'email', 'address', 'contact_email_recipients', 'tax_number', 'tax_office'),
