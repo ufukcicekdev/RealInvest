@@ -1,5 +1,6 @@
 from storages.backends.s3boto3 import S3Boto3Storage
 import os
+import mimetypes
 
 class DigitalOceanSpacesStorage(S3Boto3Storage):
     """
@@ -18,3 +19,22 @@ class DigitalOceanSpacesStorage(S3Boto3Storage):
             'CacheControl': 'max-age=86400',
         }
         super().__init__(**settings)
+    
+    def get_object_parameters(self, name):
+        """Override to set proper Content-Type for favicons"""
+        params = self.object_parameters.copy()
+        
+        # Ensure correct MIME type for favicon files
+        if name.endswith('.ico'):
+            params['ContentType'] = 'image/x-icon'
+        elif name.endswith('.png'):
+            params['ContentType'] = 'image/png'
+        elif name.endswith('.svg'):
+            params['ContentType'] = 'image/svg+xml'
+        else:
+            # Use mimetypes to guess for other files
+            content_type, _ = mimetypes.guess_type(name)
+            if content_type:
+                params['ContentType'] = content_type
+        
+        return params
