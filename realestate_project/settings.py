@@ -184,6 +184,10 @@ else:
                 "default_acl": "public-read",
                 "querystring_auth": False,
                 "location": "realInvest/media",
+                # Set longer cache times for better performance (1 year for static assets)
+                "object_parameters": {
+                    "CacheControl": "public, max-age=31536000, immutable",
+                },
             }
         },
         "staticfiles": {
@@ -197,6 +201,10 @@ else:
                 "default_acl": "public-read",
                 "querystring_auth": False,
                 "location": "realInvest/static",
+                # Set longer cache times for better performance (1 year for static files)
+                "object_parameters": {
+                    "CacheControl": "public, max-age=31536000, immutable",
+                },
             }
         }
     }

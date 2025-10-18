@@ -21,8 +21,21 @@ class DigitalOceanSpacesStorage(S3Boto3Storage):
         super().__init__(**settings)
     
     def get_object_parameters(self, name):
-        """Override to set proper Content-Type for favicons"""
+        """Override to set proper Content-Type and Cache-Control for different file types"""
         params = self.object_parameters.copy()
+        
+        # Set longer cache times for static assets (1 year)
+        # Images, fonts, CSS, JS should be cached for a long time
+        static_extensions = ('.webp', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.ico', 
+                           '.woff', '.woff2', '.ttf', '.eot', '.otf',
+                           '.css', '.js')
+        
+        if name.lower().endswith(static_extensions):
+            # 1 year cache for static assets (Google's recommendation)
+            params['CacheControl'] = 'public, max-age=31536000, immutable'
+        else:
+            # 1 day cache for other files (like HTML, dynamic content)
+            params['CacheControl'] = 'public, max-age=86400'
         
         # Ensure correct MIME type for favicon files
         if name.endswith('.ico'):
@@ -31,6 +44,12 @@ class DigitalOceanSpacesStorage(S3Boto3Storage):
             params['ContentType'] = 'image/png'
         elif name.endswith('.svg'):
             params['ContentType'] = 'image/svg+xml'
+        elif name.endswith('.webp'):
+            params['ContentType'] = 'image/webp'
+        elif name.endswith('.css'):
+            params['ContentType'] = 'text/css'
+        elif name.endswith('.js'):
+            params['ContentType'] = 'application/javascript'
         else:
             # Use mimetypes to guess for other files
             content_type, _ = mimetypes.guess_type(name)
