@@ -19,8 +19,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
 env_path = BASE_DIR / '.env'
-print(f"Looking for .env file at: {env_path}")
-print(f".env file exists: {env_path.exists()}")
 
 # Load .env file with override=True to override system environment variables
 load_dotenv(env_path, override=True)
@@ -33,7 +31,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG_ENV = os.getenv('DEBUG', 'False')
-print(f"DEBUG from os.getenv: '{DEBUG_ENV}'")
 
 # Try reading directly from .env file as fallback
 if DEBUG_ENV.lower() not in ['true', '1', 'yes']:
@@ -42,13 +39,11 @@ if DEBUG_ENV.lower() not in ['true', '1', 'yes']:
             for line in f:
                 if line.strip().startswith('DEBUG='):
                     DEBUG_ENV = line.strip().split('=', 1)[1]
-                    print(f"DEBUG from .env file directly: '{DEBUG_ENV}'")
                     break
     except Exception as e:
         print(f"Error reading .env file: {e}")
 
 DEBUG = DEBUG_ENV.lower() in ['true', '1', 'yes']
-print(f"DEBUG final value: {DEBUG}")
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -171,7 +166,8 @@ if DEBUG:
         }
     }
 else:
-    # Production storage settings (AWS S3)
+    # Production storage settings
+    # Media files use S3, but static files are served locally
     STORAGES = {
         "default": {
             "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
@@ -191,21 +187,8 @@ else:
             }
         },
         "staticfiles": {
-            "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
-            "OPTIONS": {
-                "bucket_name": os.getenv('AWS_STORAGE_BUCKET_NAME'),
-                "region_name": os.getenv('AWS_S3_REGION_NAME'),
-                "endpoint_url": os.getenv('AWS_S3_ENDPOINT_URL'),
-                "custom_domain": f"{os.getenv('AWS_STORAGE_BUCKET_NAME')}.{os.getenv('AWS_S3_REGION_NAME')}.cdn.digitaloceanspaces.com",
-                "file_overwrite": False,
-                "default_acl": "public-read",
-                "querystring_auth": False,
-                "location": "realInvest/static",
-                # Set longer cache times for better performance (1 year for static files)
-                "object_parameters": {
-                    "CacheControl": "public, max-age=31536000, immutable",
-                },
-            }
+            # Use local file system for static files instead of S3
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         }
     }
 
@@ -216,7 +199,6 @@ else:
 # AWS/DigitalOcean Spaces ayarları
 
 # Static ve Media dosya ayarları
-print("DEBUG",DEBUG)
 if DEBUG:
     # Local development settings
     STATIC_URL = '/static/'
@@ -226,7 +208,8 @@ if DEBUG:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
-    # Production settings (AWS S3)
+    # Production settings
+    # Static files are served locally, media files use S3
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
@@ -234,8 +217,14 @@ else:
     AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
     AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_REGION_NAME}.cdn.digitaloceanspaces.com"
     
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/realInvest/static/'
+    # Static files from local directory
+    STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
+    
+    # Media files from S3
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/realInvest/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

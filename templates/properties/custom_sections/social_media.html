@@ -1,5 +1,6 @@
 <!-- Social Media Section Template -->
  {% load static %}
+ {% if global_site_settings.facebook_url or global_site_settings.instagram_url or global_site_settings.twitter_url or global_site_settings.linkedin_url %}
 <section class="social-media-section">
     <div class="container">
         <div class="section-heading">
@@ -30,3 +31,4 @@
         </div>
     </div>
 </section>
+{% endif %}

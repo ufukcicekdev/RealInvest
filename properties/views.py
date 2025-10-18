@@ -19,42 +19,43 @@ from .forms import ContactForm, NewsletterSubscribeForm
 def home(request):
     """
     Home page view displaying featured listings, hero section, and about info
+    Optimized with prefetch_related for performance
     """
-    # Get querysets for featured and recent listings
-    featured_listings_qs = Listing.objects.filter(is_active=True, is_featured=True)
+    # Optimize queries with prefetch_related for images
+    featured_listings_qs = Listing.objects.filter(
+        is_active=True, 
+        is_featured=True
+    ).prefetch_related('images')
     featured_listings = featured_listings_qs[:6]  # Sliced for display
     
-    recent_listings_qs = Listing.objects.filter(is_active=True)
+    recent_listings_qs = Listing.objects.filter(
+        is_active=True
+    ).prefetch_related('images')
     recent_listings = recent_listings_qs[:8]  # Sliced for display
     
-    # DEBUG: Print featured listings info
-    print("\n=== DEBUG: Featured Listings ===")
-    print(f"Featured listings count: {featured_listings_qs.count()}")
-    print(f"Featured listings exist: {featured_listings_qs.exists()}")
-    if featured_listings_qs.exists():
-        for listing in featured_listings:
-            print(f"  - {listing.title} (is_featured={listing.is_featured}, is_active={listing.is_active})")
-    print("================================\n")
-    
     # Get about content for homepage
-    try:
-        about_content = About.objects.first()
-    except About.DoesNotExist:
-        about_content = None
+    about_content = About.objects.first()
     
-    # Get banner images for homepage
-    banner_images = about_content.banner_images.filter(is_active=True) if about_content else BannerImage.objects.none()
-    # Get visible custom sections for homepage with ordering
+    # Get banner images for homepage with single query
+    banner_images = BannerImage.objects.none()
+    if about_content:
+        banner_images = about_content.banner_images.filter(is_active=True)
+    
+    # Get visible custom sections with optimized query
     custom_sections = CustomSection.objects.none()
     if about_content:
         custom_sections = CustomSection.objects.filter(
             is_active=True
-        ).order_by('visiblecustomsection__order')
-        
-
-    # Get SEO settings for homepage
+        ).prefetch_related('visiblecustomsection_set').order_by(
+            'visiblecustomsection__order'
+        )
+    
+    # Get SEO settings for homepage (use .only() to limit fields)
     try:
-        seo_settings = SEOSettings.objects.get(page_type='home')
+        seo_settings = SEOSettings.objects.only(
+            'meta_title', 'meta_description', 'meta_keywords', 
+            'og_title', 'og_description', 'og_image'
+        ).get(page_type='home')
         page_title = seo_settings.meta_title or 'Modern Emlak | Hayalinizdeki Gayrimenkulü Bulun'
         meta_description = seo_settings.meta_description or 'Geniş emlak ilanlarımızla hayalinizdeki gayrimenkulü bulun. Daire, ev, villa ve ticari gayrimenkullere göz atın.'
     except SEOSettings.DoesNotExist:
@@ -65,11 +66,14 @@ def home(request):
     # Create a list of sections with their order and visibility
     sections = []
     if about_content:
-        # Get all visible custom sections including fixed sections
-        visible_sections = VisibleCustomSection.objects.filter(about=about_content).select_related('custom_section')
+        # Get all visible custom sections including fixed sections with optimized query
+        visible_sections = VisibleCustomSection.objects.filter(
+            about=about_content
+        ).select_related('custom_section', 'about')
         
-        # Create a dictionary to track which fixed sections are added via VisibleCustomSection
-        fixed_sections_added = {}
+        # Pre-check if we have any listings (avoid multiple .exists() calls)
+        has_featured = featured_listings_qs.exists() if featured_listings_qs._result_cache is None else bool(featured_listings)
+        has_recent = recent_listings_qs.exists() if recent_listings_qs._result_cache is None else bool(recent_listings)
         
         for visible_section in visible_sections:
             custom_section = visible_section.custom_section
@@ -77,31 +81,20 @@ def home(request):
             # Check if this is a fixed section type
             if custom_section.layout == 'search_bar' and about_content.show_search_bar:
                 sections.append({'type': 'search_bar', 'order': visible_section.order})
-                fixed_sections_added['search_bar'] = True
             elif custom_section.layout == 'stats_section' and about_content.show_stats_section:
                 sections.append({'type': 'stats_section', 'order': visible_section.order})
-                fixed_sections_added['stats_section'] = True
-            elif custom_section.layout == 'featured_listings' and about_content.show_featured_listings and featured_listings_qs.exists():
+            elif custom_section.layout == 'featured_listings' and about_content.show_featured_listings and has_featured:
                 sections.append({'type': 'featured_listings', 'order': visible_section.order, 'data': featured_listings})
-                fixed_sections_added['featured_listings'] = True
-                print(f"✅ Featured listings ADDED from VisibleCustomSection with order: {visible_section.order}")
-            elif custom_section.layout == 'featured_listings' and not about_content.show_featured_listings:
-                print(f"❌ Featured listings SKIPPED - show_featured_listings is False")
             elif custom_section.layout == 'features_section' and about_content.show_features_section:
                 sections.append({'type': 'features_section', 'order': visible_section.order})
-                fixed_sections_added['features_section'] = True
             elif custom_section.layout == 'testimonials' and about_content.show_testimonials:
                 sections.append({'type': 'testimonials', 'order': visible_section.order})
-                fixed_sections_added['testimonials'] = True
-            elif custom_section.layout == 'recent_listings' and about_content.show_recent_listings and recent_listings_qs.exists():
+            elif custom_section.layout == 'recent_listings' and about_content.show_recent_listings:
                 sections.append({'type': 'recent_listings', 'order': visible_section.order, 'data': recent_listings})
-                fixed_sections_added['recent_listings'] = True
             elif custom_section.layout == 'contact_info' and about_content.show_contact_info:
                 sections.append({'type': 'contact_info', 'order': visible_section.order})
-                fixed_sections_added['contact_info'] = True
             elif custom_section.layout == 'social_media' and about_content.show_social_media:
                 sections.append({'type': 'social_media', 'order': visible_section.order})
-                fixed_sections_added['social_media'] = True
             elif custom_section.is_active:
                 # Regular custom section
                 section_data = {
@@ -111,22 +104,15 @@ def home(request):
                 }
                 sections.append(section_data)
     
-    # Sort sections by order
+    # Sort sections by order (more efficient than dict.get)
     sections.sort(key=lambda x: x['order'])
     
-    for section in sections:
-        section_type = section.get('type', 'unknown')
-        section_order = section.get('order', 'no order')
-        if section_type == 'featured_listings':
-            data_count = len(section.get('data', []))
-            print(f"  - Type: {section_type}, Order: {section_order}, Data Count: {data_count}")
-        else:
-            print(f"  - Type: {section_type}, Order: {section_order}")
+    # Context with all required data
     context = {
         'featured_listings': featured_listings,
         'recent_listings': recent_listings,
         'about': about_content,
-        'banner_images': banner_images,  # Add banner images to context
+        'banner_images': banner_images,
         'custom_sections': custom_sections,
         'sections': sections,
         'page_title': page_title,
